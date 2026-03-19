@@ -1,0 +1,193 @@
+\documentclass[12pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{natbib}
+\usepackage{hyperref}
+
+\newtheorem{assumption}{Assumption}
+\newtheorem{proposition}{Proposition}
+\newtheorem{lemma}{Lemma}
+\newtheorem{remark}{Remark}
+
+\title{Verification of Assumption~3.5 of Ai and Chen (2003)\\[4pt]
+\large Using B-Spline and Hermite Polynomial Sieves}
+\author{Ying Jiao}
+\date{\today}
+
+\begin{document}
+\maketitle
+
+\section{Setup and Notation}
+
+We work with the partially additive IV regression model
+\begin{equation}\label{eq:structural}
+Y_1 = X_1 \beta_o + h_{o1}(Y_2) + h_{o2}(X_2) + U,
+\end{equation}
+where $\beta_o = 1$, $h_{o1}(y_2) = (1+e^{-y_2})^{-1}$ (logistic), $h_{o2}(x_2) = \log(1+x_2)$, and the endogenous variable satisfies $Y_2 = X_1 + X_2 + X_3 + R \cdot U + e$ with $R \in \{0.1, 0.9\}$. The instruments are $X = (X_1, X_2, X_3)' \in [0,1]^3$ with $X_j \overset{iid}{\sim} U[0,1]$, $U \mid X \sim N(0, (X_1^2+X_2^2+X_3^2)/3)$, and $e \sim N(0, 0.1)$ independent of $(X, U)$.
+
+The parameter is $\alpha = (\beta, h_1, h_2) \in \mathcal{A} = \Theta \times \mathcal{H}_1 \times \mathcal{H}_2$, with the conditional moment restriction $E[\rho(Z, \alpha_o) \mid X] = 0$ where $\rho(Z, \alpha) = Y_1 - X_1\beta - h_1(Y_2) - h_2(X_2)$.
+
+\subsection{Parameter Spaces}
+
+Following Ai and Chen (2003), we define the function spaces using H\"{o}lder balls. For $\gamma > 0$ and $c > 0$, let $\Lambda_c^{\gamma}(A)$ denote the H\"{o}lder ball of smoothness $\gamma$ and radius $c$ on the set $A$. We set
+\begin{align}
+\mathcal{H}_1 &= \left\{ h_1 \in \Lambda_{c_1}^{\gamma_1}(\mathbb{R}) \;\middle|\; \sup_{y_2} |h_1(y_2)| \leq 1 \right\}, \quad \gamma_1 > 2, \label{eq:H1}\\
+\mathcal{H}_2 &= \left\{ h_2 \in \Lambda_{c_2}^{\gamma_2}([0,1]) \;\middle|\; h_2(0.5) = \log(3/2) \right\}, \quad \gamma_2 > 2, \label{eq:H2}
+\end{align}
+with constants $c_1, c_2 > 0$ chosen large enough so that $h_{o1} \in \mathcal{H}_1$ and $h_{o2} \in \mathcal{H}_2$.
+
+\subsection{Sieve Spaces}
+
+In the Monte Carlo simulation, we use two types of basis functions:
+\begin{itemize}
+\item \textbf{B-splines:} 3rd-order cardinal B-spline basis $B^{k_{j,n}}(\cdot)$ with equally spaced empirical quantile knots.
+\item \textbf{Hermite polynomials:} Probabilist's Hermite polynomial basis $\{He_l(\cdot)\}_{l=0}^{k_{1,n}-1}$ for approximating $h_1$ on $\mathbb{R}$.
+\end{itemize}
+
+The sieve spaces are:
+\begin{align}
+\mathcal{H}_{1n} &= \left\{ h_1(y_2) = \Pi_1' B^{k_{1,n}}(y_2) : \|h_1\|_{\Lambda^{\gamma_1}} \leq c_1 \right\}, \label{eq:H1n}\\
+\mathcal{H}_{2n} &= \left\{ h_2(x_2) = \Pi_2' B^{k_{2,n}}(x_2) : \|h_2\|_{\Lambda^{\gamma_2}} \leq c_2,\; h_2(0.5) = \log(3/2) \right\}, \label{eq:H2n}
+\end{align}
+where $B^{k_{j,n}}(\cdot)$ denotes either a B-spline or Hermite polynomial basis vector of dimension $k_{j,n}$, and $\Pi_j$ are vectors of sieve coefficients.
+
+\subsection{The Sieve Metric}
+
+Following Proposition~3.1 of Ai and Chen (2003) for the component on $\mathbb{R}$, and Proposition~3.2 for the component on $[0,1]$, we define
+\begin{equation}\label{eq:metric}
+\|\alpha_1 - \alpha_2\|_s = |\beta_1 - \beta_2| + \|h_{1,1} - h_{1,2}\|_{\infty, \omega} + \|h_{2,1} - h_{2,2}\|_{\infty},
+\end{equation}
+where the weighted sup-norm for functions on $\mathbb{R}$ is
+\[
+\|h\|_{\infty, \omega} = \sup_{y_2 \in \mathbb{R}} |h(y_2)| \cdot (1 + y_2^2)^{-a/2}
+\]
+for some $a > \gamma_1$. The weight $(1+y_2^2)^{-a/2}$ allows controlled growth at infinity and is essential for compactness on non-compact domains.
+
+\bigskip
+
+\section{Statement of Assumption 3.5}
+
+\begin{assumption}[Assumption 3.5 of Ai and Chen (2003)]\label{ass:35}
+\begin{itemize}
+\item[\textbf{(i)}] $\mathcal{A} = \Theta \times \mathcal{H}_1 \times \mathcal{H}_2$ is compact under $\|\cdot\|_s$.
+\item[\textbf{(ii)}] For any $\alpha \in \mathcal{A}$, there exists $\Pi_n \alpha \in \mathcal{A}_n$ such that $\|\Pi_n \alpha - \alpha\|_s = o(1)$.
+\item[\textbf{(iii)}] There exists $\mu_1 > 0$ such that $\|\Pi_n \alpha - \alpha\|_s = O(k_{In}^{-\mu_1})$ with $k_{In}^{-\mu_1} = o(n^{-1/4})$.
+\end{itemize}
+\end{assumption}
+
+\section{Verification}
+
+Our DGP is a hybrid of Examples~2.1 and~2.2 in Ai and Chen (2003): $h_1$ lives on $\mathbb{R}$ (as in Example~2.1) while $h_2$ lives on the compact interval $[0,1]$ (as in Example~2.2). The verification therefore draws on the arguments underlying both Propositions~3.1 and~3.2.
+
+\subsection{Part (i): Compactness of $\mathcal{A}$}
+
+We verify compactness of each factor separately; by Tychonoff's theorem, the product is compact.
+
+\paragraph{$\Theta = [-M, M]$.} Compact in $\mathbb{R}$ by Heine--Borel. \hfill $\checkmark$
+
+\paragraph{$\mathcal{H}_2 \subset \Lambda_{c_2}^{\gamma_2}([0,1])$.} On the compact domain $[0,1]$, the H\"{o}lder ball $\Lambda_{c_2}^{\gamma_2}([0,1])$ with $\gamma_2 > 1$ is a bounded, equicontinuous family in $C([0,1])$. By the Arzel\`{a}--Ascoli theorem, it is precompact in $(C([0,1]), \|\cdot\|_\infty)$. The constraint $h_2(0.5) = \log(3/2)$ defines a closed subset. Since $\Lambda_{c_2}^{\gamma_2}([0,1])$ is closed in $(C([0,1]), \|\cdot\|_\infty)$, the intersection $\mathcal{H}_2$ is compact. \hfill $\checkmark$
+
+\paragraph{$\mathcal{H}_1 \subset \Lambda_{c_1}^{\gamma_1}(\mathbb{R})$ with the weighted sup-norm.}
+This is the non-trivial part because the domain is $\mathbb{R}$. We follow the approach of Proposition~3.1 in Ai and Chen (2003), which uses the weighted sup-norm $\|\cdot\|_{\infty, \omega}$.
+
+By Theorem~5 of Freyberger and Masten (2019), the H\"{o}lder ball $\Lambda_{c_1}^{\gamma_1}(\mathbb{R})$ is \emph{compactly embedded} into the space $(\mathscr{C}(\mathbb{R}), \|\cdot\|_{\infty, \omega})$ where
+\[
+\mathscr{C}(\mathbb{R}) = \left\{ f \in C^{[\gamma_1]}(\mathbb{R}) \;\middle|\; \|f\|_{\infty, \omega} < \infty \right\}
+\]
+with weight $\omega(y_2) = (1+y_2^2)^{-a/2}$ for any $a > \gamma_1$. Moreover, by Theorem~6 of Freyberger and Masten (2019), $\Lambda_{c_1}^{\gamma_1}(\mathbb{R})$ is \emph{closed} in $(\mathscr{C}(\mathbb{R}), \|\cdot\|_{\infty,\omega})$.
+
+It remains to show that the additional constraint $\sup_{y_2}|h_1(y_2)| \leq 1$ preserves compactness. Take any sequence $\{h_{1,k}\}$ in $\mathcal{H}_1$ converging to $h_1^*$ in $\|\cdot\|_{\infty,\omega}$. Since the weighted norm dominates pointwise convergence, $h_{1,k}(y_2) \to h_1^*(y_2)$ for all $y_2$, and since $|h_{1,k}(y_2)| \leq 1$ for all $k$ and $y_2$, we obtain $|h_1^*(y_2)| \leq 1$. Hence $\mathcal{H}_1$ is closed, and being a closed subset of a compact set, it is compact. \hfill $\checkmark$
+
+\bigskip
+By Tychonoff's theorem, $\mathcal{A} = \Theta \times \mathcal{H}_1 \times \mathcal{H}_2$ is compact under $\|\cdot\|_s$. \hfill $\blacksquare$
+
+
+\subsection{Part (ii): Sieve Density}
+
+We need to show that for any $\alpha = (\beta, h_1, h_2) \in \mathcal{A}$, there exists $\Pi_n \alpha \in \mathcal{A}_n$ with $\|\Pi_n \alpha - \alpha\|_s \to 0$.
+
+\paragraph{Finite-dimensional component.} Since $\beta \in \Theta$ and $\Theta$ is not approximated by sieves, we set $\Pi_n \beta = \beta$, giving $|\Pi_n \beta - \beta| = 0$.
+
+\paragraph{$h_2$ on $[0,1]$ via B-splines.}
+For $h_2 \in \Lambda_{c_2}^{\gamma_2}([0,1])$ with $\gamma_2 > 2$, the classical B-spline approximation theorem (Schumaker, 2007, Theorem~12.8; de Boor, 2001) guarantees the existence of a spline $\Pi_n h_2 = (\Pi_2)' B^{k_{2,n}}(\cdot)$ of order $r \geq [\gamma_2]$ such that
+\begin{equation}\label{eq:h2rate}
+\|h_2 - \Pi_n h_2\|_\infty \leq C \cdot k_{2,n}^{-\gamma_2},
+\end{equation}
+where $C > 0$ depends only on $c_2$ and $\gamma_2$. Since $k_{2,n} \to \infty$, this converges to zero. The normalization $(\Pi_n h_2)(0.5) = \log(3/2)$ can be enforced by a linear constraint on $\Pi_2$ without affecting the approximation rate (see Chen, 2007, Section~5.3). \hfill $\checkmark$
+
+\paragraph{$h_1$ on $\mathbb{R}$ via B-splines.}
+For $h_1 \in \Lambda_{c_1}^{\gamma_1}(\mathbb{R})$ with the weighted norm, we invoke the approximation result from Chen, Hansen, and Scheinkman (1997). Using a B-spline wavelet basis $\{2^{K/2} B_r(2^K y_2 - i)\}$ as in equation~(10) of Ai and Chen (2003), there exists a sieve projection $\Pi_n h_1 \in \mathcal{H}_{1n}$ such that
+\begin{equation}\label{eq:h1rate_bspline}
+\|h_1 - \Pi_n h_1\|_{\infty, \omega} \leq C \cdot k_{1,n}^{-\gamma_1} \to 0.
+\end{equation}
+This is precisely the approximation result used in the proof of Proposition~3.1 (see Ai and Chen, 2003, p.~1807, verification of Assumption~3.5). \hfill $\checkmark$
+
+\paragraph{$h_1$ on $\mathbb{R}$ via Hermite polynomials (alternative).}
+When using probabilist's Hermite polynomials $\{He_l\}_{l=0}^{k_{1,n}-1}$ as the sieve basis for $h_1$, the approximation result follows from the theory of orthogonal polynomial expansions in weighted spaces. For $h_1 \in \Lambda_{c_1}^{\gamma_1}(\mathbb{R})$ with $\sup|h_1| \leq 1$, the Hermite expansion coefficients decay rapidly due to the smoothness of $h_1$, and we obtain (Chen, 2007, Section~5.5):
+\begin{equation}\label{eq:h1rate_hermite}
+\|h_1 - \Pi_n h_1\|_{\infty, \omega} \leq C \cdot k_{1,n}^{-\gamma_1}.
+\end{equation}
+The key observation is that $h_{o1}(y_2) = (1+e^{-y_2})^{-1}$ is $C^\infty(\mathbb{R})$, bounded between 0 and 1, and all derivatives decay exponentially as $|y_2| \to \infty$. This super-smooth structure ensures that both B-spline and Hermite polynomial projections achieve the same polynomial approximation rate. \hfill $\checkmark$
+
+\subsection{Part (iii): Approximation Rate}
+
+We need $\|\Pi_n \alpha_o - \alpha_o\|_s = O(k_{In}^{-\mu_1})$ with $k_{In}^{-\mu_1} = o(n^{-1/4})$.
+
+Since $\Pi_n \beta_o = \beta_o$, we have
+\begin{align}
+\|\Pi_n \alpha_o - \alpha_o\|_s &= \|h_{o1} - \Pi_n h_{o1}\|_{\infty, \omega} + \|h_{o2} - \Pi_n h_{o2}\|_\infty \notag \\
+&= O(k_{1,n}^{-\gamma_1}) + O(k_{2,n}^{-\gamma_2}). \label{eq:combined_rate}
+\end{align}
+
+\paragraph{B-spline sieve for $h_1$.}
+From \eqref{eq:h1rate_bspline}, $\|h_{o1} - \Pi_n h_{o1}\|_{\infty, \omega} = O(k_{1,n}^{-\gamma_1})$. The rate condition $k_{1,n}^{-\gamma_1} = o(n^{-1/4})$ requires
+\[
+k_{1,n} \gg n^{1/(4\gamma_1)}.
+\]
+Since $h_{o1}$ is $C^\infty$, $\gamma_1$ can be taken arbitrarily large, so $k_{1,n}$ needs to grow only marginally faster than any fixed power of $\log n$. For the simulation values $k_{1,n} \in \{4, 5, 6, 8\}$ with $n = 1000$, this is easily satisfied for any $\gamma_1 > 2$.
+
+\paragraph{Hermite polynomial sieve for $h_1$ (alternative).}
+From \eqref{eq:h1rate_hermite}, the same rate $O(k_{1,n}^{-\gamma_1})$ applies, and the identical condition $k_{1,n} \gg n^{1/(4\gamma_1)}$ is required.
+
+\paragraph{B-spline sieve for $h_2$.}
+From \eqref{eq:h2rate}, $\|h_{o2} - \Pi_n h_{o2}\|_\infty = O(k_{2,n}^{-\gamma_2})$. The rate condition $k_{2,n}^{-\gamma_2} = o(n^{-1/4})$ requires
+\[
+k_{2,n} \gg n^{1/(4\gamma_2)}.
+\]
+Again, $h_{o2} = \log(1+x_2)$ is $C^\infty$ on $[0,1]$, so $\gamma_2$ is arbitrarily large.
+
+\paragraph{Combined rate.}
+Setting $k_{In} = \min(k_{1,n}, k_{2,n})$ and $\mu_1 = \min(\gamma_1, \gamma_2)$, equation~\eqref{eq:combined_rate} gives
+\[
+\|\Pi_n \alpha_o - \alpha_o\|_s = O(k_{In}^{-\mu_1}), \quad k_{In}^{-\mu_1} = o(n^{-1/4}).
+\]
+Since both $\gamma_1$ and $\gamma_2$ can be chosen arbitrarily large (owing to the $C^\infty$ smoothness of $h_{o1}$ and $h_{o2}$), the rate condition is satisfied for any polynomial growth rate of $k_{In}$.
+
+\hfill $\blacksquare$
+
+\begin{remark}[Connection to Propositions 3.1 and 3.2]
+The verification above is not constructed from scratch. For $h_1$ on $\mathbb{R}$, we directly apply the framework of \textbf{Proposition~3.1} (Ai and Chen, 2003), which handles a single nonparametric component on a non-compact domain using the B-spline wavelet sieve of equation~(10) with the weighted sup-norm. For $h_2$ on $[0,1]$, we apply the standard compact-domain approximation theory that underlies \textbf{Proposition~3.2}. The Hermite polynomial alternative for $h_1$ achieves the same rate because both B-splines and Hermite polynomials are \emph{rate-optimal} bases for approximating H\"{o}lder-smooth functions in weighted norms on $\mathbb{R}$.
+\end{remark}
+
+\begin{remark}[Why not Fourier series]
+The problem set solution by Jiawei Yang uses Fourier series sieves (equation~(12) of Ai and Chen, 2003), which is natural for Example~2.2. However, our Monte Carlo simulation employs B-splines and Hermite polynomials. The verification above shows that Assumption~3.5 holds equally well for these bases, with the same approximation rates, because the underlying smoothness of $h_{o1}$ and $h_{o2}$ (both $C^\infty$) is the binding constraint---not the choice of basis.
+\end{remark}
+
+\bigskip
+\section*{References}
+
+\begin{description}
+\item Ai, C.\ and X.\ Chen (2003). Efficient estimation of models with conditional moment restrictions containing unknown functions. \textit{Econometrica}, 71(6):1795--1843.
+
+\item Chen, X. (2007). Large sample sieve estimation of semi-nonparametric models. In \textit{Handbook of Econometrics}, Vol.~6, pp.~5549--5632.
+
+\item Chen, X., L.\,P.\ Hansen, and J.\,A.\ Scheinkman (1997). Shape-preserving estimation of diffusions. Unpublished Manuscript, University of Chicago.
+
+\item de Boor, C. (2001). \textit{A Practical Guide to Splines}. Revised Edition. Springer.
+
+\item Freyberger, J.\ and M.\,A.\ Masten (2019). A practical guide to compact infinite dimensional parameter spaces. \textit{Econometric Reviews}, 38(9):979--1006.
+
+\item Schumaker, L. (2007). \textit{Spline Functions: Basic Theory}. Cambridge University Press.
+\end{description}
+
+\end{document}

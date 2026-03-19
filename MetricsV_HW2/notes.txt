@@ -1,0 +1,38 @@
+Assumption 3.5 Verification — Summary Notes
+=============================================
+
+File: a35.tex (self-contained LaTeX, compile on Overleaf)
+
+Section 1 — Setup:
+- DGP, parameter spaces H1 (Holder ball on R with weighted sup-norm) and H2 (Holder ball on [0,1])
+- Sieve spaces with B-spline and Hermite bases
+- Metric definition
+
+Section 2 — States Assumption 3.5 formally.
+
+Section 3 — Verification in three parts:
+
+(i) Compactness:
+  - H2 via Arzela-Ascoli on [0,1]
+  - H1 via Freyberger-Masten (2019) compact embedding with weighted sup-norm on R
+  - Product via Tychonoff
+
+(ii) Sieve density:
+  - B-spline rates from Schumaker (2007) Thm 12.8 for h2
+  - B-spline wavelet rates from Chen-Hansen-Scheinkman (1997) for h1 on R
+  - Hermite polynomial alternative from Chen (2007) Handbook Section 5.5
+
+(iii) Rate:
+  - Both bases give O(k^{-gamma})
+  - Trivially o(n^{-1/4}) because h_o1 and h_o2 are C^infinity
+
+Two remarks:
+1. Connection to Propositions 3.1 and 3.2 of Ai & Chen (2003)
+   - h1 on R: Proposition 3.1 framework (Example 2.1, B-spline wavelet sieve, weighted norm)
+   - h2 on [0,1]: Proposition 3.2 framework (Example 2.2, compact domain)
+   - Hermite polynomials achieve same rate as B-splines for smooth functions
+
+2. Why not Fourier series:
+   - Jiawei's solution uses Fourier series (equation (12) of Ai-Chen)
+   - Our simulation uses B-splines and Hermite polynomials
+   - Same asymptotic conclusion: C^infinity smoothness of true functions is the binding constraint, not basis choice
