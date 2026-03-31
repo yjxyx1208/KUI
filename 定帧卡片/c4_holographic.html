@@ -1,0 +1,400 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4 全息宝可梦卡 — 百科知识卡片</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #0a0a14; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
+    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+  }
+
+  .phone {
+    width: 375px; height: 812px; border-radius: 44px; position: relative;
+    background: #0e0e1a; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
+  }
+
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,.8);
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+
+  .nav-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 20;
+    padding: 8px 16px; display: flex; align-items: center;
+  }
+  .nav-back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.08);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .nav-back svg { width: 18px; height: 18px; }
+  .nav-title {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    color: rgba(255,255,255,.9); margin-right: 36px;
+  }
+
+  .card-scene {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding: 100px 28px 130px;
+    perspective: 800px;
+  }
+
+  .holo-card {
+    width: 100%; height: 100%; position: relative;
+    border-radius: 24px; overflow: hidden;
+    transform-style: preserve-3d;
+    transition: transform .15s ease-out;
+    cursor: pointer;
+    box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 1px rgba(255,255,255,.1);
+  }
+
+  .card-base {
+    position: absolute; inset: 0;
+    background: linear-gradient(165deg, #1a1a30 0%, #252545 30%, #1e1e3a 70%, #18182e 100%);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: 24px;
+  }
+
+  .holo-layer {
+    position: absolute; inset: 0; z-index: 2;
+    border-radius: 24px; pointer-events: none;
+    background:
+      repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(255,255,255,.015) 2px,
+        rgba(255,255,255,.015) 4px
+      );
+    mix-blend-mode: overlay;
+  }
+
+  .holo-shine {
+    position: absolute; inset: -50%; z-index: 3;
+    border-radius: 24px; pointer-events: none;
+    background: conic-gradient(
+      from var(--holo-angle, 0deg) at var(--holo-x, 50%) var(--holo-y, 50%),
+      rgba(255,0,0,.12),
+      rgba(255,165,0,.12),
+      rgba(255,255,0,.12),
+      rgba(0,255,0,.12),
+      rgba(0,128,255,.12),
+      rgba(128,0,255,.12),
+      rgba(255,0,0,.12)
+    );
+    opacity: 0;
+    transition: opacity .3s;
+    mix-blend-mode: screen;
+  }
+  .holo-card:hover .holo-shine,
+  .holo-card.touching .holo-shine {
+    opacity: 1;
+  }
+
+  .holo-glint {
+    position: absolute; inset: 0; z-index: 4;
+    border-radius: 24px; pointer-events: none;
+    background: linear-gradient(
+      var(--glint-angle, 120deg),
+      transparent 30%,
+      rgba(255,255,255,.08) 45%,
+      rgba(255,255,255,.15) 50%,
+      rgba(255,255,255,.08) 55%,
+      transparent 70%
+    );
+    opacity: 0;
+    transition: opacity .3s;
+  }
+  .holo-card:hover .holo-glint,
+  .holo-card.touching .holo-glint {
+    opacity: 1;
+  }
+
+  .sparkle {
+    position: absolute; z-index: 5; pointer-events: none;
+    width: 4px; height: 4px; border-radius: 50%;
+    background: #fff;
+    box-shadow: 0 0 6px 2px rgba(255,255,255,.4);
+    animation: sparkle 2s ease-in-out infinite;
+  }
+  @keyframes sparkle {
+    0%, 100% { opacity: 0; transform: scale(0); }
+    50% { opacity: 1; transform: scale(1); }
+  }
+
+  .card-content {
+    position: relative; z-index: 6;
+    height: 100%; display: flex; flex-direction: column;
+    padding: 24px;
+  }
+
+  .rarity {
+    align-self: flex-end; padding: 4px 12px;
+    border-radius: 10px; font-size: 10px; font-weight: 700;
+    letter-spacing: 2px; text-transform: uppercase;
+    background: linear-gradient(135deg, rgba(255,215,0,.15), rgba(255,180,0,.1));
+    color: #ffd700; border: 1px solid rgba(255,215,0,.2);
+  }
+
+  .holo-sticker {
+    align-self: center; margin: 12px 0 16px;
+    position: relative;
+  }
+  .holo-sticker img {
+    width: 130px; height: 130px; object-fit: cover;
+    border-radius: 24px;
+    border: 2px solid rgba(255,255,255,.1);
+    box-shadow: 0 8px 32px rgba(0,0,0,.4);
+  }
+  .holo-sticker::before {
+    content: ''; position: absolute; inset: -3px;
+    border-radius: 26px; z-index: -1;
+    background: conic-gradient(
+      from var(--holo-angle, 0deg),
+      #ff0000, #ff9900, #ffff00, #00ff00, #0080ff, #8000ff, #ff0000
+    );
+    opacity: 0; transition: opacity .3s;
+  }
+  .holo-card:hover .holo-sticker::before,
+  .holo-card.touching .holo-sticker::before { opacity: .5; }
+
+  .holo-title {
+    text-align: center; font-size: 24px; font-weight: 800;
+    color: #fff; letter-spacing: 4px;
+    text-shadow: 0 0 20px rgba(160,140,224,.3);
+    margin-bottom: 4px;
+  }
+  .holo-subtitle {
+    text-align: center; font-size: 11px; color: rgba(255,255,255,.3);
+    font-style: italic; margin-bottom: 16px;
+  }
+
+  .info-panel {
+    flex: 1; overflow-y: auto;
+    background: rgba(0,0,0,.2);
+    border-radius: 16px; border: 1px solid rgba(255,255,255,.05);
+    padding: 16px;
+    -webkit-overflow-scrolling: touch;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+
+  .fact-row {
+    display: flex; gap: 12px; align-items: flex-start;
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255,255,255,.04);
+  }
+  .fact-row:last-child { border-bottom: none; }
+  .fact-row-icon {
+    width: 30px; height: 30px; border-radius: 10px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 14px;
+  }
+  .fact-row-icon.culture { background: rgba(255,200,100,.1); }
+  .fact-row-icon.bio { background: rgba(100,200,150,.1); }
+  .fact-row-icon.trivia { background: rgba(160,140,224,.1); }
+
+  .fact-row-body { flex: 1; }
+  .fact-row-cat {
+    font-size: 9px; font-weight: 700; color: rgba(255,255,255,.3);
+    letter-spacing: 1.5px; text-transform: uppercase; margin-bottom: 3px;
+  }
+  .fact-row-txt { font-size: 12px; color: rgba(255,255,255,.6); line-height: 1.7; }
+
+  .holo-tags {
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
+    padding-top: 10px; border-top: 1px solid rgba(255,255,255,.04);
+  }
+  .holo-tag {
+    padding: 4px 10px; border-radius: 8px; font-size: 10px;
+    background: rgba(255,255,255,.05); color: rgba(255,255,255,.35);
+    border: 1px solid rgba(255,255,255,.04);
+  }
+
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 10px 20px 34px;
+    background: linear-gradient(to top, rgba(14,14,26,.98) 40%, transparent);
+    display: flex; gap: 10px;
+  }
+  .action-btn {
+    flex: 1; padding: 14px 0; border-radius: 16px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: transform .15s;
+  }
+  .action-btn:active { transform: scale(.96); }
+  .action-btn.primary {
+    background: linear-gradient(135deg, #ffd700, #ffaa00);
+    color: #1a1a2e;
+  }
+  .action-btn.secondary {
+    background: rgba(255,255,255,.06); color: rgba(255,255,255,.6);
+  }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.15); z-index: 30;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">16:28</span>
+    <div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </div>
+    <div class="nav-title">灵光</div>
+  </div>
+
+  <div class="card-scene">
+    <div class="holo-card" id="holoCard">
+      <div class="card-base"></div>
+      <div class="holo-layer"></div>
+      <div class="holo-shine" id="holoShine"></div>
+      <div class="holo-glint" id="holoGlint"></div>
+
+      <div class="sparkle" style="top:15%;left:20%;animation-delay:0s"></div>
+      <div class="sparkle" style="top:30%;left:75%;animation-delay:.7s"></div>
+      <div class="sparkle" style="top:55%;left:15%;animation-delay:1.4s"></div>
+      <div class="sparkle" style="top:70%;left:80%;animation-delay:.3s"></div>
+      <div class="sparkle" style="top:85%;left:40%;animation-delay:1s"></div>
+      <div class="sparkle" style="top:20%;left:55%;animation-delay:1.8s"></div>
+
+      <div class="card-content">
+        <div class="rarity">✦ SSR</div>
+
+        <div class="holo-sticker">
+          <img src="cat_sticker.png" alt="黑猫">
+        </div>
+        <div class="holo-title">黑猫</div>
+        <div class="holo-subtitle">Felis catus · Black Cat</div>
+
+        <div class="info-panel">
+          <div class="fact-row">
+            <div class="fact-row-icon culture">🌙</div>
+            <div class="fact-row-body">
+              <div class="fact-row-cat">文化寓意</div>
+              <div class="fact-row-txt">在许多文化中被视为幸运的象征，在日本尤其如此。中世纪欧洲则将其与魔法联系在一起。</div>
+            </div>
+          </div>
+          <div class="fact-row">
+            <div class="fact-row-icon bio">🧬</div>
+            <div class="fact-row-body">
+              <div class="fact-row-cat">生物特征</div>
+              <div class="fact-row-txt">黑色毛发由真黑色素产生，同一基因也与更强的免疫力相关。眼睛多为金色或铜色。</div>
+            </div>
+          </div>
+          <div class="fact-row">
+            <div class="fact-row-icon trivia">✨</div>
+            <div class="fact-row-body">
+              <div class="fact-row-cat">冷知识</div>
+              <div class="fact-row-txt">阳光下黑猫的毛发会呈现深棕色或巧克力色，这是因为黑色素被紫外线氧化分解。</div>
+            </div>
+          </div>
+
+          <div class="holo-tags">
+            <span class="holo-tag">🐱 猫科</span>
+            <span class="holo-tag">🏠 家养</span>
+            <span class="holo-tag">🍀 幸运象征</span>
+            <span class="holo-tag">🌙 夜行性</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="action-btn primary">💬 提问</button>
+    <button class="action-btn secondary">♡ 收藏</button>
+    <button class="action-btn secondary">↗ 分享</button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  const card = document.getElementById('holoCard');
+  const shine = document.getElementById('holoShine');
+  const glint = document.getElementById('holoGlint');
+
+  function updateHolo(x, y) {
+    const rect = card.getBoundingClientRect();
+    const px = (x - rect.left) / rect.width;
+    const py = (y - rect.top) / rect.height;
+
+    const rotY = (px - 0.5) * 20;
+    const rotX = -(py - 0.5) * 20;
+    card.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
+
+    const angle = Math.atan2(py - 0.5, px - 0.5) * (180 / Math.PI);
+    shine.style.setProperty('--holo-x', (px * 100) + '%');
+    shine.style.setProperty('--holo-y', (py * 100) + '%');
+    shine.style.setProperty('--holo-angle', angle + 'deg');
+
+    glint.style.setProperty('--glint-angle', (angle + 90) + 'deg');
+
+    const sticker = card.querySelector('.holo-sticker');
+    if (sticker) sticker.style.setProperty('--holo-angle', angle + 'deg');
+  }
+
+  card.addEventListener('mousemove', (e) => updateHolo(e.clientX, e.clientY));
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = '';
+  });
+
+  card.addEventListener('touchstart', () => card.classList.add('touching'));
+  card.addEventListener('touchmove', (e) => {
+    const t = e.touches[0];
+    updateHolo(t.clientX, t.clientY);
+  });
+  card.addEventListener('touchend', () => {
+    card.classList.remove('touching');
+    card.style.transform = '';
+  });
+
+  let idleTimer;
+  let idleAnim;
+  function startIdleAnim() {
+    let t = 0;
+    idleAnim = setInterval(() => {
+      t += 0.02;
+      const rect = card.getBoundingClientRect();
+      const cx = rect.left + rect.width / 2;
+      const cy = rect.top + rect.height / 2;
+      const ox = Math.sin(t) * rect.width * 0.3;
+      const oy = Math.cos(t * 0.7) * rect.height * 0.2;
+      updateHolo(cx + ox, cy + oy);
+      card.classList.add('touching');
+    }, 30);
+  }
+  function resetIdle() {
+    clearTimeout(idleTimer);
+    clearInterval(idleAnim);
+    idleTimer = setTimeout(startIdleAnim, 3000);
+  }
+  card.addEventListener('mousemove', resetIdle);
+  card.addEventListener('touchmove', resetIdle);
+  card.addEventListener('mouseleave', () => {
+    card.classList.remove('touching');
+    resetIdle();
+  });
+  resetIdle();
+</script>
+
+</body>
+</html>
