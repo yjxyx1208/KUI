@@ -1,0 +1,433 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4 刮刮卡揭秘 — 百科知识卡片</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
+    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+  }
+
+  .phone {
+    width: 375px; height: 812px; border-radius: 44px; position: relative;
+    background: #faf8f5; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
+  }
+
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; color: #3a3530;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+
+  .nav-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 20;
+    padding: 8px 16px; display: flex; align-items: center;
+  }
+  .nav-back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,.05);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-back svg { width: 18px; height: 18px; }
+  .nav-title {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    color: #2a2520; margin-right: 36px;
+  }
+
+  .scroll-content {
+    position: absolute; inset: 0; overflow-y: auto;
+    padding: 96px 0 120px;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* 头部 */
+  .header {
+    margin: 0 20px 20px; display: flex; align-items: center; gap: 16px;
+  }
+  .header-sticker img {
+    width: 64px; height: 64px; object-fit: cover;
+    border-radius: 20px; border: 2px solid #eee8e0;
+    box-shadow: 0 4px 16px rgba(0,0,0,.08);
+  }
+  .header-info h1 {
+    font-size: 24px; font-weight: 800; color: #2a2520; letter-spacing: 2px;
+  }
+  .header-info .latin {
+    font-size: 11px; color: #b0a898; font-style: italic; margin-top: 2px;
+  }
+
+  /* 进度 */
+  .reveal-progress {
+    margin: 0 20px 20px; display: flex; align-items: center; gap: 10px;
+  }
+  .reveal-progress-text {
+    font-size: 11px; font-weight: 600; color: #b0a898;
+  }
+  .reveal-progress-bar {
+    flex: 1; height: 4px; border-radius: 2px; background: #ece8e0;
+    overflow: hidden;
+  }
+  .reveal-progress-fill {
+    height: 100%; width: 0; border-radius: 2px;
+    background: linear-gradient(90deg, #c4a36e, #e0c080);
+    transition: width .5s cubic-bezier(.4,0,.2,1);
+  }
+
+  /* 刮刮卡区域 */
+  .scratch-cards { margin: 0 20px; }
+
+  .scratch-item {
+    background: #fff; border-radius: 20px; margin-bottom: 12px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.04);
+    border: 1px solid rgba(0,0,0,.04);
+    overflow: hidden;
+  }
+
+  .scratch-header {
+    display: flex; align-items: center; gap: 12px;
+    padding: 16px 18px;
+  }
+  .scratch-icon {
+    width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .scratch-icon.culture { background: linear-gradient(135deg, #fef3e2, #fde8c8); }
+  .scratch-icon.bio { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+  .scratch-icon.trivia { background: linear-gradient(135deg, #ede7f6, #d1c4e9); }
+
+  .scratch-label { flex: 1; }
+  .scratch-cat {
+    font-size: 10px; font-weight: 700; color: #a09080;
+    letter-spacing: 1.5px; text-transform: uppercase;
+  }
+  .scratch-title {
+    font-size: 14px; font-weight: 600; color: #2a2520; margin-top: 2px;
+  }
+
+  .scratch-badge {
+    padding: 4px 10px; border-radius: 8px; font-size: 10px; font-weight: 600;
+    transition: all .3s;
+  }
+  .scratch-badge.locked {
+    background: #f5f0e8; color: #c4a36e;
+  }
+  .scratch-badge.unlocked {
+    background: #e8f5e9; color: #4caf50;
+  }
+
+  /* 刮刮区 */
+  .scratch-zone {
+    position: relative; height: 100px; margin: 0 18px; border-radius: 14px;
+    overflow: hidden; margin-bottom: 16px;
+  }
+
+  /* 底层内容 */
+  .scratch-content {
+    position: absolute; inset: 0; padding: 14px 16px;
+    background: #faf8f5; border-radius: 14px;
+    display: flex; align-items: center;
+  }
+  .scratch-text {
+    font-size: 13px; color: #4a4540; line-height: 1.75;
+  }
+
+  /* Canvas 遮罩 */
+  .scratch-canvas {
+    position: absolute; inset: 0; z-index: 2;
+    border-radius: 14px; cursor: pointer;
+    touch-action: none;
+  }
+
+  /* 刮开提示 */
+  .scratch-hint {
+    position: absolute; inset: 0; z-index: 3;
+    display: flex; align-items: center; justify-content: center;
+    pointer-events: none;
+    opacity: 1; transition: opacity .3s;
+  }
+  .scratch-hint.hidden { opacity: 0; }
+  .scratch-hint span {
+    font-size: 13px; font-weight: 600; color: rgba(255,255,255,.8);
+    letter-spacing: 2px;
+    text-shadow: 0 1px 4px rgba(0,0,0,.2);
+  }
+
+  /* 已揭示状态 */
+  .scratch-item.revealed .scratch-canvas { display: none; }
+  .scratch-item.revealed .scratch-hint { display: none; }
+  .scratch-item.revealed .scratch-zone {
+    background: #faf8f5;
+  }
+
+  /* 标签 */
+  .tags-section {
+    margin: 16px 20px 0; padding: 12px 0;
+  }
+  .tags-title {
+    font-size: 10px; font-weight: 700; color: #c0b8a8;
+    letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500;
+    transition: transform .2s;
+  }
+  .tag:nth-child(1) { background: #fef3e2; color: #8a6e3e; }
+  .tag:nth-child(2) { background: #e8f5e9; color: #3e6a4a; }
+  .tag:nth-child(3) { background: #ede7f6; color: #5e4a8a; }
+  .tag:nth-child(4) { background: #e3f2fd; color: #3a5a8a; }
+
+  /* 底部 */
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 10px 20px 34px;
+    background: linear-gradient(to top, #faf8f5 60%, rgba(250,248,245,0));
+    display: flex; gap: 10px;
+  }
+  .action-btn {
+    flex: 1; padding: 14px 0; border-radius: 16px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: transform .15s;
+  }
+  .action-btn:active { transform: scale(.96); }
+  .action-btn.primary { background: linear-gradient(135deg, #c4a36e, #b08a50); color: #fff; }
+  .action-btn.secondary { background: #eee8e0; color: #5a5248; }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.12); z-index: 30;
+  }
+
+  /* 全部揭示弹幕 */
+  .all-revealed {
+    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
+    z-index: 100; pointer-events: none;
+    font-size: 28px; font-weight: 800; color: #c4a36e;
+    text-shadow: 0 4px 20px rgba(196,163,110,.3);
+    opacity: 0; transition: opacity .5s;
+    letter-spacing: 4px;
+  }
+  .all-revealed.show { opacity: 1; animation: popIn .5s cubic-bezier(.4,0,.2,1); }
+  @keyframes popIn {
+    0% { transform: translate(-50%, -50%) scale(0.5); }
+    50% { transform: translate(-50%, -50%) scale(1.1); }
+    100% { transform: translate(-50%, -50%) scale(1); }
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">16:28</span>
+    <div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="#3a3530" stroke-width="2.5" stroke-linecap="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </div>
+    <div class="nav-title">灵光</div>
+  </div>
+
+  <div class="scroll-content">
+    <div class="header">
+      <div class="header-sticker"><img src="cat_sticker.png" alt="黑猫"></div>
+      <div class="header-info">
+        <h1>黑猫</h1>
+        <div class="latin">Felis catus · Black Cat</div>
+      </div>
+    </div>
+
+    <div class="reveal-progress">
+      <span class="reveal-progress-text" id="progressText">0/3 已揭示</span>
+      <div class="reveal-progress-bar">
+        <div class="reveal-progress-fill" id="progressFill"></div>
+      </div>
+    </div>
+
+    <div class="scratch-cards">
+      <!-- 文化寓意 -->
+      <div class="scratch-item" data-index="0">
+        <div class="scratch-header">
+          <div class="scratch-icon culture">🌙</div>
+          <div class="scratch-label">
+            <div class="scratch-cat">文化寓意</div>
+            <div class="scratch-title">幸运与魔法的双面象征</div>
+          </div>
+          <div class="scratch-badge locked" data-badge>🔒 刮开</div>
+        </div>
+        <div class="scratch-zone">
+          <div class="scratch-content">
+            <div class="scratch-text">在许多文化中被视为幸运的象征，在日本尤其如此。中世纪欧洲则将其与魔法联系在一起。</div>
+          </div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint"><span>👆 刮一刮</span></div>
+        </div>
+      </div>
+
+      <!-- 生物特征 -->
+      <div class="scratch-item" data-index="1">
+        <div class="scratch-header">
+          <div class="scratch-icon bio">🧬</div>
+          <div class="scratch-label">
+            <div class="scratch-cat">生物特征</div>
+            <div class="scratch-title">真黑色素的免疫馈赠</div>
+          </div>
+          <div class="scratch-badge locked" data-badge>🔒 刮开</div>
+        </div>
+        <div class="scratch-zone">
+          <div class="scratch-content">
+            <div class="scratch-text">黑色毛发由真黑色素产生，同一基因也与更强的免疫力相关。眼睛多为金色或铜色。</div>
+          </div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint"><span>👆 刮一刮</span></div>
+        </div>
+      </div>
+
+      <!-- 冷知识 -->
+      <div class="scratch-item" data-index="2">
+        <div class="scratch-header">
+          <div class="scratch-icon trivia">✨</div>
+          <div class="scratch-label">
+            <div class="scratch-cat">冷知识</div>
+            <div class="scratch-title">阳光下的变色魔术</div>
+          </div>
+          <div class="scratch-badge locked" data-badge>🔒 刮开</div>
+        </div>
+        <div class="scratch-zone">
+          <div class="scratch-content">
+            <div class="scratch-text">阳光下黑猫的毛发会呈现深棕色或巧克力色，这是因为黑色素被紫外线氧化分解。</div>
+          </div>
+          <canvas class="scratch-canvas"></canvas>
+          <div class="scratch-hint"><span>👆 刮一刮</span></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="tags-section">
+      <div class="tags-title">相关标签</div>
+      <div class="tags">
+        <span class="tag">🐱 猫科</span>
+        <span class="tag">🏠 家养</span>
+        <span class="tag">🍀 幸运象征</span>
+        <span class="tag">🌙 夜行性</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="action-btn primary">💬 提问</button>
+    <button class="action-btn secondary">♡ 收藏</button>
+    <button class="action-btn secondary">↗ 分享</button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<div class="all-revealed" id="allRevealed">✨ 全部揭秘！</div>
+
+<script>
+  const items = document.querySelectorAll('.scratch-item');
+  const progressFill = document.getElementById('progressFill');
+  const progressText = document.getElementById('progressText');
+  const allRevealedEl = document.getElementById('allRevealed');
+  const colors = ['#d4b896', '#a8c4a0', '#b8a8d0'];
+  let revealedCount = 0;
+
+  items.forEach((item, idx) => {
+    const canvas = item.querySelector('.scratch-canvas');
+    const zone = item.querySelector('.scratch-zone');
+    const hint = item.querySelector('.scratch-hint');
+    const badge = item.querySelector('[data-badge]');
+    const ctx = canvas.getContext('2d');
+    let isDrawing = false;
+    let revealed = false;
+
+    function initCanvas() {
+      const rect = zone.getBoundingClientRect();
+      canvas.width = rect.width;
+      canvas.height = rect.height;
+      // 绘制刮刮层
+      ctx.fillStyle = colors[idx];
+      ctx.beginPath();
+      ctx.roundRect(0, 0, canvas.width, canvas.height, 14);
+      ctx.fill();
+      // 纹理
+      for (let i = 0; i < 80; i++) {
+        ctx.fillStyle = `rgba(255,255,255,${Math.random() * 0.08})`;
+        ctx.fillRect(Math.random() * canvas.width, Math.random() * canvas.height, Math.random() * 20 + 5, 1);
+      }
+    }
+
+    function scratch(x, y) {
+      ctx.globalCompositeOperation = 'destination-out';
+      ctx.beginPath();
+      ctx.arc(x, y, 22, 0, Math.PI * 2);
+      ctx.fill();
+      hint.classList.add('hidden');
+      checkReveal();
+    }
+
+    function checkReveal() {
+      if (revealed) return;
+      const data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+      let transparent = 0;
+      const total = data.length / 4;
+      for (let i = 3; i < data.length; i += 16) {
+        if (data[i] === 0) transparent++;
+      }
+      // 采样间隔是4，所以调整
+      const ratio = (transparent * 4) / total;
+      if (ratio > 0.45) {
+        revealed = true;
+        item.classList.add('revealed');
+        badge.textContent = '✅ 已揭示';
+        badge.classList.remove('locked');
+        badge.classList.add('unlocked');
+        revealedCount++;
+        progressFill.style.width = ((revealedCount / 3) * 100) + '%';
+        progressText.textContent = `${revealedCount}/3 已揭示`;
+        if (revealedCount === 3) {
+          setTimeout(() => {
+            allRevealedEl.classList.add('show');
+            setTimeout(() => allRevealedEl.classList.remove('show'), 2000);
+          }, 300);
+        }
+      }
+    }
+
+    function getPos(e, touch) {
+      const rect = canvas.getBoundingClientRect();
+      const clientX = touch ? e.touches[0].clientX : e.clientX;
+      const clientY = touch ? e.touches[0].clientY : e.clientY;
+      return { x: clientX - rect.left, y: clientY - rect.top };
+    }
+
+    // 鼠标
+    canvas.addEventListener('mousedown', (e) => { isDrawing = true; const p = getPos(e); scratch(p.x, p.y); });
+    canvas.addEventListener('mousemove', (e) => { if (!isDrawing) return; const p = getPos(e); scratch(p.x, p.y); });
+    canvas.addEventListener('mouseup', () => isDrawing = false);
+    canvas.addEventListener('mouseleave', () => isDrawing = false);
+
+    // 触摸
+    canvas.addEventListener('touchstart', (e) => { e.preventDefault(); isDrawing = true; const p = getPos(e, true); scratch(p.x, p.y); });
+    canvas.addEventListener('touchmove', (e) => { e.preventDefault(); if (!isDrawing) return; const p = getPos(e, true); scratch(p.x, p.y); });
+    canvas.addEventListener('touchend', () => isDrawing = false);
+
+    // 初始化
+    requestAnimationFrame(initCanvas);
+    new ResizeObserver(initCanvas).observe(zone);
+  });
+</script>
+
+</body>
+</html>
