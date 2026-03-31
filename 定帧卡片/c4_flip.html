@@ -1,0 +1,543 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4 翻转版 — 百科知识卡片</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
+    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+  }
+
+  /* ===== 手机壳 ===== */
+  .phone {
+    width: 375px; height: 812px; border-radius: 44px; position: relative;
+    background: #1a1a2e; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
+  }
+
+  /* ===== 状态栏 ===== */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,.8);
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+
+  /* ===== 导航栏 ===== */
+  .nav-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 20;
+    padding: 8px 16px; display: flex; align-items: center;
+  }
+  .nav-back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.08);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .nav-back svg { width: 18px; height: 18px; }
+  .nav-title {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    color: rgba(255,255,255,.9); margin-right: 36px;
+  }
+
+  /* ===== 背景光晕 ===== */
+  .bg-glow {
+    position: absolute; inset: 0; z-index: 0; overflow: hidden; pointer-events: none;
+  }
+  .bg-glow::before {
+    content: ''; position: absolute;
+    width: 300px; height: 300px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(160,120,255,.25) 0%, transparent 70%);
+    top: 15%; left: -20%;
+    animation: glowDrift 8s ease-in-out infinite alternate;
+  }
+  .bg-glow::after {
+    content: ''; position: absolute;
+    width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(100,200,180,.2) 0%, transparent 70%);
+    bottom: 20%; right: -15%;
+    animation: glowDrift 10s ease-in-out infinite alternate-reverse;
+  }
+  @keyframes glowDrift {
+    from { transform: translate(0, 0) scale(1); }
+    to { transform: translate(30px, -20px) scale(1.15); }
+  }
+
+  /* ===== 翻转容器 ===== */
+  .flip-scene {
+    position: absolute; inset: 0; z-index: 10;
+    display: flex; align-items: center; justify-content: center;
+    padding: 100px 24px 130px;
+    perspective: 1200px;
+  }
+
+  .flip-card {
+    width: 100%; height: 100%; position: relative;
+    transform-style: preserve-3d;
+    transition: transform .7s cubic-bezier(.4, .0, .2, 1);
+    cursor: pointer;
+  }
+  .flip-card.flipped { transform: rotateY(180deg); }
+
+  .flip-face {
+    position: absolute; inset: 0;
+    backface-visibility: hidden;
+    -webkit-backface-visibility: hidden;
+    border-radius: 28px;
+    overflow: hidden;
+  }
+
+  /* ===== 正面 ===== */
+  .face-front {
+    background: linear-gradient(165deg, #1e1e3a 0%, #2a2a4a 40%, #1a2a3a 100%);
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    padding: 32px 24px;
+    border: 1px solid rgba(255,255,255,.06);
+  }
+
+  /* 装饰粒子 */
+  .particles {
+    position: absolute; inset: 0; pointer-events: none; overflow: hidden;
+  }
+  .particle {
+    position: absolute; border-radius: 50%; background: rgba(255,255,255,.15);
+    animation: particleFloat linear infinite;
+  }
+  @keyframes particleFloat {
+    0% { transform: translateY(0) scale(1); opacity: 0; }
+    10% { opacity: 1; }
+    90% { opacity: 1; }
+    100% { transform: translateY(-400px) scale(0); opacity: 0; }
+  }
+
+  /* 贴纸容器 */
+  .front-sticker {
+    position: relative; margin-bottom: 24px;
+  }
+  .front-sticker::before {
+    content: ''; position: absolute; inset: -12px;
+    border-radius: 32px; z-index: -1;
+    background: conic-gradient(from 0deg, rgba(160,120,255,.3), rgba(100,200,180,.3), rgba(255,180,100,.3), rgba(160,120,255,.3));
+    animation: shimmerRotate 4s linear infinite;
+    filter: blur(16px);
+  }
+  @keyframes shimmerRotate {
+    to { transform: rotate(360deg); }
+  }
+  .front-sticker img {
+    width: 160px; height: 160px; object-fit: cover;
+    border-radius: 28px; border: 3px solid rgba(255,255,255,.15);
+    box-shadow: 0 16px 48px rgba(0,0,0,.4);
+  }
+
+  .front-title {
+    font-size: 32px; font-weight: 800; color: #fff;
+    letter-spacing: 6px; margin-bottom: 8px;
+    text-shadow: 0 2px 20px rgba(160,120,255,.3);
+  }
+  .front-subtitle {
+    font-size: 12px; color: rgba(255,255,255,.35); font-style: italic;
+    letter-spacing: 1px; margin-bottom: 32px;
+  }
+
+  /* 翻转提示 */
+  .flip-hint {
+    display: flex; align-items: center; gap: 8px;
+    padding: 10px 24px; border-radius: 20px;
+    background: rgba(255,255,255,.06);
+    border: 1px solid rgba(255,255,255,.08);
+    backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
+    animation: hintPulse 2.5s ease-in-out infinite;
+  }
+  .flip-hint span {
+    font-size: 12px; color: rgba(255,255,255,.45); font-weight: 500;
+    letter-spacing: 1px;
+  }
+  .flip-hint .arrow {
+    display: inline-block; font-size: 14px; color: rgba(255,255,255,.3);
+    animation: arrowBounce 1.5s ease-in-out infinite;
+  }
+  @keyframes hintPulse {
+    0%, 100% { opacity: .6; }
+    50% { opacity: 1; }
+  }
+  @keyframes arrowBounce {
+    0%, 100% { transform: translateX(0); }
+    50% { transform: translateX(4px); }
+  }
+
+  /* 角标装饰 */
+  .corner-deco {
+    position: absolute; width: 60px; height: 60px;
+    border: 1px solid rgba(255,255,255,.06); border-radius: 4px;
+  }
+  .corner-deco.tl { top: 20px; left: 20px; border-right: none; border-bottom: none; }
+  .corner-deco.br { bottom: 20px; right: 20px; border-left: none; border-top: none; }
+
+  /* ===== 背面 ===== */
+  .face-back {
+    transform: rotateY(180deg);
+    background: #fff;
+    display: flex; flex-direction: column;
+  }
+
+  /* 背面头部 */
+  .back-header {
+    background: linear-gradient(160deg, #2a2a4a 0%, #3a3a5a 100%);
+    padding: 24px 24px 20px; position: relative;
+    display: flex; align-items: center; gap: 16px;
+  }
+  .back-header-sticker img {
+    width: 56px; height: 56px; border-radius: 16px;
+    border: 2px solid rgba(255,255,255,.2);
+  }
+  .back-header-info h2 {
+    font-size: 22px; font-weight: 700; color: #fff;
+    letter-spacing: 2px;
+  }
+  .back-header-info .latin {
+    font-size: 11px; color: rgba(255,255,255,.4);
+    font-style: italic; margin-top: 2px;
+  }
+  .back-flip-btn {
+    position: absolute; top: 20px; right: 20px;
+    width: 32px; height: 32px; border-radius: 50%;
+    background: rgba(255,255,255,.1); border: none; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+    transition: background .2s;
+  }
+  .back-flip-btn:hover { background: rgba(255,255,255,.2); }
+  .back-flip-btn svg { width: 16px; height: 16px; }
+
+  /* 背面内容 */
+  .back-body {
+    flex: 1; overflow-y: auto; padding: 20px 0 0;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .section-label {
+    font-size: 10px; font-weight: 700; color: #a08ce0;
+    letter-spacing: 2.5px; text-transform: uppercase;
+    margin: 0 24px 14px; display: flex; align-items: center; gap: 6px;
+  }
+  .section-label::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, #e8e0f5, transparent);
+  }
+
+  /* 知识条目 — 滑入动画 */
+  .fact {
+    display: flex; gap: 14px; align-items: flex-start;
+    padding: 12px 24px; margin: 0 0 2px;
+    opacity: 0; transform: translateX(30px);
+    transition: all .5s cubic-bezier(.4, .0, .2, 1);
+  }
+  .fact.visible { opacity: 1; transform: translateX(0); }
+  .fact-icon {
+    width: 36px; height: 36px; border-radius: 12px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center; font-size: 16px;
+  }
+  .fact-icon.culture { background: linear-gradient(135deg, #fef3e2, #fde8c8); }
+  .fact-icon.bio { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+  .fact-icon.trivia { background: linear-gradient(135deg, #ede7f6, #d1c4e9); }
+
+  .fact-body { flex: 1; padding-top: 2px; }
+  .fact-cat {
+    font-size: 10px; font-weight: 700; color: #a09080;
+    letter-spacing: 1px; text-transform: uppercase; margin-bottom: 4px;
+  }
+  .fact-txt { font-size: 13px; color: #3a3530; line-height: 1.75; }
+
+  /* 分隔 */
+  .divider { height: 1px; background: #f0ecf6; margin: 8px 24px; }
+
+  /* 标签 */
+  .tags {
+    padding: 12px 24px 20px; display: flex; flex-wrap: wrap; gap: 8px;
+  }
+  .tag {
+    padding: 6px 14px; border-radius: 20px;
+    font-size: 12px; font-weight: 500;
+    border: 1px solid transparent;
+    opacity: 0; transform: translateY(10px);
+    transition: all .4s cubic-bezier(.4, .0, .2, 1);
+  }
+  .tag.visible { opacity: 1; transform: translateY(0); }
+  .tag:nth-child(1) { background: #fef3e2; color: #8a6e3e; border-color: #f5e6c8; }
+  .tag:nth-child(2) { background: #e8f5e9; color: #3e6a4a; border-color: #c8e6c9; }
+  .tag:nth-child(3) { background: #ede7f6; color: #5e4a8a; border-color: #d1c4e9; }
+  .tag:nth-child(4) { background: #e3f2fd; color: #3a5a8a; border-color: #bbdefb; }
+
+  /* ===== 底部操作栏 ===== */
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 10px 20px 34px;
+    display: flex; gap: 10px;
+  }
+  /* 正面态 */
+  .bottom-bar.front-mode {
+    background: linear-gradient(to top, rgba(26,26,46,.95) 40%, transparent);
+  }
+  /* 背面态 */
+  .bottom-bar.back-mode {
+    background: linear-gradient(to top, rgba(255,255,255,.98) 50%, transparent);
+  }
+
+  .action-btn {
+    flex: 1; padding: 14px 0; border-radius: 16px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: all .3s;
+  }
+  .action-btn:active { transform: scale(.96); }
+
+  /* 正面按钮 */
+  .front-mode .action-btn.primary {
+    background: linear-gradient(135deg, #a08ce0, #7c6bc4);
+    color: #fff; box-shadow: 0 4px 20px rgba(160,140,224,.3);
+  }
+  .front-mode .action-btn.secondary {
+    background: rgba(255,255,255,.08); color: rgba(255,255,255,.7);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+  /* 背面按钮 */
+  .back-mode .action-btn.primary {
+    background: linear-gradient(135deg, #2a2a4a, #3a3a5a);
+    color: #fff; box-shadow: 0 4px 20px rgba(42,42,74,.2);
+  }
+  .back-mode .action-btn.secondary {
+    background: #f5f3fa; color: #5e4a8a;
+  }
+
+  /* ===== Home indicator ===== */
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px;
+    z-index: 30; transition: background .5s;
+  }
+  .home-indicator.dark { background: rgba(255,255,255,.2); }
+  .home-indicator.light { background: rgba(0,0,0,.15); }
+
+  /* ===== 翻转计数badge ===== */
+  .flip-count {
+    position: absolute; top: 94px; right: 24px; z-index: 25;
+    padding: 4px 10px; border-radius: 12px;
+    font-size: 10px; font-weight: 600;
+    background: rgba(255,255,255,.1); color: rgba(255,255,255,.5);
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255,255,255,.06);
+    transition: all .5s;
+  }
+  .flip-count.light-mode {
+    background: rgba(0,0,0,.05); color: rgba(0,0,0,.35);
+    border-color: rgba(0,0,0,.06);
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- 状态栏 -->
+  <div class="status-bar">
+    <span class="time">16:28</span>
+    <div class="status-icons">
+      <span>●●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
+  </div>
+
+  <!-- 导航栏 -->
+  <div class="nav-bar">
+    <div class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </div>
+    <div class="nav-title">灵光</div>
+  </div>
+
+  <!-- 翻转计数 -->
+  <div class="flip-count" id="flipCount">正面</div>
+
+  <!-- 背景光晕 -->
+  <div class="bg-glow" id="bgGlow"></div>
+
+  <!-- 翻转区域 -->
+  <div class="flip-scene">
+    <div class="flip-card" id="flipCard">
+
+      <!-- === 正面 === -->
+      <div class="flip-face face-front" id="faceFront">
+        <div class="particles" id="particles"></div>
+        <div class="corner-deco tl"></div>
+        <div class="corner-deco br"></div>
+
+        <div class="front-sticker">
+          <img src="cat_sticker.png" alt="黑猫贴纸">
+        </div>
+        <div class="front-title">黑猫</div>
+        <div class="front-subtitle">Felis catus · Black Cat</div>
+        <div class="flip-hint">
+          <span>轻触翻转</span>
+          <span class="arrow">→</span>
+        </div>
+      </div>
+
+      <!-- === 背面 === -->
+      <div class="flip-face face-back">
+        <div class="back-header">
+          <div class="back-header-sticker">
+            <img src="cat_sticker.png" alt="黑猫">
+          </div>
+          <div class="back-header-info">
+            <h2>黑猫</h2>
+            <div class="latin">Felis catus · Black Cat</div>
+          </div>
+          <button class="back-flip-btn" id="backFlipBtn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round">
+              <path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>
+            </svg>
+          </button>
+        </div>
+
+        <div class="back-body">
+          <div class="section-label">✦ Fun Facts</div>
+
+          <div class="fact" data-delay="0">
+            <div class="fact-icon culture">🌙</div>
+            <div class="fact-body">
+              <div class="fact-cat">文化寓意</div>
+              <div class="fact-txt">在许多文化中被视为幸运的象征，在日本尤其如此。中世纪欧洲则将其与魔法联系在一起。</div>
+            </div>
+          </div>
+
+          <div class="fact" data-delay="100">
+            <div class="fact-icon bio">🧬</div>
+            <div class="fact-body">
+              <div class="fact-cat">生物特征</div>
+              <div class="fact-txt">黑色毛发由真黑色素产生，同一基因也与更强的免疫力相关。眼睛多为金色或铜色。</div>
+            </div>
+          </div>
+
+          <div class="fact" data-delay="200">
+            <div class="fact-icon trivia">✨</div>
+            <div class="fact-body">
+              <div class="fact-cat">冷知识</div>
+              <div class="fact-txt">阳光下黑猫的毛发会呈现深棕色或巧克力色，这是因为黑色素被紫外线氧化分解。</div>
+            </div>
+          </div>
+
+          <div class="divider"></div>
+
+          <div class="tags">
+            <span class="tag" data-delay="300">🐱 猫科</span>
+            <span class="tag" data-delay="350">🏠 家养</span>
+            <span class="tag" data-delay="400">🍀 幸运象征</span>
+            <span class="tag" data-delay="450">🌙 夜行性</span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- 底部操作 -->
+  <div class="bottom-bar front-mode" id="bottomBar">
+    <button class="action-btn primary">💬 提问</button>
+    <button class="action-btn secondary">♡ 收藏</button>
+    <button class="action-btn secondary">↗ 分享</button>
+  </div>
+
+  <div class="home-indicator dark" id="homeIndicator"></div>
+</div>
+
+<script>
+  const flipCard = document.getElementById('flipCard');
+  const bottomBar = document.getElementById('bottomBar');
+  const homeIndicator = document.getElementById('homeIndicator');
+  const flipCount = document.getElementById('flipCount');
+  const bgGlow = document.getElementById('bgGlow');
+  const backFlipBtn = document.getElementById('backFlipBtn');
+  let isFlipped = false;
+
+  // 生成粒子
+  (function createParticles() {
+    const container = document.getElementById('particles');
+    for (let i = 0; i < 12; i++) {
+      const p = document.createElement('div');
+      p.className = 'particle';
+      const size = 2 + Math.random() * 3;
+      p.style.cssText = `
+        width: ${size}px; height: ${size}px;
+        left: ${10 + Math.random() * 80}%;
+        bottom: ${-10 + Math.random() * 20}%;
+        animation-duration: ${4 + Math.random() * 6}s;
+        animation-delay: ${Math.random() * 5}s;
+      `;
+      container.appendChild(p);
+    }
+  })();
+
+  function flip() {
+    isFlipped = !isFlipped;
+    flipCard.style.transform = '';
+    flipCard.classList.toggle('flipped', isFlipped);
+
+    if (isFlipped) {
+      bottomBar.classList.remove('front-mode');
+      bottomBar.classList.add('back-mode');
+      homeIndicator.classList.remove('dark');
+      homeIndicator.classList.add('light');
+      flipCount.textContent = '背面';
+      flipCount.classList.add('light-mode');
+      bgGlow.style.opacity = '0.3';
+
+      const facts = document.querySelectorAll('.face-back .fact, .face-back .tag');
+      facts.forEach(el => {
+        const delay = parseInt(el.dataset.delay) || 0;
+        setTimeout(() => el.classList.add('visible'), 200 + delay);
+      });
+    } else {
+      bottomBar.classList.remove('back-mode');
+      bottomBar.classList.add('front-mode');
+      homeIndicator.classList.remove('light');
+      homeIndicator.classList.add('dark');
+      flipCount.textContent = '正面';
+      flipCount.classList.remove('light-mode');
+      bgGlow.style.opacity = '1';
+
+      const facts = document.querySelectorAll('.face-back .fact, .face-back .tag');
+      facts.forEach(el => el.classList.remove('visible'));
+    }
+  }
+
+  flipCard.addEventListener('click', (e) => {
+    if (!isFlipped) flip();
+  });
+  backFlipBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (isFlipped) flip();
+  });
+
+  // 正面鼠标跟随倾斜
+  const faceFront = document.getElementById('faceFront');
+  flipCard.addEventListener('mousemove', (e) => {
+    if (isFlipped) return;
+    const rect = flipCard.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    flipCard.style.transform = `rotateY(${x * 8}deg) rotateX(${-y * 8}deg)`;
+  });
+  flipCard.addEventListener('mouseleave', () => {
+    if (isFlipped) return;
+    flipCard.style.transform = '';
+  });
+</script>
+
+</body>
+</html>
