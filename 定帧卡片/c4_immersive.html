@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4 沉浸式长卡片 — 百科知识卡片</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
+    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+  }
+
+  .phone {
+    width: 375px; height: 812px; border-radius: 44px; position: relative;
+    background: #0e0e1a; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
+  }
+
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 30;
+    padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; color: rgba(255,255,255,.8);
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+
+  .nav-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 30;
+    padding: 8px 16px; display: flex; align-items: center;
+  }
+  .nav-back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(255,255,255,.08);
+    display: flex; align-items: center; justify-content: center;
+    backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
+  }
+  .nav-back svg { width: 18px; height: 18px; }
+  .nav-title {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    color: rgba(255,255,255,.9); margin-right: 36px;
+  }
+
+  .read-progress {
+    position: absolute; top: 88px; left: 0; right: 0; z-index: 30; height: 2px;
+    background: rgba(255,255,255,.06);
+  }
+  .read-progress-fill {
+    height: 100%; width: 0; border-radius: 1px;
+    background: linear-gradient(90deg, #a08ce0, #6ecfa0);
+    transition: width .1s;
+  }
+
+  .scroll-content {
+    position: absolute; inset: 0; overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .hero {
+    height: 480px; position: relative; overflow: hidden;
+    display: flex; flex-direction: column; align-items: center;
+    justify-content: flex-end; padding-bottom: 40px;
+  }
+
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background: linear-gradient(180deg, #1a1a3a 0%, #2a2a4a 50%, #0e0e1a 100%);
+  }
+  .hero-glow {
+    position: absolute; z-index: 1; pointer-events: none;
+  }
+  .hero-glow.g1 {
+    width: 250px; height: 250px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(160,140,224,.3) 0%, transparent 70%);
+    top: 10%; left: -10%; filter: blur(40px);
+  }
+  .hero-glow.g2 {
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(110,207,160,.2) 0%, transparent 70%);
+    top: 30%; right: -10%; filter: blur(40px);
+  }
+
+  .hero-sticker {
+    position: relative; z-index: 5; margin-bottom: 20px;
+    will-change: transform;
+  }
+  .hero-sticker img {
+    width: 140px; height: 140px; object-fit: cover;
+    border-radius: 32px; border: 3px solid rgba(255,255,255,.1);
+    box-shadow: 0 20px 60px rgba(0,0,0,.5);
+  }
+  .hero-sticker::before {
+    content: ''; position: absolute; inset: -8px;
+    border-radius: 38px;
+    background: conic-gradient(from 180deg, rgba(160,140,224,.2), rgba(110,207,160,.2), rgba(160,140,224,.2));
+    filter: blur(12px); z-index: -1;
+    animation: stickerGlow 6s linear infinite;
+  }
+  @keyframes stickerGlow { to { transform: rotate(360deg); } }
+
+  .hero-title {
+    position: relative; z-index: 5;
+    font-size: 40px; font-weight: 800; color: #fff;
+    letter-spacing: 8px; text-align: center;
+    text-shadow: 0 4px 30px rgba(0,0,0,.5);
+  }
+  .hero-subtitle {
+    position: relative; z-index: 5;
+    font-size: 13px; color: rgba(255,255,255,.35);
+    font-style: italic; margin-top: 6px;
+  }
+
+  .scroll-arrow {
+    position: relative; z-index: 5; margin-top: 28px;
+    width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
+    animation: arrowBob 2s ease-in-out infinite;
+  }
+  @keyframes arrowBob {
+    0%, 100% { transform: translateY(0); opacity: .4; }
+    50% { transform: translateY(6px); opacity: .8; }
+  }
+
+  .hero::after {
+    content: ''; position: absolute; bottom: 0; left: 0; right: 0;
+    height: 120px; z-index: 3;
+    background: linear-gradient(to top, #0e0e1a, transparent);
+  }
+
+  .content-area {
+    position: relative; z-index: 10;
+    padding: 0 24px;
+    background: #0e0e1a;
+  }
+
+  .chapter {
+    margin-bottom: 48px;
+    opacity: 0; transform: translateY(40px);
+    transition: opacity .7s cubic-bezier(.4,0,.2,1), transform .7s cubic-bezier(.4,0,.2,1);
+  }
+  .chapter.visible {
+    opacity: 1; transform: translateY(0);
+  }
+
+  .chapter-number {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    color: rgba(255,255,255,.2); margin-bottom: 8px;
+  }
+  .chapter-icon {
+    width: 48px; height: 48px; border-radius: 16px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; margin-bottom: 16px;
+  }
+  .chapter-icon.culture {
+    background: linear-gradient(135deg, rgba(255,220,150,.12), rgba(255,180,80,.08));
+    box-shadow: 0 0 24px rgba(255,200,100,.08);
+  }
+  .chapter-icon.bio {
+    background: linear-gradient(135deg, rgba(110,207,160,.12), rgba(80,180,120,.08));
+    box-shadow: 0 0 24px rgba(110,207,160,.08);
+  }
+  .chapter-icon.trivia {
+    background: linear-gradient(135deg, rgba(160,140,224,.12), rgba(120,100,200,.08));
+    box-shadow: 0 0 24px rgba(160,140,224,.08);
+  }
+
+  .chapter-title {
+    font-size: 22px; font-weight: 700; color: #fff;
+    line-height: 1.4; margin-bottom: 14px;
+  }
+
+  .chapter-text {
+    font-size: 15px; color: rgba(255,255,255,.55);
+    line-height: 2; margin-bottom: 16px;
+  }
+
+  .quote-block {
+    padding: 16px 20px; border-radius: 16px;
+    background: rgba(255,255,255,.03);
+    border-left: 3px solid rgba(160,140,224,.3);
+    margin-top: 8px;
+  }
+  .quote-block p {
+    font-size: 13px; color: rgba(255,255,255,.4);
+    line-height: 1.8; font-style: italic;
+  }
+
+  .chapter-divider {
+    display: flex; align-items: center; gap: 12px;
+    margin: 48px 0;
+  }
+  .chapter-divider::before, .chapter-divider::after {
+    content: ''; flex: 1; height: 1px;
+    background: linear-gradient(to right, transparent, rgba(255,255,255,.06), transparent);
+  }
+  .chapter-divider span {
+    font-size: 10px; color: rgba(255,255,255,.15); letter-spacing: 4px;
+  }
+
+  .tags-section { margin: 8px 0 40px; }
+  .tags-label {
+    font-size: 10px; font-weight: 700; color: rgba(255,255,255,.2);
+    letter-spacing: 2.5px; text-transform: uppercase; margin-bottom: 14px;
+  }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag {
+    padding: 8px 16px; border-radius: 16px; font-size: 12px; font-weight: 500;
+    background: rgba(255,255,255,.04); color: rgba(255,255,255,.4);
+    border: 1px solid rgba(255,255,255,.06);
+    transition: transform .2s, background .2s;
+  }
+  .tag:active { transform: scale(.95); background: rgba(255,255,255,.08); }
+
+  .bottom-spacer { height: 140px; }
+
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
+    padding: 10px 20px 34px;
+    background: linear-gradient(to top, rgba(14,14,26,.98) 40%, transparent);
+    display: flex; gap: 10px;
+  }
+  .action-btn {
+    flex: 1; padding: 14px 0; border-radius: 16px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    transition: transform .15s;
+  }
+  .action-btn:active { transform: scale(.96); }
+  .action-btn.primary {
+    background: linear-gradient(135deg, #a08ce0, #7c6bc4);
+    color: #fff; box-shadow: 0 4px 20px rgba(160,140,224,.2);
+  }
+  .action-btn.secondary {
+    background: rgba(255,255,255,.06); color: rgba(255,255,255,.6);
+    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
+  }
+
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.15); z-index: 40;
+  }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <div class="status-bar">
+    <span class="time">16:28</span>
+    <div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+  </div>
+
+  <div class="nav-bar">
+    <div class="nav-back">
+      <svg viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.8)" stroke-width="2.5" stroke-linecap="round">
+        <path d="M15 18l-6-6 6-6"/>
+      </svg>
+    </div>
+    <div class="nav-title">灵光</div>
+  </div>
+
+  <div class="read-progress"><div class="read-progress-fill" id="progressFill"></div></div>
+
+  <div class="scroll-content" id="scrollContent">
+    <div class="hero" id="hero">
+      <div class="hero-bg"></div>
+      <div class="hero-glow g1"></div>
+      <div class="hero-glow g2"></div>
+      <div class="hero-sticker" id="heroSticker">
+        <img src="cat_sticker.png" alt="黑猫">
+      </div>
+      <div class="hero-title">黑猫</div>
+      <div class="hero-subtitle">Felis catus · Black Cat</div>
+      <div class="scroll-arrow">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.5)" stroke-width="2" stroke-linecap="round">
+          <path d="M6 9l6 6 6-6"/>
+        </svg>
+      </div>
+    </div>
+
+    <div class="content-area">
+
+      <div class="chapter" data-reveal>
+        <div class="chapter-number">01</div>
+        <div class="chapter-icon culture">🌙</div>
+        <div class="chapter-title">幸运与魔法的双面象征</div>
+        <div class="chapter-text">
+          在许多文化中，黑猫被视为幸运的象征。日本人相信黑猫能带来好运和财富，它甚至是招财猫的原型之一。
+        </div>
+        <div class="chapter-text">
+          然而在中世纪的欧洲，黑猫却被视为女巫的伙伴，与魔法和黑暗力量紧密相连。这种截然相反的文化认知，延续至今。
+        </div>
+        <div class="quote-block">
+          <p>「同一个物种，在不同文明中被赋予了完全相反的含义——这或许是人类认知的最好隐喻。」</p>
+        </div>
+      </div>
+
+      <div class="chapter-divider"><span>· · ·</span></div>
+
+      <div class="chapter" data-reveal>
+        <div class="chapter-number">02</div>
+        <div class="chapter-icon bio">🧬</div>
+        <div class="chapter-title">真黑色素：颜色与免疫力的馈赠</div>
+        <div class="chapter-text">
+          黑猫的毛色来源于真黑色素（eumelanin）的大量表达。有趣的是，控制这种色素的基因，同时也与更强的免疫系统有关。
+        </div>
+        <div class="chapter-text">
+          它们的眼睛多为金色或铜色，与纯黑的皮毛形成一种令人着迷的反差美学。暗与光的碰撞，是自然最擅长的设计。
+        </div>
+        <div class="quote-block">
+          <p>「黑色不是缺少颜色，而是所有光的吸收——黑猫的基因组也是如此，聚合了更多的生存优势。」</p>
+        </div>
+      </div>
+
+      <div class="chapter-divider"><span>· · ·</span></div>
+
+      <div class="chapter" data-reveal>
+        <div class="chapter-number">03</div>
+        <div class="chapter-icon trivia">✨</div>
+        <div class="chapter-title">阳光下的变色魔术</div>
+        <div class="chapter-text">
+          这可能是关于黑猫最迷人的冷知识：在阳光下，它们的毛发会呈现出深棕色甚至巧克力色的光泽。
+        </div>
+        <div class="chapter-text">
+          原因在于，紫外线会氧化分解黑色素，让隐藏在「纯黑」之下的暖色调浮现。长期日晒的黑猫甚至会出现铁锈色条纹，被称为 rusting。
+        </div>
+        <div class="quote-block">
+          <p>「每一只黑猫都藏着一个秘密的色彩宇宙，等待阳光揭开。」</p>
+        </div>
+      </div>
+
+      <div class="chapter-divider"><span>✦</span></div>
+
+      <div class="tags-section" data-reveal>
+        <div class="tags-label">相关标签</div>
+        <div class="tags">
+          <span class="tag">🐱 猫科</span>
+          <span class="tag">🏠 家养</span>
+          <span class="tag">🍀 幸运象征</span>
+          <span class="tag">🌙 夜行性</span>
+        </div>
+      </div>
+
+      <div class="bottom-spacer"></div>
+    </div>
+  </div>
+
+  <div class="bottom-bar">
+    <button class="action-btn primary">💬 提问</button>
+    <button class="action-btn secondary">♡ 收藏</button>
+    <button class="action-btn secondary">↗ 分享</button>
+  </div>
+
+  <div class="home-indicator"></div>
+</div>
+
+<script>
+  const scrollContent = document.getElementById('scrollContent');
+  const progressFill = document.getElementById('progressFill');
+  const heroSticker = document.getElementById('heroSticker');
+  const chapters = document.querySelectorAll('[data-reveal]');
+
+  scrollContent.addEventListener('scroll', () => {
+    const scrollTop = scrollContent.scrollTop;
+    const scrollHeight = scrollContent.scrollHeight - scrollContent.clientHeight;
+    const progress = Math.min(scrollTop / scrollHeight, 1);
+
+    progressFill.style.width = (progress * 100) + '%';
+
+    const heroH = 480;
+    const stickerProgress = Math.min(scrollTop / heroH, 1);
+    const scale = 1 - stickerProgress * 0.3;
+    const ty = -stickerProgress * 60;
+    heroSticker.style.transform = `translateY(${ty}px) scale(${scale})`;
+    heroSticker.style.opacity = 1 - stickerProgress * 0.8;
+
+    chapters.forEach(ch => {
+      const rect = ch.getBoundingClientRect();
+      const phoneRect = scrollContent.getBoundingClientRect();
+      const relativeTop = rect.top - phoneRect.top;
+      if (relativeTop < phoneRect.height * 0.8) {
+        ch.classList.add('visible');
+      }
+    });
+  });
+</script>
+
+</body>
+</html>
