@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>C4 手风琴版 — 百科知识卡片</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
+    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+  }
+  .phone {
+    width: 375px; height: 812px; border-radius: 44px; position: relative;
+    background: #faf8f5; overflow: hidden; flex-shrink: 0;
+    box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
+  }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; z-index: 20;
+    padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
+    font-size: 12px; font-weight: 600; color: #3a3530;
+  }
+  .status-bar .time { font-size: 15px; font-weight: 700; }
+  .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
+  .nav-bar {
+    position: absolute; top: 44px; left: 0; right: 0; z-index: 20;
+    padding: 8px 16px; display: flex; align-items: center;
+  }
+  .nav-back {
+    width: 36px; height: 36px; border-radius: 50%; background: rgba(0,0,0,.05);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .nav-back svg { width: 18px; height: 18px; }
+  .nav-title {
+    flex: 1; text-align: center; font-size: 17px; font-weight: 600;
+    color: #2a2520; margin-right: 36px;
+  }
+  .scroll-content {
+    position: absolute; inset: 0; overflow-y: auto; padding: 96px 0 120px;
+    -webkit-overflow-scrolling: touch;
+  }
+  .header-card {
+    margin: 0 20px 16px; background: linear-gradient(160deg, #3a3a5a, #4a4a6a);
+    border-radius: 24px; padding: 28px 24px; display: flex; gap: 18px;
+    align-items: center; box-shadow: 0 8px 32px rgba(0,0,0,.1);
+  }
+  .header-sticker img {
+    width: 80px; height: 80px; object-fit: cover;
+    border-radius: 22px; border: 3px solid rgba(255,255,255,.15);
+    box-shadow: 0 8px 24px rgba(0,0,0,.3);
+  }
+  .header-info h1 { font-size: 28px; font-weight: 800; color: #fff; letter-spacing: 3px; }
+  .header-info .latin { font-size: 12px; color: rgba(255,255,255,.4); font-style: italic; margin-top: 4px; }
+  .header-info .desc { font-size: 12px; color: rgba(255,255,255,.5); margin-top: 8px; line-height: 1.6; }
+  .accordion-group { margin: 0 20px; }
+  .accordion-item {
+    background: #fff; border-radius: 20px; margin-bottom: 10px;
+    box-shadow: 0 2px 12px rgba(0,0,0,.04); overflow: hidden;
+    border: 1px solid rgba(0,0,0,.04); transition: box-shadow .3s, border-color .3s;
+  }
+  .accordion-item.open { box-shadow: 0 4px 24px rgba(0,0,0,.08); border-color: rgba(0,0,0,.06); }
+  .accordion-trigger {
+    width: 100%; padding: 18px 20px; border: none; background: none;
+    display: flex; align-items: center; gap: 14px; cursor: pointer; text-align: left; transition: background .2s;
+  }
+  .accordion-trigger:hover { background: rgba(0,0,0,.015); }
+  .acc-icon {
+    width: 40px; height: 40px; border-radius: 14px; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 18px; transition: transform .4s cubic-bezier(.4,0,.2,1);
+  }
+  .accordion-item.open .acc-icon { transform: scale(1.1); }
+  .acc-icon.culture { background: linear-gradient(135deg, #fef3e2, #fde8c8); }
+  .acc-icon.bio { background: linear-gradient(135deg, #e8f5e9, #c8e6c9); }
+  .acc-icon.trivia { background: linear-gradient(135deg, #ede7f6, #d1c4e9); }
+  .acc-label { flex: 1; }
+  .acc-cat { font-size: 10px; font-weight: 700; color: #a09080; letter-spacing: 1.5px; text-transform: uppercase; }
+  .acc-title { font-size: 15px; font-weight: 600; color: #2a2520; margin-top: 2px; }
+  .acc-chevron {
+    width: 24px; height: 24px; flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+    transition: transform .4s cubic-bezier(.4,0,.2,1); color: #c0b8a8;
+  }
+  .accordion-item.open .acc-chevron { transform: rotate(180deg); color: #8a7e72; }
+  .accordion-body { max-height: 0; overflow: hidden; transition: max-height .5s cubic-bezier(.4,0,.2,1), padding .4s; padding: 0 20px; }
+  .accordion-item.open .accordion-body { max-height: 300px; padding: 0 20px 20px; }
+  .acc-text { font-size: 14px; color: #4a4540; line-height: 1.85; opacity: 0; transform: translateY(-8px); transition: opacity .4s .1s, transform .4s .1s; }
+  .accordion-item.open .acc-text { opacity: 1; transform: translateY(0); }
+  .acc-extra {
+    margin-top: 14px; padding: 12px 16px; background: #faf8f5; border-radius: 14px;
+    display: flex; align-items: center; gap: 10px;
+    opacity: 0; transform: translateY(-8px); transition: opacity .4s .2s, transform .4s .2s;
+  }
+  .accordion-item.open .acc-extra { opacity: 1; transform: translateY(0); }
+  .acc-extra-icon { font-size: 20px; }
+  .acc-extra-text { font-size: 12px; color: #8a8070; line-height: 1.6; }
+  .tags-section { margin: 6px 20px 0; padding: 16px 0; }
+  .tags-title { font-size: 10px; font-weight: 700; color: #c0b8a8; letter-spacing: 2px; text-transform: uppercase; margin-bottom: 12px; }
+  .tags { display: flex; flex-wrap: wrap; gap: 8px; }
+  .tag { padding: 7px 16px; border-radius: 20px; font-size: 12px; font-weight: 500; transition: transform .2s; }
+  .tag:active { transform: scale(.95); }
+  .tag:nth-child(1) { background: #fef3e2; color: #8a6e3e; }
+  .tag:nth-child(2) { background: #e8f5e9; color: #3e6a4a; }
+  .tag:nth-child(3) { background: #ede7f6; color: #5e4a8a; }
+  .tag:nth-child(4) { background: #e3f2fd; color: #3a5a8a; }
+  .expand-all {
+    margin: 8px 20px 0; padding: 12px; text-align: center;
+    font-size: 13px; color: #a09080; cursor: pointer;
+    border-radius: 14px; background: rgba(0,0,0,.02);
+    border: 1px dashed rgba(0,0,0,.06); transition: background .2s;
+  }
+  .expand-all:hover { background: rgba(0,0,0,.04); }
+  .bottom-bar {
+    position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
+    padding: 10px 20px 34px;
+    background: linear-gradient(to top, #faf8f5 60%, rgba(250,248,245,0));
+    display: flex; gap: 10px;
+  }
+  .action-btn {
+    flex: 1; padding: 14px 0; border-radius: 16px; border: none;
+    font-size: 14px; font-weight: 600; cursor: pointer;
+    display: flex; align-items: center; justify-content: center; gap: 6px; transition: transform .15s;
+  }
+  .action-btn:active { transform: scale(.96); }
+  .action-btn.primary { background: #2a2a4a; color: #fff; }
+  .action-btn.secondary { background: #eee8e0; color: #5a5248; }
+  .home-indicator {
+    position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+    width: 134px; height: 5px; border-radius: 3px; background: rgba(0,0,0,.12); z-index: 30;
+  }
+</style>
+</head>
+<body>
+<div class="phone">
+  <div class="status-bar"><span class="time">16:28</span><div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div></div>
+  <div class="nav-bar">
+    <div class="nav-back"><svg viewBox="0 0 24 24" fill="none" stroke="#3a3530" stroke-width="2.5" stroke-linecap="round"><path d="M15 18l-6-6 6-6"/></svg></div>
+    <div class="nav-title">灵光</div>
+  </div>
+  <div class="scroll-content">
+    <div class="header-card">
+      <div class="header-sticker"><img src="cat_sticker.png" alt="黑猫"></div>
+      <div class="header-info"><h1>黑猫</h1><div class="latin">Felis catus · Black Cat</div><div class="desc">暗影中的精灵，文化与科学的交汇点</div></div>
+    </div>
+    <div class="accordion-group">
+      <div class="accordion-item" data-index="0">
+        <button class="accordion-trigger">
+          <div class="acc-icon culture">🌙</div>
+          <div class="acc-label"><div class="acc-cat">文化寓意</div><div class="acc-title">幸运与魔法的双面象征</div></div>
+          <div class="acc-chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></div>
+        </button>
+        <div class="accordion-body">
+          <div class="acc-text">在许多文化中被视为幸运的象征，在日本尤其如此。中世纪欧洲则将其与魔法联系在一起，这种矛盾的文化认知延续至今。</div>
+          <div class="acc-extra"><span class="acc-extra-icon">🇯🇵</span><span class="acc-extra-text">日本招财猫原型中，黑猫被认为能驱除恶灵、带来好运</span></div>
+        </div>
+      </div>
+      <div class="accordion-item" data-index="1">
+        <button class="accordion-trigger">
+          <div class="acc-icon bio">🧬</div>
+          <div class="acc-label"><div class="acc-cat">生物特征</div><div class="acc-title">真黑色素的免疫馈赠</div></div>
+          <div class="acc-chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></div>
+        </button>
+        <div class="accordion-body">
+          <div class="acc-text">黑色毛发由真黑色素产生，同一基因也与更强的免疫力相关。它们的眼睛多为金色或铜色，形成一种令人着迷的反差。</div>
+          <div class="acc-extra"><span class="acc-extra-icon">🔬</span><span class="acc-extra-text">研究表明黑猫携带的基因突变可能对 HIV 等病毒有天然抗性</span></div>
+        </div>
+      </div>
+      <div class="accordion-item" data-index="2">
+        <button class="accordion-trigger">
+          <div class="acc-icon trivia">✨</div>
+          <div class="acc-label"><div class="acc-cat">冷知识</div><div class="acc-title">阳光下的变色魔术</div></div>
+          <div class="acc-chevron"><svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 6l4 4 4-4"/></svg></div>
+        </button>
+        <div class="accordion-body">
+          <div class="acc-text">阳光下黑猫的毛发会呈现深棕色或巧克力色，这是因为黑色素被紫外线氧化分解。每一只黑猫都藏着秘密色彩。</div>
+          <div class="acc-extra"><span class="acc-extra-icon">☀️</span><span class="acc-extra-text">长期日晒的黑猫甚至会出现「铁锈色」条纹，被称为 rusting</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="expand-all" id="expandAll">展开全部 ✦</div>
+    <div class="tags-section"><div class="tags-title">相关标签</div><div class="tags"><span class="tag">🐱 猫科</span><span class="tag">🏠 家养</span><span class="tag">🍀 幸运象征</span><span class="tag">🌙 夜行性</span></div></div>
+  </div>
+  <div class="bottom-bar">
+    <button class="action-btn primary">💬 提问</button>
+    <button class="action-btn secondary">♡ 收藏</button>
+    <button class="action-btn secondary">↗ 分享</button>
+  </div>
+  <div class="home-indicator"></div>
+</div>
+<script>
+  const items = document.querySelectorAll('.accordion-item');
+  const expandAllBtn = document.getElementById('expandAll');
+  let allExpanded = false;
+  items.forEach(item => {
+    item.querySelector('.accordion-trigger').addEventListener('click', () => {
+      const wasOpen = item.classList.contains('open');
+      if (!allExpanded) { items.forEach(i => i.classList.remove('open')); }
+      if (!wasOpen) item.classList.add('open');
+    });
+  });
+  expandAllBtn.addEventListener('click', () => {
+    allExpanded = !allExpanded;
+    items.forEach(item => { item.classList.toggle('open', allExpanded); });
+    expandAllBtn.textContent = allExpanded ? '收起全部 ✦' : '展开全部 ✦';
+  });
+</script>
+</body>
+</html>
