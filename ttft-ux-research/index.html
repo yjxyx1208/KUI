@@ -176,38 +176,67 @@
   <div class="section">
     <div class="section-title">一、TTFT 全景图</div>
     <p class="section-desc">基于 2025-2026 年多项独立基准测试，覆盖国内外 9 个主流产品</p>
+
+    <div class="highlight" style="background:#FFF8E1;border-left-color:#F9A825;">
+      <strong style="color:#E65100;">&#x26A0; 数据说明：</strong>以下 TTFT 数据为<strong>量级参考</strong>，非精确测量值。TTFT 受 prompt 长度、并发量、地区、时段等因素影响波动较大。国际模型数据（A 级）来自多个独立基准测试交叉验证，相对可信；国内模型数据（B/C 级）来源较单一，建议以自行实测为准。<strong>具体毫秒数不宜直接引用。</strong>
+    </div>
+
     <div class="chart-box">
-      <h4>各模型 TTFT 对比（API 级，中等 prompt）</h4>
+      <h4>各模型 TTFT 对比（API 级，中等 prompt，估算量级）</h4>
       <div id="chart1" style="width:100%;height:400px;"></div>
     </div>
+
     <div class="card">
       <h3>三个世界的体验分界线</h3>
       <table>
         <tr>
-          <th>体验层级</th><th>TTFT 范围</th><th>代表产品/模型</th><th>用户感受</th>
+          <th>体验层级</th>
+          <th>TTFT 范围</th>
+          <th>代表产品/模型</th>
+          <th>数据置信度</th>
+          <th>用户感受</th>
         </tr>
         <tr>
           <td><span class="tag tag-green">即时世界</span></td>
           <td>&lt;1 秒</td>
-          <td>Claude Haiku, GPT-4o mini, 豆包, Groq</td>
-          <td>几乎无感知等待，像在和人聊天</td>
+          <td>Claude Haiku, GPT-4o mini, Groq</td>
+          <td><span class="tag tag-green">A 级</span></td>
+          <td>几乎无感知等待</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">即时世界</span></td>
+          <td>&lt;1 秒</td>
+          <td>豆包, Kimi</td>
+          <td><span class="tag tag-amber">B 级</span></td>
+          <td>厂商数据，待独立验证</td>
         </tr>
         <tr>
           <td><span class="tag tag-amber">思考世界</span></td>
           <td>1-5 秒</td>
-          <td>Claude Sonnet, GPT-4.1, Gemini Pro, Kimi</td>
-          <td>能接受，但需要视觉反馈「它在想了」</td>
+          <td>Claude Sonnet, GPT-4.1, Gemini Pro</td>
+          <td><span class="tag tag-green">A 级</span></td>
+          <td>需要视觉反馈「在想了」</td>
         </tr>
         <tr>
           <td><span class="tag tag-red">深思世界</span></td>
           <td>5-30 秒+</td>
-          <td>o3, Claude Extended Thinking, DeepSeek R1</td>
-          <td>需要全新等待范式，否则用户流失</td>
+          <td>o3, Claude Extended Thinking</td>
+          <td><span class="tag tag-green">A 级</span></td>
+          <td>需要全新等待范式</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">深思世界</span></td>
+          <td>变动大</td>
+          <td>DeepSeek R1</td>
+          <td><span class="tag tag-amber">B 级</span></td>
+          <td>开源部署差异大</td>
         </tr>
       </table>
+      <p style="font-size:0.8em;color:var(--text-secondary);margin-top:8px;">A 级 = 多个独立基准测试交叉验证 | B 级 = 厂商数据或单一来源转引 | 分层结论（三个世界的存在）可信度高，具体归属可能随版本迭代变化</p>
     </div>
+
     <div class="chart-box">
-      <h4>TTFT 性能层级分布</h4>
+      <h4>TTFT 性能层级分布（基于现有数据估算）</h4>
       <div id="chart2" style="width:100%;height:350px;"></div>
     </div>
   </div>
@@ -310,38 +339,38 @@
     <p class="section-desc">各家的设计哲学和具体实现</p>
     <div class="card">
       <h3>ChatGPT — 「忙碌但透明」</h3>
-      <p><strong>TTFT：</strong>GPT-4o ~300ms，o3 推理模式 2-10s+</p>
+      <p><strong>TTFT：</strong>GPT-4o ~300ms <span class="tag tag-green" style="font-size:0.7em;">A</span>，o3 推理模式 2-10s+ <span class="tag tag-green" style="font-size:0.7em;">A</span></p>
       <p><strong>等待设计：</strong>thinking 过程可折叠展示，搜索时展示正在访问的 URL，工具调用时展示工具名称和参数。深度研究模式下有详细的多阶段进度。</p>
       <p><strong>设计哲学：</strong>让用户看到 AI 在做什么，但不强迫看完。</p>
     </div>
     <div class="card">
       <h3>Claude — 「极简信任」</h3>
-      <p><strong>TTFT：</strong>Haiku ~600ms，Sonnet ~1-2s，Opus ~1-3s</p>
+      <p><strong>TTFT：</strong>Haiku ~600ms <span class="tag tag-green" style="font-size:0.7em;">A</span>，Sonnet ~1-2s <span class="tag tag-green" style="font-size:0.7em;">A</span>，Opus ~1-3s <span class="tag tag-amber" style="font-size:0.7em;">B</span></p>
       <p><strong>等待设计：</strong>极简打字光标 + 流式输出。Extended thinking 模式下展示思考过程（可展开查看完整推理链）。Claude Code 展示工具调用进度。</p>
       <p><strong>设计哲学：</strong>少即是多，信任来自输出质量而非过程炫技。</p>
     </div>
     <div class="card">
       <h3>Gemini — 「快是第一性原理」</h3>
-      <p><strong>TTFT：</strong>Flash 极快，Pro 标准。Flash Lite 比 Flash 再快 2.5x</p>
+      <p><strong>TTFT：</strong>Flash ~730ms <span class="tag tag-green" style="font-size:0.7em;">A</span>，Pro 标准速度。官方称 Flash Lite 比 Flash 再快 2.5x <span class="tag tag-amber" style="font-size:0.7em;">B</span></p>
       <p><strong>等待设计：</strong>默认使用 Flash（速度优先），复杂任务自动切换 Pro。thinking 模式有进度展示。</p>
       <p><strong>设计哲学：</strong>用模型分层解决延迟问题，而非靠 UI 掩盖。</p>
     </div>
     <div class="card">
       <h3>Perplexity — 「搜索可视化」</h3>
-      <p><strong>TTFT：</strong>取决于搜索链路，通常 2-5s</p>
+      <p><strong>TTFT：</strong>取决于搜索链路，通常 2-5s <span class="tag tag-amber" style="font-size:0.7em;">B 估算</span></p>
       <p><strong>等待设计：</strong>最丰富的过程展示 — 实时展示搜索查询、正在阅读的来源、分析进度。结果优先（先出答案摘要，再展开详情和来源）。</p>
       <p><strong>设计哲学：</strong>让搜索过程本身成为内容，等待 = 学习。</p>
     </div>
     <div class="card">
       <h3>豆包 — 「速度即体验」</h3>
-      <p><strong>TTFT：</strong>极快（语音场景首包延迟 ~182ms，文本响应同样快速）</p>
+      <p><strong>TTFT：</strong>语音场景首包延迟 ~182ms <span class="tag tag-amber" style="font-size:0.7em;">B 厂商数据</span>，文本 TTFT 缺乏独立测试数据</p>
       <p><strong>等待设计：</strong>依托字节跳动的推理基础设施，以极低延迟直接减少等待感知。具体 UI 实现细节需实机验证。</p>
       <p><strong>设计哲学：</strong>速度本身就是最好的 UX — 如果够快，就不需要复杂的等待设计。</p>
     </div>
     <div class="card">
       <h3>Kimi &amp; DeepSeek</h3>
-      <p><strong>Kimi：</strong>长文本处理见长，Mooncake 架构提升推理吞吐（官方称 525%&uarr;）。具体等待 UI 实现需实机验证。</p>
-      <p><strong>DeepSeek：</strong>R1 推理模式下可暴露完整思维链（开源社区及官方 API 文档可确认）。开源特性使延迟因部署环境差异大。</p>
+      <p><strong>Kimi：</strong>moonshot v1 8k TTFT ~0.2s <span class="tag tag-amber" style="font-size:0.7em;">B 单一来源</span>。长文本处理见长，Mooncake 架构提升推理吞吐（官方称 525%&uarr;）。具体等待 UI 实现需实机验证。</p>
+      <p><strong>DeepSeek：</strong>V3 简单任务 ~0.2s <span class="tag tag-amber" style="font-size:0.7em;">B</span>，R1 推理模式延迟变动大。R1 可暴露完整思维链（开源社区及官方 API 文档可确认）。开源部署差异导致延迟数据不具代表性。</p>
     </div>
   </div>
 
@@ -421,7 +450,8 @@
   <div class="footer">
     <p>Alpha Insights | Tier 2 专题简报 | 生成于 2026-04</p>
     <p>数据来源：Kunal Ganglani LLM Benchmarks 2026, AIMultiple, Iternal AI, SuperCLUE, Jakob Nielsen/NN Group, Shape of AI, UX Tigers, 学术论文</p>
-    <p>置信度说明：A级=权威独立测试 B级=厂商数据/可靠转引 C级=社区报告</p>
+    <p>置信度：A 级 = 多个独立基准测试交叉验证 | B 级 = 厂商数据或单一来源转引 | C 级 = 社区报告</p>
+    <p style="margin-top:8px;color:#C0392B;"><strong>&#x26A0; 本报告 TTFT 数据为量级参考，不宜直接引用具体毫秒数。正式决策前建议用相同 prompt 对核心竞品进行消费端实测。</strong></p>
   </div>
 
 </div>
@@ -429,7 +459,6 @@
 <script>
 var dk = "dat" + "a";
 
-// Chart 1: TTFT Bar Chart
 var c1 = echarts.init(document.getElementById('chart1'));
 var c1opt = {
   tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
@@ -462,7 +491,6 @@ c1opt.xAxis[dk] = ['Haiku 4.5', 'GPT-4o mini', 'Mistral L', 'GPT-5.2', 'Gemini F
 c1opt.series[0][dk] = [600, 200, 400, 550, 730, 1042, 1696, 1523, 1500, 4000, 5000];
 c1.setOption(c1opt);
 
-// Chart 2: Pie
 var c2 = echarts.init(document.getElementById('chart2'));
 var c2opt = {
   tooltip: { trigger: 'item' },
@@ -484,7 +512,6 @@ c2opt.series[0][dk] = [
 ];
 c2.setOption(c2opt);
 
-// Chart 3: Heatmap
 var c3 = echarts.init(document.getElementById('chart3'));
 var products = ['ChatGPT', 'Claude', 'Gemini', 'Perplexity', '豆包', 'Kimi', 'DeepSeek'];
 var strategies = ['流式输出', '思考过程', '阶段指示', '骨架/预告', '可中断', '结果优先', '刻意延迟'];
