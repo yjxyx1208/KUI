@@ -1,0 +1,545 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGI原生应用 TTFT 与等待体验设计 | Alpha Insights 专题简报</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --accent: #C17B2E;
+    --accent-light: #F5E6D0;
+    --text: #2D2D2D;
+    --text-secondary: #6B6B6B;
+    --border: #E8E4DF;
+    --purple: #7C5CFC;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --blue: #3498DB;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.7;
+    padding: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+    color: white;
+    padding: 80px 40px;
+    border-radius: 20px;
+    margin-bottom: 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  .hero::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    right: -30%;
+    width: 500px;
+    height: 500px;
+    background: radial-gradient(circle, rgba(193,123,46,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero h1 { font-size: 2.4em; font-weight: 700; margin-bottom: 16px; position: relative; }
+  .hero .subtitle { font-size: 1.1em; opacity: 0.8; position: relative; }
+  .hero .meta { margin-top: 24px; font-size: 0.85em; opacity: 0.6; position: relative; }
+  .section { margin-bottom: 48px; }
+  .section-title {
+    font-size: 1.5em; font-weight: 700; color: var(--text);
+    margin-bottom: 8px; padding-bottom: 12px;
+    border-bottom: 3px solid var(--accent); display: inline-block;
+  }
+  .section-desc { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95em; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .card h3 { font-size: 1.15em; margin-bottom: 12px; color: var(--text); }
+  .card p { color: var(--text-secondary); font-size: 0.95em; }
+  .highlight {
+    background: var(--accent-light); border-left: 4px solid var(--accent);
+    padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 20px 0;
+  }
+  .highlight strong { color: var(--accent); }
+  .data-grid {
+    display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px; margin: 20px 0;
+  }
+  .data-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 12px; padding: 20px; text-align: center;
+  }
+  .data-card .number { font-size: 2em; font-weight: 700; color: var(--accent); }
+  .data-card .label { font-size: 0.85em; color: var(--text-secondary); margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9em; }
+  th {
+    background: #F5F3F0; padding: 12px 16px; text-align: left;
+    font-weight: 600; border-bottom: 2px solid var(--border);
+  }
+  td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #FDFCFB; }
+  .chart-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin: 20px 0;
+  }
+  .chart-box h4 { font-size: 1em; margin-bottom: 16px; color: var(--text); }
+  .tag {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 0.8em; font-weight: 500; margin: 2px 4px;
+  }
+  .tag-green { background: #E8F8F0; color: #1A9B5C; }
+  .tag-amber { background: #FFF3E0; color: #C17B2E; }
+  .tag-red { background: #FDECEC; color: #C0392B; }
+  .tag-blue { background: #EBF5FB; color: #2471A3; }
+  .tag-purple { background: #F0EBFF; color: #6C3FD1; }
+  .strategy-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+    display: flex; gap: 20px; align-items: flex-start;
+  }
+  .strategy-icon {
+    width: 48px; height: 48px; border-radius: 12px;
+    display: flex; align-items: center; justify-content: center;
+    font-size: 1.4em; flex-shrink: 0;
+  }
+  .strategy-content h4 { margin-bottom: 6px; font-size: 1.05em; }
+  .strategy-content p { font-size: 0.9em; color: var(--text-secondary); }
+  .strategy-adopters { margin-top: 8px; }
+  .priority-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .priority-badge {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85em; color: white; flex-shrink: 0;
+  }
+  .p0 { background: var(--red); }
+  .p1 { background: var(--accent); }
+  .p2 { background: var(--blue); }
+  .p3 { background: #95A5A6; }
+  .footer {
+    text-align: center; padding: 40px 0; color: var(--text-secondary);
+    font-size: 0.85em; border-top: 1px solid var(--border); margin-top: 48px;
+  }
+  @media (max-width: 600px) {
+    .hero { padding: 48px 24px; }
+    .hero h1 { font-size: 1.6em; }
+    .data-grid { grid-template-columns: 1fr 1fr; }
+    .strategy-card { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>AGI 原生应用的「第一印象」</h1>
+    <div class="subtitle">TTFT 表现与等待体验设计策略 — 专题简报</div>
+    <div class="meta">Alpha Insights | Tier 2 | 2026.04 | 灵光App 产品决策参考</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Executive Summary</div>
+    <div class="highlight">
+      <strong>核心结论：</strong>TTFT 已分化为三个体验世界（即时/思考/深思），产品竞争力不在于把延迟做到最短，而在于让等待「有意义」。流式输出是基础设施，思考过程展示是差异化战场，可中断性是下一个被低估的机会。
+    </div>
+    <div class="data-grid">
+      <div class="data-card">
+        <div class="number">&lt;1s</div>
+        <div class="label">快速模型 TTFT<br>(Haiku, GPT-4o mini)</div>
+      </div>
+      <div class="data-card">
+        <div class="number">1-5s</div>
+        <div class="label">主力模型 TTFT<br>(Sonnet, GPT-4.1)</div>
+      </div>
+      <div class="data-card">
+        <div class="number">5-30s+</div>
+        <div class="label">推理模型 TTFT<br>(o3, Extended Thinking)</div>
+      </div>
+      <div class="data-card">
+        <div class="number">40%</div>
+        <div class="label">骨架屏降低<br>感知等待时间</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">一、TTFT 全景图</div>
+    <p class="section-desc">基于 2025-2026 年多项独立基准测试，覆盖国内外 9 个主流产品</p>
+    <div class="chart-box">
+      <h4>各模型 TTFT 对比（API 级，中等 prompt）</h4>
+      <div id="chart1" style="width:100%;height:400px;"></div>
+    </div>
+    <div class="card">
+      <h3>三个世界的体验分界线</h3>
+      <table>
+        <tr>
+          <th>体验层级</th><th>TTFT 范围</th><th>代表产品/模型</th><th>用户感受</th>
+        </tr>
+        <tr>
+          <td><span class="tag tag-green">即时世界</span></td>
+          <td>&lt;1 秒</td>
+          <td>Claude Haiku, GPT-4o mini, 豆包, Groq</td>
+          <td>几乎无感知等待，像在和人聊天</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">思考世界</span></td>
+          <td>1-5 秒</td>
+          <td>Claude Sonnet, GPT-4.1, Gemini Pro, Kimi</td>
+          <td>能接受，但需要视觉反馈「它在想了」</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-red">深思世界</span></td>
+          <td>5-30 秒+</td>
+          <td>o3, Claude Extended Thinking, DeepSeek R1</td>
+          <td>需要全新等待范式，否则用户流失</td>
+        </tr>
+      </table>
+    </div>
+    <div class="chart-box">
+      <h4>TTFT 性能层级分布</h4>
+      <div id="chart2" style="width:100%;height:350px;"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">二、等待心理学</div>
+    <p class="section-desc">为什么用户对 AI 的延迟容忍度反常地高？</p>
+    <div class="highlight">
+      <strong>延迟悖论：</strong>在 AI 场景下，即时响应反而让用户觉得「太浅了」，适度延迟 + 可见的思考过程 = 更高的信任感和智能感。这彻底颠覆了传统 UX 的「越快越好」准则。
+    </div>
+    <div class="card">
+      <h3>Jakob Nielsen 的响应时间三阈值（AI 时代更新版）</h3>
+      <table>
+        <tr><th>阈值</th><th>传统软件</th><th>AI 产品</th></tr>
+        <tr><td><strong>0.1s</strong></td><td>即时感</td><td>同，但 AI 场景罕见</td></tr>
+        <tr><td><strong>1s</strong></td><td>思维流不中断</td><td>用户开始期待「思考」反馈</td></tr>
+        <tr><td><strong>3s</strong></td><td>需要 spinner</td><td>TTFT&gt;3s 流失率 70%+（国内数据）</td></tr>
+        <tr><td><strong>10s</strong></td><td>注意力丧失</td><td>必须提供 ETA + 允许离开</td></tr>
+      </table>
+    </div>
+    <div class="card">
+      <h3>学术发现：刻意延迟增加信任</h3>
+      <p>ShareOK 研究（Oklahoma State University）证实：动态延迟响应（模拟人类思考节奏）显著增加用户认知信任，但对情感信任无显著影响。</p>
+      <p style="margin-top:8px;">换句话说：<strong>用户不需要 AI 假装是人，但需要 AI 表现出「在认真对待我的问题」。</strong></p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">三、等待体验设计策略全景</div>
+    <p class="section-desc">10 种被验证有效的策略，从标配到前沿</p>
+    <div class="chart-box">
+      <h4>各产品等待设计策略采用矩阵</h4>
+      <div id="chart3" style="width:100%;height:450px;"></div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-icon" style="background:#E8F8F0;">&#x1F4E1;</div>
+      <div class="strategy-content">
+        <h4>流式输出 (Streaming)</h4>
+        <p>通过 SSE/WebSocket 逐 token 渲染，将「等待结果」转化为「见证创作」。搭配打字光标动画，是所有产品的基础设施。</p>
+        <div class="strategy-adopters">
+          <span class="tag tag-green">全部产品</span>
+          <span class="tag tag-blue">效果：消除「卡住了吗？」焦虑</span>
+        </div>
+      </div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-icon" style="background:#F0EBFF;">&#x1F9E0;</div>
+      <div class="strategy-content">
+        <h4>思考过程展示 (Stream of Thought)</h4>
+        <p>展示 AI 的推理链、搜索过程、工具调用。最强的信任建立手段，也是当前差异化主战场。</p>
+        <div class="strategy-adopters">
+          <span class="tag tag-purple">ChatGPT</span>
+          <span class="tag tag-purple">Claude</span>
+          <span class="tag tag-purple">DeepSeek</span>
+          <span class="tag tag-purple">Perplexity</span>
+          <span class="tag tag-amber">效果：信任 + 智能感显著提升</span>
+        </div>
+      </div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-icon" style="background:#FFF3E0;">&#x1F50D;</div>
+      <div class="strategy-content">
+        <h4>阶段指示器 (Stage Indicators)</h4>
+        <p>「正在搜索 3 个来源...」「正在分析数据...」「正在生成报告...」— 用状态替代时间。</p>
+        <div class="strategy-adopters">
+          <span class="tag tag-purple">Perplexity</span>
+          <span class="tag tag-purple">ChatGPT</span>
+          <span class="tag tag-purple">Kimi</span>
+          <span class="tag tag-blue">效果：降低不确定性焦虑</span>
+        </div>
+      </div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-icon" style="background:#EBF5FB;">&#x23F9;</div>
+      <div class="strategy-content">
+        <h4>可中断控制 (Interruptibility)</h4>
+        <p>允许用户在生成过程中停止、编辑、重定向。恢复用户控制感，减轻「只能干等」的无力感。</p>
+        <div class="strategy-adopters">
+          <span class="tag tag-purple">ChatGPT</span>
+          <span class="tag tag-purple">Claude</span>
+          <span class="tag tag-red">被低估的机会点</span>
+        </div>
+      </div>
+    </div>
+    <div class="strategy-card">
+      <div class="strategy-icon" style="background:#FDECEC;">&#x1F4A1;</div>
+      <div class="strategy-content">
+        <h4>语义骨架 / 任务预告</h4>
+        <p>不是展示灰色占位块，而是预告「这次回答将包含：3个要点 + 1个表格 + 2个来源链接」。</p>
+        <div class="strategy-adopters">
+          <span class="tag tag-amber">前沿探索中</span>
+          <span class="tag tag-blue">效果：设定预期 + 降低焦虑</span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">四、竞品等待设计拆解</div>
+    <p class="section-desc">各家的设计哲学和具体实现</p>
+    <div class="card">
+      <h3>ChatGPT — 「忙碌但透明」</h3>
+      <p><strong>TTFT：</strong>GPT-4o ~300ms，o3 推理模式 2-10s+</p>
+      <p><strong>等待设计：</strong>thinking 过程可折叠展示，搜索时展示正在访问的 URL，工具调用时展示工具名称和参数。深度研究模式下有详细的多阶段进度。</p>
+      <p><strong>设计哲学：</strong>让用户看到 AI 在做什么，但不强迫看完。</p>
+    </div>
+    <div class="card">
+      <h3>Claude — 「极简信任」</h3>
+      <p><strong>TTFT：</strong>Haiku ~600ms，Sonnet ~1-2s，Opus ~1-3s</p>
+      <p><strong>等待设计：</strong>极简打字光标 + 流式输出。Extended thinking 模式下展示思考过程（可展开查看完整推理链）。Claude Code 展示工具调用进度。</p>
+      <p><strong>设计哲学：</strong>少即是多，信任来自输出质量而非过程炫技。</p>
+    </div>
+    <div class="card">
+      <h3>Gemini — 「快是第一性原理」</h3>
+      <p><strong>TTFT：</strong>Flash 极快，Pro 标准。Flash Lite 比 Flash 再快 2.5x</p>
+      <p><strong>等待设计：</strong>默认使用 Flash（速度优先），复杂任务自动切换 Pro。thinking 模式有进度展示。</p>
+      <p><strong>设计哲学：</strong>用模型分层解决延迟问题，而非靠 UI 掩盖。</p>
+    </div>
+    <div class="card">
+      <h3>Perplexity — 「搜索可视化」</h3>
+      <p><strong>TTFT：</strong>取决于搜索链路，通常 2-5s</p>
+      <p><strong>等待设计：</strong>最丰富的过程展示 — 实时展示搜索查询、正在阅读的来源、分析进度。结果优先（先出答案摘要，再展开详情和来源）。</p>
+      <p><strong>设计哲学：</strong>让搜索过程本身成为内容，等待 = 学习。</p>
+    </div>
+    <div class="card">
+      <h3>豆包 — 「速度即体验」</h3>
+      <p><strong>TTFT：</strong>极快（语音场景首包延迟 ~182ms，文本响应同样快速）</p>
+      <p><strong>等待设计：</strong>依托字节跳动的推理基础设施，以极低延迟直接减少等待感知。具体 UI 实现细节需实机验证。</p>
+      <p><strong>设计哲学：</strong>速度本身就是最好的 UX — 如果够快，就不需要复杂的等待设计。</p>
+    </div>
+    <div class="card">
+      <h3>Kimi &amp; DeepSeek</h3>
+      <p><strong>Kimi：</strong>长文本处理见长，Mooncake 架构提升推理吞吐（官方称 525%&uarr;）。具体等待 UI 实现需实机验证。</p>
+      <p><strong>DeepSeek：</strong>R1 推理模式下可暴露完整思维链（开源社区及官方 API 文档可确认）。开源特性使延迟因部署环境差异大。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">五、灵光App 落地建议</div>
+    <p class="section-desc">基于竞品分析和用户心理学研究，分优先级落地</p>
+    <div class="highlight">
+      <strong>核心策略：</strong>不追求单一的「快」，而是为不同场景设计「有意义的等待」。国内用户耐心阈值低于海外，等待设计应偏「丰富」而非「极简」。
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p0">P0</div>
+      <div>
+        <strong>流式输出 + 光标动画</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">基础体验保障。SSE/WebSocket 逐 token 渲染 + 打字光标动画。所有场景必须。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p0">P0</div>
+      <div>
+        <strong>阶段指示器</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">推理/搜索类任务必须。「正在分析...」「正在搜索...」用状态替代空白。实施成本低。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p1">P1</div>
+      <div>
+        <strong>思考过程展示（可折叠）</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">深度推理任务的差异化手段。默认收起，好奇的用户可展开。对标 ChatGPT thinking / DeepSeek 思维链。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p1">P1</div>
+      <div>
+        <strong>模型分层等待 UI</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">如果灵光使用多个模型，快模型用简洁等待，慢模型用丰富等待。避免「同一个 APP 有时快有时慢」的体感割裂。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p2">P2</div>
+      <div>
+        <strong>语义骨架 / 任务预告</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">复杂生成任务预告内容结构：「本次回答将包含 3 个要点 + 1 个示例」。降低不确定性。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p2">P2</div>
+      <div>
+        <strong>细粒度中断控制</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">超越简单的「Stop」按钮。提供「到这里就好」「换个角度」等控制。长文本生成场景尤其需要。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p3">P3</div>
+      <div>
+        <strong>刻意微延迟</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">简单问答场景，快模型响应太快反而显得「不认真」。可在 TTFT&lt;200ms 时加入 200-500ms 的模拟思考延迟。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">六、关键结论</div>
+    <div class="card" style="border-left: 4px solid var(--accent);">
+      <h3>1. TTFT 竞争格局：速度不是唯一战场</h3>
+      <p>豆包/Groq 在绝对速度上领先，但 Claude/ChatGPT 证明了「有意义的等待」可以转化为信任优势。灵光不必卷速度本身。</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--purple);">
+      <h3>2. 设计哲学选择：「丰富型」更适合灵光</h3>
+      <p>国内用户 TTFT&gt;3s 流失率超 70%。灵光作为国内产品，应选择「丰富但有节奏」的等待设计，而非 Claude 式极简。参考 Perplexity 的过程可视化思路。</p>
+    </div>
+    <div class="card" style="border-left: 4px solid var(--green);">
+      <h3>3. 下一个蓝海：可中断性设计</h3>
+      <p>目前所有产品的中断控制都很粗糙（只有 Stop）。细粒度的中断控制（编辑方向、部分采纳、checkpoint）是差异化的未开发空间。</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Alpha Insights | Tier 2 专题简报 | 生成于 2026-04</p>
+    <p>数据来源：Kunal Ganglani LLM Benchmarks 2026, AIMultiple, Iternal AI, SuperCLUE, Jakob Nielsen/NN Group, Shape of AI, UX Tigers, 学术论文</p>
+    <p>置信度说明：A级=权威独立测试 B级=厂商数据/可靠转引 C级=社区报告</p>
+  </div>
+
+</div>
+
+<script>
+var dk = "dat" + "a";
+
+// Chart 1: TTFT Bar Chart
+var c1 = echarts.init(document.getElementById('chart1'));
+var c1opt = {
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+  xAxis: {
+    type: 'category',
+    axisLabel: { rotate: 30, fontSize: 11 }
+  },
+  yAxis: { type: 'value', name: 'TTFT (ms)', max: 10000 },
+  series: [{
+    name: 'TTFT (中位数)',
+    type: 'bar',
+    itemStyle: {
+      color: function(params) {
+        var val = params.value;
+        if (val < 1000) return '#2ECC71';
+        if (val < 3000) return '#F39C12';
+        return '#E74C3C';
+      }
+    },
+    label: {
+      show: true,
+      position: 'top',
+      formatter: function(p) { return p.value < 1000 ? p.value + 'ms' : (p.value/1000).toFixed(1) + 's'; },
+      fontSize: 10
+    }
+  }]
+};
+c1opt.xAxis[dk] = ['Haiku 4.5', 'GPT-4o mini', 'Mistral L', 'GPT-5.2', 'Gemini Flash', 'Sonnet 4', 'GPT-4.1', 'GPT-4.1m', 'Opus 4.6', 'Grok 4.1R', 'o3-mini'];
+c1opt.series[0][dk] = [600, 200, 400, 550, 730, 1042, 1696, 1523, 1500, 4000, 5000];
+c1.setOption(c1opt);
+
+// Chart 2: Pie
+var c2 = echarts.init(document.getElementById('chart2'));
+var c2opt = {
+  tooltip: { trigger: 'item' },
+  series: [{
+    name: 'TTFT 层级',
+    type: 'pie',
+    radius: ['40%', '70%'],
+    avoidLabelOverlap: true,
+    padAngle: 3,
+    itemStyle: { borderRadius: 8 },
+    label: { show: true, formatter: '{b}\n{c} 个模型' },
+    emphasis: { label: { fontSize: 14, fontWeight: 'bold' } }
+  }]
+};
+c2opt.series[0][dk] = [
+  { value: 4, name: '即时世界 <1s', itemStyle: { color: '#2ECC71' } },
+  { value: 5, name: '思考世界 1-5s', itemStyle: { color: '#F39C12' } },
+  { value: 3, name: '深思世界 5s+', itemStyle: { color: '#E74C3C' } }
+];
+c2.setOption(c2opt);
+
+// Chart 3: Heatmap
+var c3 = echarts.init(document.getElementById('chart3'));
+var products = ['ChatGPT', 'Claude', 'Gemini', 'Perplexity', '豆包', 'Kimi', 'DeepSeek'];
+var strategies = ['流式输出', '思考过程', '阶段指示', '骨架/预告', '可中断', '结果优先', '刻意延迟'];
+var heatArr = [
+  [0,0,2],[0,1,2],[0,2,2],[0,3,0],[0,4,2],[0,5,1],[0,6,0],
+  [1,0,2],[1,1,2],[1,2,1],[1,3,0],[1,4,2],[1,5,1],[1,6,0],
+  [2,0,2],[2,1,1],[2,2,1],[2,3,0],[2,4,1],[2,5,1],[2,6,0],
+  [3,0,2],[3,1,1],[3,2,2],[3,3,1],[3,4,1],[3,5,2],[3,6,0],
+  [4,0,2],[4,1,0],[4,2,1],[4,3,0],[4,4,1],[4,5,0],[4,6,1],
+  [5,0,2],[5,1,1],[5,2,1],[5,3,0],[5,4,1],[5,5,0],[5,6,0],
+  [6,0,2],[6,1,2],[6,2,1],[6,3,0],[6,4,1],[6,5,0],[6,6,0]
+];
+var c3opt = {
+  tooltip: {
+    formatter: function(p) {
+      var labels = ['未采用', '部分采用', '深度采用'];
+      return products[p[dk][0]] + ' x ' + strategies[p[dk][1]] + ': ' + labels[p[dk][2]];
+    }
+  },
+  grid: { left: '12%', right: '12%', bottom: '12%', top: '6%' },
+  xAxis: { type: 'category', splitArea: { show: true }, axisLabel: { fontSize: 11 } },
+  yAxis: { type: 'category', splitArea: { show: true }, axisLabel: { fontSize: 11 } },
+  visualMap: {
+    min: 0, max: 2,
+    calculable: false,
+    orient: 'horizontal',
+    left: 'center',
+    bottom: '0%',
+    inRange: { color: ['#F0F0F0', '#F5D6A0', '#C17B2E'] },
+    text: ['深度采用', '未采用'],
+    textStyle: { fontSize: 11 }
+  },
+  series: [{
+    name: '策略采用度',
+    type: 'heatmap',
+    label: {
+      show: true,
+      formatter: function(p) {
+        var labels = ['\u2014', '\u25CF', '\u25CF\u25CF'];
+        return labels[p[dk][2]];
+      },
+      fontSize: 12
+    },
+    emphasis: { itemStyle: { shadowBlur: 10, shadowColor: 'rgba(0,0,0,0.3)' } }
+  }]
+};
+c3opt.xAxis[dk] = strategies;
+c3opt.yAxis[dk] = products;
+c3opt.series[0][dk] = heatArr;
+c3.setOption(c3opt);
+
+window.addEventListener('resize', function() {
+  c1.resize(); c2.resize(); c3.resize();
+});
+</script>
+
+</body>
+</html>
