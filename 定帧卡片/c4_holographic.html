@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>C4 全息宝可梦卡 — 百科知识卡片</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
   body {
     background: #0a0a14; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
-    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
   }
 
   .phone {
@@ -40,6 +41,7 @@
     color: rgba(255,255,255,.9); margin-right: 36px;
   }
 
+  /* 卡片场景 */
   .card-scene {
     position: absolute; inset: 0; z-index: 10;
     display: flex; align-items: center; justify-content: center;
@@ -47,6 +49,7 @@
     perspective: 800px;
   }
 
+  /* 全息卡 */
   .holo-card {
     width: 100%; height: 100%; position: relative;
     border-radius: 24px; overflow: hidden;
@@ -56,6 +59,7 @@
     box-shadow: 0 20px 60px rgba(0,0,0,.5), 0 0 1px rgba(255,255,255,.1);
   }
 
+  /* 卡片基底 */
   .card-base {
     position: absolute; inset: 0;
     background: linear-gradient(165deg, #1a1a30 0%, #252545 30%, #1e1e3a 70%, #18182e 100%);
@@ -63,6 +67,7 @@
     border-radius: 24px;
   }
 
+  /* 全息光层 */
   .holo-layer {
     position: absolute; inset: 0; z-index: 2;
     border-radius: 24px; pointer-events: none;
@@ -77,6 +82,7 @@
     mix-blend-mode: overlay;
   }
 
+  /* 彩虹渐变光 — 跟随鼠标 */
   .holo-shine {
     position: absolute; inset: -50%; z-index: 3;
     border-radius: 24px; pointer-events: none;
@@ -99,6 +105,7 @@
     opacity: 1;
   }
 
+  /* 光带扫过 */
   .holo-glint {
     position: absolute; inset: 0; z-index: 4;
     border-radius: 24px; pointer-events: none;
@@ -118,6 +125,7 @@
     opacity: 1;
   }
 
+  /* 星星闪点 */
   .sparkle {
     position: absolute; z-index: 5; pointer-events: none;
     width: 4px; height: 4px; border-radius: 50%;
@@ -130,12 +138,14 @@
     50% { opacity: 1; transform: scale(1); }
   }
 
+  /* 卡片内容 */
   .card-content {
     position: relative; z-index: 6;
     height: 100%; display: flex; flex-direction: column;
     padding: 24px;
   }
 
+  /* 稀有度标签 */
   .rarity {
     align-self: flex-end; padding: 4px 12px;
     border-radius: 10px; font-size: 10px; font-weight: 700;
@@ -144,6 +154,7 @@
     color: #ffd700; border: 1px solid rgba(255,215,0,.2);
   }
 
+  /* 贴纸区 */
   .holo-sticker {
     align-self: center; margin: 12px 0 16px;
     position: relative;
@@ -154,6 +165,7 @@
     border: 2px solid rgba(255,255,255,.1);
     box-shadow: 0 8px 32px rgba(0,0,0,.4);
   }
+  /* 贴纸也有全息边框 */
   .holo-sticker::before {
     content: ''; position: absolute; inset: -3px;
     border-radius: 26px; z-index: -1;
@@ -177,11 +189,14 @@
     font-style: italic; margin-bottom: 16px;
   }
 
+  /* 信息面板 */
   .info-panel {
-    flex: 1; overflow-y: auto;
+    flex: 1; overflow-y: auto; scrollbar-width: none;
     background: rgba(0,0,0,.2);
     border-radius: 16px; border: 1px solid rgba(255,255,255,.05);
     padding: 16px;
+  }
+  .info-panel::-webkit-scrollbar { display: none;
     -webkit-overflow-scrolling: touch;
     backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
   }
@@ -207,6 +222,7 @@
   }
   .fact-row-txt { font-size: 12px; color: rgba(255,255,255,.6); line-height: 1.7; }
 
+  /* 底部标签 */
   .holo-tags {
     display: flex; flex-wrap: wrap; gap: 6px; margin-top: 12px;
     padding-top: 10px; border-top: 1px solid rgba(255,255,255,.04);
@@ -217,6 +233,7 @@
     border: 1px solid rgba(255,255,255,.04);
   }
 
+  /* 底部操作 */
   .bottom-bar {
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
     padding: 10px 20px 34px;
@@ -268,6 +285,7 @@
       <div class="holo-shine" id="holoShine"></div>
       <div class="holo-glint" id="holoGlint"></div>
 
+      <!-- 闪点 -->
       <div class="sparkle" style="top:15%;left:20%;animation-delay:0s"></div>
       <div class="sparkle" style="top:30%;left:75%;animation-delay:.7s"></div>
       <div class="sparkle" style="top:55%;left:15%;animation-delay:1.4s"></div>
@@ -337,26 +355,32 @@
     const px = (x - rect.left) / rect.width;
     const py = (y - rect.top) / rect.height;
 
+    // 卡片倾斜
     const rotY = (px - 0.5) * 20;
     const rotX = -(py - 0.5) * 20;
     card.style.transform = `rotateY(${rotY}deg) rotateX(${rotX}deg)`;
 
+    // 全息光跟随
     const angle = Math.atan2(py - 0.5, px - 0.5) * (180 / Math.PI);
     shine.style.setProperty('--holo-x', (px * 100) + '%');
     shine.style.setProperty('--holo-y', (py * 100) + '%');
     shine.style.setProperty('--holo-angle', angle + 'deg');
 
+    // 光带角度
     glint.style.setProperty('--glint-angle', (angle + 90) + 'deg');
 
+    // 贴纸全息边框角度
     const sticker = card.querySelector('.holo-sticker');
     if (sticker) sticker.style.setProperty('--holo-angle', angle + 'deg');
   }
 
+  // 鼠标
   card.addEventListener('mousemove', (e) => updateHolo(e.clientX, e.clientY));
   card.addEventListener('mouseleave', () => {
     card.style.transform = '';
   });
 
+  // 触摸
   card.addEventListener('touchstart', () => card.classList.add('touching'));
   card.addEventListener('touchmove', (e) => {
     const t = e.touches[0];
@@ -367,6 +391,7 @@
     card.style.transform = '';
   });
 
+  // 自动微光动画（空闲时）
   let idleTimer;
   let idleAnim;
   function startIdleAnim() {
