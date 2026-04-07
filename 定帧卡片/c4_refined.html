@@ -5,16 +5,21 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>C4 精细版 — 百科卡片 + 右上角贴纸</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
   body {
     background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
-    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
   }
+
+  /* ===== 手机壳 ===== */
   .phone {
     width: 375px; height: 812px; border-radius: 44px; position: relative;
     background: #4a5650; overflow: hidden; flex-shrink: 0;
     box-shadow: 0 0 0 3px #222, 0 0 0 6px #444, 0 30px 80px rgba(0,0,0,.6);
   }
+
+  /* ===== 状态栏 ===== */
   .status-bar {
     position: absolute; top: 0; left: 0; right: 0; z-index: 20;
     padding: 14px 28px 0; display: flex; justify-content: space-between; align-items: center;
@@ -23,6 +28,8 @@
   .status-bar .time { font-size: 15px; font-weight: 700; }
   .status-icons { display: flex; gap: 5px; align-items: center; font-size: 11px; }
   .status-icons span { display: inline-block; }
+
+  /* ===== 导航栏 ===== */
   .nav-bar {
     position: absolute; top: 44px; left: 0; right: 0; z-index: 20;
     padding: 8px 16px; display: flex; align-items: center;
@@ -37,15 +44,23 @@
     flex: 1; text-align: center; font-size: 17px; font-weight: 600;
     color: #e8e4de; margin-right: 36px;
   }
+
+  /* ===== 滚动区域 ===== */
   .scroll-content {
     position: absolute; inset: 0; overflow-y: auto; padding: 100px 0 110px;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
+  .scroll-content::-webkit-scrollbar { display: none; }
+
+  /* ===== 卡片 ===== */
   .card-wrapper { margin: 0 20px; position: relative; }
+
   .card {
     background: #fff; border-radius: 24px; overflow: visible;
     box-shadow: 0 8px 32px rgba(0,0,0,.12);
   }
+
+  /* Banner — 贴纸居中 + 气泡标题 */
   .card-banner {
     background: linear-gradient(160deg, #3a4a42 0%, #4a5a50 40%, #536358 100%);
     border-radius: 24px 24px 0 0;
@@ -53,6 +68,8 @@
     position: relative; overflow: visible;
     display: flex; flex-direction: column; align-items: center;
   }
+
+  /* 气泡标题 */
   .bubble-title {
     background: rgba(255,255,255,.15);
     backdrop-filter: blur(10px); -webkit-backdrop-filter: blur(10px);
@@ -63,12 +80,15 @@
     font-size: 20px; font-weight: 700; color: #f0ece6;
     letter-spacing: 2px; text-align: center;
   }
+  /* 气泡小三角 */
   .bubble-title::after {
     content: ''; position: absolute; bottom: -8px; left: 50%; transform: translateX(-50%);
     width: 0; height: 0;
     border-left: 8px solid transparent; border-right: 8px solid transparent;
     border-top: 8px solid rgba(255,255,255,.15);
   }
+
+  /* 贴纸 — banner 中央 */
   .sticker {
     margin-top: 8px;
     filter: drop-shadow(0 8px 20px rgba(0,0,0,.3));
@@ -77,11 +97,15 @@
     width: 140px; height: 140px; object-fit: cover;
     border-radius: 24px; border: 3px solid #fff;
   }
+
   .banner-subtitle {
     font-size: 11px; color: rgba(240,236,230,.4); font-style: italic;
     margin-top: 10px; letter-spacing: .3px;
   }
+
+  /* 卡片内容 */
   .card-body { padding: 20px 24px 8px; }
+
   .section-label {
     font-size: 10px; font-weight: 700; color: #c4a36e;
     letter-spacing: 2.5px; text-transform: uppercase;
@@ -91,6 +115,7 @@
     content: ''; flex: 1; height: 1px;
     background: linear-gradient(to right, #e8e0d5, transparent);
   }
+
   .fact {
     display: flex; gap: 14px; align-items: flex-start;
     padding: 10px 0; border-bottom: 1px solid #f5f2ed;
@@ -103,13 +128,20 @@
   .fact-icon.culture { background: #fef3e2; }
   .fact-icon.bio { background: #e8f5e9; }
   .fact-icon.trivia { background: #ede7f6; }
+
   .fact-body { flex: 1; padding-top: 1px; }
   .fact-cat {
     font-size: 10px; font-weight: 700; color: #a09080;
     letter-spacing: 1px; text-transform: uppercase; margin-bottom: 3px;
   }
-  .fact-txt { font-size: 13px; color: #3a3530; line-height: 1.7; }
+  .fact-txt {
+    font-size: 13px; color: #3a3530; line-height: 1.7;
+  }
+
+  /* 分隔 */
   .divider { height: 1px; background: #f0ece6; margin: 6px 24px 0; }
+
+  /* 标签区 */
   .tags {
     padding: 14px 24px 20px; display: flex; flex-wrap: wrap; gap: 8px;
   }
@@ -118,6 +150,8 @@
     font-size: 12px; color: #6a5e52; font-weight: 500;
     border: 1px solid #ece7df;
   }
+
+  /* ===== 底部操作栏 ===== */
   .bottom-bar {
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 20;
     padding: 10px 20px 34px;
@@ -131,11 +165,15 @@
     transition: transform .15s;
   }
   .action-btn:active { transform: scale(.96); }
-  .action-btn.primary { background: #f0ece6; color: #2c3530; }
+  .action-btn.primary {
+    background: #f0ece6; color: #2c3530;
+  }
   .action-btn.secondary {
     background: rgba(255,255,255,.15); color: #e8e4de;
     backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
   }
+
+  /* ===== Home indicator ===== */
   .home-indicator {
     position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
     width: 134px; height: 5px; border-radius: 3px; background: rgba(255,255,255,.2);
@@ -144,11 +182,19 @@
 </style>
 </head>
 <body>
+
 <div class="phone">
+  <!-- 状态栏 -->
   <div class="status-bar">
     <span class="time">16:28</span>
-    <div class="status-icons"><span>●●●●</span><span>WiFi</span><span>🔋</span></div>
+    <div class="status-icons">
+      <span>●●●●</span>
+      <span>WiFi</span>
+      <span>🔋</span>
+    </div>
   </div>
+
+  <!-- 导航栏 -->
   <div class="nav-bar">
     <div class="nav-back">
       <svg viewBox="0 0 24 24" fill="none" stroke="#e8e4de" stroke-width="2.5" stroke-linecap="round">
@@ -157,16 +203,27 @@
     </div>
     <div class="nav-title">灵光</div>
   </div>
+
+  <!-- 滚动内容 -->
   <div class="scroll-content">
     <div class="card-wrapper">
       <div class="card">
+
+        <!-- Banner：气泡标题 + 贴纸居中 -->
         <div class="card-banner">
-          <div class="bubble-title"><h2>黑猫</h2></div>
-          <div class="sticker"><img src="cat_sticker.png" alt="黑猫贴纸"></div>
+          <div class="bubble-title">
+            <h2>黑猫</h2>
+          </div>
+          <div class="sticker">
+            <img src="cat_sticker.png" alt="黑猫贴纸">
+          </div>
           <div class="banner-subtitle">Felis catus · Black Cat</div>
         </div>
+
+        <!-- Fun Facts -->
         <div class="card-body">
           <div class="section-label">✦ Fun Facts</div>
+
           <div class="fact">
             <div class="fact-icon culture">🌙</div>
             <div class="fact-body">
@@ -174,6 +231,7 @@
               <div class="fact-txt">在许多文化中被视为幸运的象征，在日本尤其如此。中世纪欧洲则将其与魔法联系在一起。</div>
             </div>
           </div>
+
           <div class="fact">
             <div class="fact-icon bio">🧬</div>
             <div class="fact-body">
@@ -181,6 +239,7 @@
               <div class="fact-txt">黑色毛发由真黑色素产生，同一基因也与更强的免疫力相关。眼睛多为金色或铜色。</div>
             </div>
           </div>
+
           <div class="fact">
             <div class="fact-icon trivia">✨</div>
             <div class="fact-body">
@@ -189,22 +248,30 @@
             </div>
           </div>
         </div>
+
         <div class="divider"></div>
+
+        <!-- 标签 -->
         <div class="tags">
           <span class="tag">🐱 猫科</span>
           <span class="tag">🏠 家养</span>
           <span class="tag">🍀 幸运象征</span>
           <span class="tag">🌙 夜行性</span>
         </div>
+
       </div>
     </div>
   </div>
+
+  <!-- 底部操作 -->
   <div class="bottom-bar">
     <button class="action-btn primary">💬 提问</button>
     <button class="action-btn secondary">♡ 收藏</button>
     <button class="action-btn secondary">↗ 分享</button>
   </div>
+
   <div class="home-indicator"></div>
 </div>
+
 </body>
 </html>
