@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>C4 翻转版 — 百科知识卡片</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
   body {
     background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
-    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
   }
 
   /* ===== 手机壳 ===== */
@@ -216,8 +217,9 @@
   /* 背面内容 */
   .back-body {
     flex: 1; overflow-y: auto; padding: 20px 0 0;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
+  .back-body::-webkit-scrollbar { display: none; }
 
   .section-label {
     font-size: 10px; font-weight: 700; color: #a08ce0;
@@ -485,7 +487,7 @@
 
   function flip() {
     isFlipped = !isFlipped;
-    flipCard.style.transform = '';
+    flipCard.style.transform = '';  // 清掉鼠标倾斜的 inline style，让 CSS class 接管
     flipCard.classList.toggle('flipped', isFlipped);
 
     if (isFlipped) {
@@ -497,6 +499,7 @@
       flipCount.classList.add('light-mode');
       bgGlow.style.opacity = '0.3';
 
+      // 触发滑入动画
       const facts = document.querySelectorAll('.face-back .fact, .face-back .tag');
       facts.forEach(el => {
         const delay = parseInt(el.dataset.delay) || 0;
@@ -511,11 +514,13 @@
       flipCount.classList.remove('light-mode');
       bgGlow.style.opacity = '1';
 
+      // 重置动画
       const facts = document.querySelectorAll('.face-back .fact, .face-back .tag');
       facts.forEach(el => el.classList.remove('visible'));
     }
   }
 
+  // 只有正面时点击卡片才翻转，背面只能点右上角按钮翻回来
   flipCard.addEventListener('click', (e) => {
     if (!isFlipped) flip();
   });
