@@ -1,0 +1,1309 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-artifact-code-theme="light" data-prefers-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="
+        script-src 'self' 'unsafe-inline' 'unsafe-eval' data: blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        frame-src 'self' data: blob: *.alipay.com *.alipayobjects.com *.amap.com *.lingguang.com *.lingguangcontent.com;
+        connect-src 'self' data: blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        child-src 'self' data: blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        object-src 'self' data: blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        base-uri 'self' *.alipay.com *.alipayobjects.com *.amap.com *.lingguang.com *.lingguangcontent.com;
+        form-action 'none';
+        upgrade-insecure-requests;"/>
+    <link href="https://gw.alipayobjects.com/os/lib/tailwindcss/2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/os/lib/katex/0.16.22/dist/katex.min.css">
+    
+    <script>
+        (function () {
+            var timer = null;
+            var PAGE_WIDTH = 686; // 设计稿的宽度
+            var PAGE_FONT_SIZE = 30;// 设计稿1rem的大小
+
+            function onResize() {
+              var e = PAGE_FONT_SIZE * document.documentElement.clientWidth / PAGE_WIDTH;
+              e = parseFloat(e.toFixed(3));
+              document.documentElement.style.fontSize = e + 'px';
+              // 二次计算缩放像素，解决移动端webkit字体缩放bug
+              var realitySize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+              if (e !== realitySize) {
+                e = e * e / realitySize;
+                document.documentElement.style.fontSize = e + 'px';
+              }
+            }
+            window.addEventListener('resize', function () {
+              if (timer) clearTimeout(timer);
+              timer = setTimeout(onResize, 100);
+            });
+            onResize();
+          })();
+      </script>
+
+    <style>
+
+    @font-face {
+      font-family: 'AlipayFont';
+      src: url('https://mdn.alipayobjects.com/design_poster/afts/file/A*y7i8ToVqte8AAAAAAAAAAAAAAUV1AQ') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    /* 暗版主题 */
+    html[data-prefers-theme='dark'],html{
+      /* 背景色板 */
+      --bg1-color: #191a1c;
+      --bg2-color: #202123;
+      --bg3-color: rgb(255, 255, 255, 0);
+      --bg4-color: #1C1C1E;
+
+      /* 主题色彩系统 */
+      --theme-gray: #888FB5;               /* 通用色: 用于无明显主题倾向内容的页面主色 */
+      --theme-glacier-cyan: #88ABB5;       /* 冰川青: 可用于男性、电器、电子设备、车、职场、专业、办公、地理探索、环境科学相关内容的主色 */
+      --theme-premium-brown: #AD927A;      /* 高级棕: 可用于咖啡、木质、皮革、秋冬、复古、高端相关内容的主色 */
+      --theme-mystic-purple: #AE88B5;      /* 神秘紫: 可以作为神望、魔法、文件、艺术、情感、时尚主题内容的主色 */
+      --theme-cloud-blue: #889AB5;         /* 云水蓝: 可用于男性、电器、电子设备、车、职场、教育、中性时尚、都市生活、简约家居、冷静理性风味相关内容的主色 */
+      --theme-health-green: #8FB588;       /* 健康绿: 可用于健康、养生、绿色生活相关内容的主色 */
+      --theme-calm-blue: #88B5AE;          /* 平静蓝: 可用于男性、电器、电子设备、车相关内容的主色 */
+      --theme-warm-red: #B5888F;           /* 温暖红: 可用于情感、女性、节日庆典、家居装饰、美妆护肤等相关内容的主色 */
+      --theme-mountain-cyan: #749FAE;      /* 远山青: 可用于男性、数码科技、智能家居、商务、效率、户外运动、历史文化相关内容的主色 */
+      --theme-clear-cyan: #88B59F;         /* 清澈青: 可用于绿植、湖水、风景等相关内容的主色 */
+      --theme-vibrant-orange: #C7937D;     /* 活力橙: 可用于美食、饭店、创意、活力阳光相关内容的主色 */
+      --theme-champagne-gold: #B5AE88;     /* 香槟金: 可用于酒类、VIP贵宾相关内容的主色 */
+      --theme-soft-purple: #D9CBF7;        /* 柔雾紫: 可用于时尚美妆、心理疗愈、母婴健康相关内容的主色 */
+      --theme-osmanthus-yellow: #EEE2BC;   /* 桂花黄: 可用于桂花、家居装饰、母婴用品、复古、自然、婚礼庆典等相关内容的主色 */
+      --theme-active-green: #9EB588;       /* 活力绿: 可用于健康生活、环保主题、户外运动、植物 */
+
+      /* 背景色系统 */
+      --bg-gray: rgba(142, 142, 147, 0.2);
+      --bg-glacier-cyan: rgba(107, 137, 145, 0.2);
+      --bg-premium-brown: rgba(156, 124, 110, 0.2);
+      --bg-mystic-purple: rgba(139, 126, 153, 0.2);
+      --bg-cloud-blue: rgba(119, 136, 153, 0.2);
+      --bg-health-green: rgba(124, 138, 114, 0.2);
+      --bg-calm-blue: rgba(108, 122, 137, 0.2);
+      --bg-warm-red: rgba(166, 114, 114, 0.2);
+      --bg-mountain-cyan: rgba(95, 126, 124, 0.2);
+      --bg-clear-cyan: rgba(102, 145, 145, 0.2);
+      --bg-vibrant-orange: rgba(176, 129, 100, 0.2);
+      --bg-champagne-gold: rgba(161, 145, 113, 0.2);
+      --bg-soft-purple: rgba(153, 118, 142, 0.2);
+      --bg-osmanthus-yellow: rgba(171, 154, 101, 0.2);
+      --bg-active-green: rgba(103, 130, 103, 0.2);
+
+      /* 语义色板 */
+      --semantic-success-color: #52C41A;   /* 成功色*/
+      --semantic-warning-color: #FAAD14;   /* 警告色 */
+      --semantic-error-color: #EA6668;     /* 错误色 */
+
+      --semantic-down-color: #52C41A;   /* 下跌，用绿色（A股）*/
+      --semantic-up-color: #EA6668;     /* 上涨，用红色（A股）*/
+
+      /* 文本色板 */
+      --text-level1-color: rgba(255, 255, 255, 0.9);
+      --text-level2-color: rgba(255, 255, 255, 0.8);
+      --text-level3-color: rgba(255, 255, 255, 0.6);
+      --text-level4-color: rgba(255, 255, 255, 0.4);
+      --text-level5-color: rgba(255, 255, 255, 0.3);
+
+      /* 分割线&边框色 */
+      --border-level1-color: rgba(255, 255, 255, 0.1);    /* 结语分割线、表格&代码块的边框色 */
+
+      /* 分割线大小 */
+      --border-size: 0.0333rem;  /* 1px 分割线的宽度 */
+
+       /* 间距规范 */
+      --space-xs: 0.2667rem;      /* 8px 最紧密信息的最小间距，多用在内容块内的间距 */
+      --space-md: 0.5333rem;      /* 16px 多用在内容块内的间距，比如描述文本和图片间距 */
+      --space-lg: 0.8rem;         /* 24px 多用在内容块内的间距，比如自由块内的标题和内容间距等 */
+      --space-xl: 1.0667rem;      /* 32px h2 与正文内容间距、图片、表格、代码块等组件上下边距、容器卡片四周内边距、段落间距 */
+      --space-xxl: 2.6666rem;     /* 80px 模块间距*/
+
+      /* 文本字重 */
+      --text-weight-regular: 400;     /* 正文字重 */
+      --text-weight-medium: 500;      /* 强调文本字重 */
+      --text-weight-semibold: 600;    /* h1 、h2 标题字重 */
+
+      /* 文本字号 */
+      --text-size-s: 0.866rem;         /* 26px 图片描述文本字号 */
+      --text-size-md: 1rem;            /* 30px h3、正文、强调文本字号 */
+      --text-size-lg: 1.3333rem;       /* 40px h2 字号 */
+      --text-size-xl: 1.6rem;          /* 48px h1 字号 */
+      --text-size-xll: 1.6rem;      /* 80px 由卡片里的超大字号 */
+
+      /* 行高规范 */
+      --line-height-xs: calc(var(--text-size-s)+0.6667rem);       /* 46px 基于26px字号+20px */
+      --line-height-md: calc(var(--text-size-md)+0.6667rem);      /* 50px 基于30px字号+20px*/
+      --line-height-lg: calc(var(--text-size-lg)+0.6667rem);      /* 60px 基于40px字号+20px */
+      --line-height-xl: calc(var(--text-size-xl)+0.6667rem);      /* 68px 基于48px字号+20px */
+      --line-height-xll: calc(var(--text-size-xll)+0.6667rem);    /* 100px 基于80px字号+20px */
+
+      /* 圆角规范 */
+      --border-radius: 0.5333rem;     /* 750宽度设计稿里的 16px 圆角 */
+      --border-radius-semi: 0.2666rem;     /* 750宽度设计稿里的 8px 圆角 */
+
+      /* 尺寸规范 */
+      --size-4x3-width: 46.875rem;  /* 750px (4:3容器宽度) */
+      --size-4x3-height: 35.15625rem; /* 562.5px (4:3容器高度) */
+      --size-1x1-width: 46.875rem;  /* 750px (1:1容器宽度) */
+      --size-1x1-height: 46.875rem; /* 750px (1:1容器高度) */
+
+      /*引用的图标*/
+      --image-url: url('https://mdn.alipayobjects.com/huamei_2dyvuk/afts/img/wkxUQJyNqe8AAAAAQEAAAAgADts_AQFr/original');
+    }
+
+    /* 浅版主题 */
+    html[data-prefers-theme='light']{
+      /* 背景色板 */
+      --bg1-color: #ffffff;
+      --bg2-color: #fbfbfb;
+      --bg3-color: rgb(255, 255, 255, 0);
+      --bg4-color: #F3F5F7;
+
+      /* 主题色彩系统 */
+      --theme-gray: #203BAF;               /* 通用色: 用于无明显主题倾向内容的页面主色 */
+      --theme-glacier-cyan: #005F7A;       /* 冰川青: 可用于男性、电器、电子设备、车、职场、专业、办公、地理探索、环境科学相关内容的主色 */
+      --theme-premium-brown: #9B5F27;      /* 高级棕: 可用于咖啡、木质、皮革、秋冬、复古、高端相关内容的主色 */
+      --theme-mystic-purple: #8F489C;      /* 神秘紫: 可以作为神望、魔法、文件、艺术、情感、时尚主题内容的主色 */
+      --theme-cloud-blue: #094BAE;         /* 云水蓝: 可用于男性、电器、电子设备、车、职场、教育、中性时尚、都市生活、简约家居、冷静理性风味相关内容的主色 */
+      --theme-health-green: #206F11;       /* 健康绿: 可用于健康、养生、绿色生活相关内容的主色 */
+      --theme-calm-blue: #00705E;          /* 平静蓝: 可用于男性、电器、电子设备、车相关内容的主色 */
+      --theme-warm-red: #CA4723;           /* 温暖红: 可用于经济、金融、财经、情感、女性、节日庆典、家居装饰、美妆护肤等相关内容的主色 */
+      --theme-mountain-cyan: #005B7A;      /* 远山青: 可用于男性、数码科技、智能家居、商务、效率、户外运动、历史文化相关内容的主色 */
+      --theme-clear-cyan: #0D7744;         /* 清澈青: 可用于绿植、湖水、风景等相关内容的主色 */
+      --theme-vibrant-orange: #D06F08;     /* 活力橙: 可用于美食、饭店、创意、活力阳光相关内容的主色 */
+      --theme-champagne-gold: #867106;     /* 香槟金: 可用于酒类、VIP贵宾相关内容的主色 */
+      --theme-soft-purple: #6B48B4;        /* 柔雾紫: 可用于时尚美妆、心理疗愈、母婴健康相关内容的主色 */
+      --theme-osmanthus-yellow: #947104;   /* 桂花黄: 可用于桂花、家居装饰、母婴用品、复古、自然、婚礼庆典等相关内容的主色 */
+      --theme-active-green: #3B7203;       /* 活力绿: 可用于健康生活、环保主题、户外运动、植物 */
+
+        /* 背景色系统 */
+      --bg-gray: rgba(142, 142, 147, 0.1);          /* 中性烟灰 */
+      --bg-glacier-cyan: rgba(107, 137, 145, 0.1);  /* 灰青蓝 */
+      --bg-premium-brown: rgba(156, 124, 110, 0.1); /* 陶土棕 */
+      --bg-mystic-purple: rgba(139, 126, 153, 0.1); /* 烟粉紫 */
+      --bg-cloud-blue: rgba(119, 136, 153, 0.1);    /* 冷调雾蓝 */
+      --bg-health-green: rgba(124, 138, 114, 0.1);  /* 橄榄灰绿 */
+      --bg-calm-blue: rgba(108, 122, 137, 0.1);     /* 石板蓝 */
+      --bg-warm-red: rgba(166, 114, 114, 0.1);      /* 干枯玫瑰 */
+      --bg-mountain-cyan: rgba(95, 126, 124, 0.1);  /* 深海青灰 */
+      --bg-clear-cyan: rgba(102, 145, 145, 0.1);    /* 浅灰绿 */
+      --bg-vibrant-orange: rgba(176, 129, 100, 0.1);/* 灰调橘 */
+      --bg-champagne-gold: rgba(161, 145, 113, 0.1);/* 亚麻金 */
+      --bg-soft-purple: rgba(153, 118, 142, 0.1);   /* 丁香灰 */
+      --bg-osmanthus-yellow: rgba(171, 154, 101, 0.1);/* 芥末黄 */
+      --bg-active-green: rgba(103, 130, 103, 0.1);  /* 鼠尾草绿 */
+
+          
+      /* 语义色板 */
+      --semantic-success-color: #52C41A;   /* 成功色*/
+      --semantic-warning-color: #FAAD14;   /* 警告色 */
+      --semantic-error-color: #EA6668;     /* 错误色 */
+
+      --semantic-down-color: #52C41A;   /* 下跌，用绿色（A股）*/
+      --semantic-up-color: #EA6668;     /* 上涨，用红色（A股）*/
+
+      /* 文本色板 */
+      --text-level1-color: rgba(0, 0, 0, 0.9);
+      --text-level2-color: rgba(0, 0, 0, 0.8);
+      --text-level3-color: #666666;
+      --text-level4-color: #999999;
+      --text-level5-color: rgba(0, 0, 0, 0.3);
+
+      /* 分割线&描边色 */
+      --border-level1-color: rgba(0, 0, 0, 0.08);    /* 结语分割线、表格&代码块的边框色 */
+
+      /* 分割线大小 */
+      --border-size: 0.0333rem;  /* 1px 分割线的宽度 */
+
+       /* 间距规范 */
+      --space-xs: 0.2667rem;      /* 8px 最紧密信息的最小间距，多用在内容块内的间距 */
+      --space-md: 0.5333rem;      /* 16px 多用在内容块内的间距，比如描述文本和图片间距 */
+      --space-lg: 0.8rem;         /* 24px 多用在内容块内的间距，比如自由块内的标题和内容间距等 */
+      --space-xl: 1.0667rem;      /* 32px h2 与正文内容间距、图片、表格、代码块等组件上下边距、容器卡片四周内边距、段落间距 */
+      --space-xxl: 2.6666rem;     /* 80px 模块间距*/
+
+      /* 文本字重 */
+      --text-weight-regular: 400;     /* 正文字重 */
+      --text-weight-medium: 500;      /* 强调文本字重 */
+      --text-weight-semibold: 600;    /* h1 、h2 标题字重 */
+
+      /* 文本字号 */
+      --text-size-s: 0.866rem;         /* 26px 图片描述文本字号 */
+      --text-size-md: 1rem;            /* 30px h3、正文、强调文本字号 */
+      --text-size-lg: 1.3333rem;       /* 40px h2 字号 */
+      --text-size-xl: 1.6rem;          /* 48px h1 字号 */
+      --text-size-xll: 1.6rem;      /* 80px 由卡片里的超大字号 */
+
+      /* 行高规范 */
+      --line-height-xs: calc(var(--text-size-s)+0.6667rem);       /* 46px 基于26px字号+20px */
+      --line-height-md: calc(var(--text-size-md)+0.6667rem);      /* 50px 基于30px字号+20px*/
+      --line-height-lg: calc(var(--text-size-lg)+0.6667rem);      /* 60px 基于40px字号+20px */
+      --line-height-xl: calc(var(--text-size-xl)+0.6667rem);      /* 68px 基于48px字号+20px */
+      --line-height-xll: calc(var(--text-size-xll)+0.6667rem);    /* 100px 基于80px字号+20px */
+
+      /* 圆角规范 */
+      --border-radius: 0.5333rem;     /* 750宽度设计稿里的 16px 圆角 */
+      --border-radius-semi: 0.2666rem;     /* 750宽度设计稿里的 8px 圆角 */
+
+      /* 尺寸规范 */
+      --size-4x3-width: 46.875rem;  /* 750px (4:3容器宽度) */
+      --size-4x3-height: 35.15625rem; /* 562.5px (4:3容器高度) */
+      --size-1x1-width: 46.875rem;  /* 750px (1:1容器宽度) */
+      --size-1x1-height: 46.875rem; /* 750px (1:1容器高度) */
+
+     /*引用的图标*/
+      --image-url: url('https://mdn.alipayobjects.com/huamei_2dyvuk/afts/img/IkBpS5bGj74AAAAAQEAAAAgADts_AQFr/original');
+    }
+
+     html, body {
+      height: 100%;
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 0 0 var(--space-xl) 0;
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      letter-spacing: 0.01em;
+      box-sizing: border-box;
+      color: var(--text-level1-color);
+      font-weight: var(--text-weight-regular);
+    }
+    body {
+      overflow: hidden;
+    }
+    p {
+      margin: var(--space-xl) 0 0 0;
+      color:var(--text-level1-color);
+    }
+    main {
+      padding: 0 0.8rem;
+    }
+    /* 自由卡片，用于适配特定的意图，样式上一定能够体现当前意图的风格。不要放在h1 之前，不要放在quote之后 */
+    .free_component {
+      margin: var(--space-xl) 0 0 0;
+      border-radius: var(--border-radius);
+      background:var(--bg2-color);
+      padding:1rem 1.5rem;
+      overflow-x: auto;
+      p {
+        margin:var(--space-lg) 0 0 0;
+        color:var(--text-level1-color);
+      }
+      h3 {
+        margin: 0;
+      }
+    }
+    /* 标题 所有的h1不要生成emoji，不要用任何图标*/
+    h1 {
+      font-family: 'AlipayFont';
+      font-size:var(--text-size-xl);
+      font-weight: var(--text-weight-semibold);
+      color:var(--theme-gray);
+      margin: 0 0 0 0;
+      letter-spacing: 0.02em;
+      line-height: 2.2rem;
+      text-align: left;
+    }
+    /* 标题的分割分隔线 */
+    .divider {
+      border: none;
+      border-top:1px solid;
+      margin: var(--space-lg) 0 0 0;
+    }
+    /* 正文 */
+    /* 用在所有h2出现之前, 一定要有图例，一定要出现divider*/
+   .divider-content {
+      border: none;
+      border-top: 1px solid var(--border-level1-color);
+      color: var(--text-level5-color);
+      margin: var(--space-xl) 0 0 0;
+    }
+    .desc {
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      font-weight: var(--text-weight-regular);
+      margin: var(--space-xl) 0 0 0;
+      line-height:  1.67rem;
+      text-align: justify;
+    }
+    strong {
+      color: var(--text-level1-color);
+      font-weight: var(--text-weight-medium);
+      padding: 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+    .desc strong, 
+    .desc .highlight {
+      font-weight: var(--text-weight-medium);
+      color:var(--text-level1-color);
+      padding: 0 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+
+    /* 小节标题 所有的h2不要生成emoji，不要用任何图标 */
+    h2 {
+      font-family: 'AlipayFont';
+      font-size: var(--text-size-lg);
+      line-height: 2rem;
+      font-weight: var(--text-weight-semibold);
+      color:var(--theme-gray);
+      margin: var(--space-xxl) 0 0 0;
+      letter-spacing: 0.01em;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    /* 小节标题 所有的h3不要生成emoji，不要用任何图标 */
+    h3 {
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      font-weight:var(--text-weight-medium);
+      color:var(--text-level1-color);
+      margin: var(--space-lg) 0 0 0;
+      letter-spacing: 0.01em;
+      position: relative;
+    }
+    /* 列表 */
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+    ul li{
+      position: relative;
+      padding-left: 0.73rem;
+      line-height: 1.67rem;
+      font-size: var(--text-size-md);
+      margin: var(--space-lg) 0 0 0;
+    }
+    ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.75em;  /* 使用相对单位em，大约在行高的中间位置 */
+      width: 0.23rem;
+      height: 0.23rem;
+      background:var(--text-level5-color);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .ref_label {
+      content: var(--image-url);
+      display: inline;
+      width: 1rem;
+      height: 1rem;
+      margin-left: 0.13rem;
+      vertical-align: middle;
+    }
+    .ref_label > * {
+        display:none;
+        width:0;
+        height:0;
+    }
+    .data-point-title{
+      font-weight: 500; 
+      margin: var(--space-lg) 0 var(--space-md) 0; 
+      position: relative; 
+      padding-left: var(--space-md);
+    }
+    .data-point-content{
+      padding: var(--space-md) var(--space-lg);
+    }
+    .span-title{
+      position: absolute; 
+      left: 0; 
+      top: 50%; 
+      transform: translatey(-50%); 
+      width: 0.3rem; 
+      height: 0.3rem;
+      border-radius: 50%;
+    }
+    .right-up-icon {
+      position: absolute;
+      top: 2rem; 
+      right: 2rem;
+      font-size: 2.5rem; 
+     }
+    /* 表格或table的样式， 表格最多不超过三列或3列 */
+    table {
+      width: 100%; /* 确保表格至少占据其容器的100%宽度 */
+      table-layout: auto; /* 固定表格布局算法，允许更精确地控制表格和单元格的宽度 */
+      border-collapse: separate;
+      color:var(--text-level2-color);
+      margin: var(--space-xl) 0 0 0;
+      border-spacing: 0;
+      background: transparent;
+      border: 1px solid var(--border-level1-color); /* 添加外边框 */
+      border-radius: var(--border-radius);
+    }
+    thead th {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: var(--text-level1-color)
+      letter-spacing: 0.5px;
+      padding: 0.6rem 0.5rem;
+      text-align:center ;
+      min-width: 6rem;
+      border-bottom: 1px solid var(--border-level1-color) !important;
+    }
+    thead th:first-child {
+      border-top-left-radius: var(--border-radius);
+      font-weight:var(--text-weight-medium);
+    }
+    thead th:last-child {
+      border-top-right-radius:var(--border-radius);
+      font-weight:var(--text-weight-medium);
+    }
+    tbody td {
+      font-size:0.95rem;
+      color: var(--text-level2-color);
+      font-weight: var(--text-weight-regular);
+      padding: 0.46rem 0.46rem;
+      padding-right: 0.46rem;
+      border: none;
+      letter-spacing: 0.5px;
+      text-align: center;
+      min-width: 6rem;
+    }
+    tbody tr {
+      border-bottom: 1px solid var(--border-level1-color);
+    }
+    tbody tr:last-child {
+      border-bottom: none;
+    }
+    /* 表格分隔线实现 */
+    tbody tr:not(:last-child) td {
+      border-bottom: 1px solid var(--border-level1-color);
+    }
+
+    /* 代码内容展示，对于展示code和代码的内容，请使用下面的code样式 */
+    code-block-container {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      background: transparent;
+      border: 1px solid var(--border-level1-color); /* 添加外边框 */
+      border-radius: var(--border-radius-semi); /* 圆角边框 */
+      margin:var(--space-xl) 0 0 0;
+    }
+    
+    .code-header {
+      font-size: var(--text-size-md);
+      font-weight: bold;
+      color: var(--text-level3-color);
+      text-align: left;
+      letter-spacing: 1px;
+      background: var(--bg2-color);
+      padding: var(--space-xs) var(--space-xs);
+      border: 1px solid var(--border-level1-color); /* 添加外边框 */
+      border-top-left-radius: var(--border-radius-semi);
+      border-bottom-left-radius: 0; /* 确保底部左角不是圆角 */
+      border-top-right-radius: var(--border-radius-semi); /* 确保顶部右角不是圆角 */
+      border-bottom-right-radius: 0; /* 确保底部右角不是圆角 */
+    }
+
+    .code {
+      font-size: var(--text-size-s);
+      color: var(--text-level4-color);
+      font-weight: normal;
+      padding: var(--space-md) var(--space-lg);
+      border: none;
+      letter-spacing: 0.5px;
+      border: 1px solid var(--border-level1-color); /* 添加外边框 */
+      border-top-left-radius: 0;
+      border-bottom-left-radius: var(--border-radius-semi); /* 确保底部左角不是圆角 */
+      border-top-right-radius: 0; /* 确保顶部右角不是圆角 */
+      border-bottom-right-radius:var(--border-radius-semi); /* 确保底部右角不是圆角 */
+      line-height: 1.2; /* 调整行高以缩小行间距 */
+      overflow-x: auto;    /* 超出宽度时显示横向滚动条 */
+      word-break: keep-all; /* 防止单词或中文断开 */
+    }
+
+    /* 小节内容 ,只用来展示文本内容，对于列表内容，请使用timeline class */
+    .section-content {
+      font-size: var(--text-size-md);
+      margin:var(--space-xl) 0 0 0;
+      line-height: 1.67rem;
+      text-align: justify;
+    }
+    /* 引用 这部分只出现在最后一个div，前面需要出现一个divider,且内容需要包含一个emoji或图标,emoji需要居中、单独占一行, */
+    .quote {
+      text-align: center;
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      color: var(--text-level2-color);
+      font-weight: var(--text-weight-regular);
+      margin: var(--space-xxl) 0 0 0;
+      letter-spacing: 0.01em;
+    }
+    quote-author {
+      text-align: center;
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      color:var(--text-level5-color);
+      font-weight: var(--text-weight-regular);
+      margin:var(--space-md) 0 0 0;
+      letter-spacing: 0.01em;
+    }
+    /* 响应式 */
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+      }
+      main {
+        padding: 0 var(--space-xs);
+      }
+    }    
+    /* 禁止出现在h1之前 */
+    .component-default {
+        text-align: center;
+        display: flex;
+        align-items: center; /* 垂直居中 */
+        justify-content: center; /* 水平居中 */
+        width: 100%;
+        position: relative;
+        min-height: 275px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background:var(--bg2-color);
+        backdrop-filter: blur(20px);
+        margin: var(--space-xl) 0 0 0;
+    }
+    /* 直接在component-default中添加loading效果 */
+    .component-default::before {
+        content: '';
+        width: 0.93rem;
+        height: 0.93rem;
+        border: 0.1rem solid var(--border-level1-color);
+        border-top: 0.1rem solid var(--bg2-color);
+        border-radius: 50%;
+        animation: spin 3s linear infinite;
+        /*position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%); */
+        flex-shrink: 0;
+    }
+    .component-image {
+        /* 使用 CSS 变量 */
+        color: var(--bg2-color);
+        font-size: 0.9em;
+        text-align: center;
+        margin: var(--space-xl) 0 0 0;
+        width: 100%;
+        border-radius: var(--border-radius); /* 圆角 16px */
+        overflow: hidden; /* 确保内部内容也被圆角裁剪 */
+    }
+    @supports (aspect-ratio: 4/3) {
+        .component-image img {
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+
+    @supports not (aspect-ratio: 4/3) {
+        .component-image img {
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+    .katex-display{
+      overflow-x:auto;
+      padding:0.5rem;
+    }
+    </style>
+    <style>
+        .icon-sound {
+            display: inline-block;
+            width: 2.4rem;
+            height: 2.4rem;
+            background-color: currentColor;
+            -webkit-mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBkPSJNMjcuMzY4NCwxNS4xMzI2Nzg4MDkyNjUxMzdDMjcuODA4MiwxNS41NjAwOTk4MDkyNjUxMzYsMjguMDUyNiwxNi4xNDkzNjk4MDkyNjUxNCwyOC4wNTI2LDE2Ljc2NDI2OTgwOTI2NTEzN0wyOC4wNTI2LDMzLjE4NTI5OTgwOTI2NTEzQzI4LjA1MjYsMzQuNDY0NDk5ODA5MjY1MTM1LDI3LjAxNTIsMzUuNTAxMDk5ODA5MjY1MTQsMjUuNzM2OSwzNS41MDEwOTk4MDkyNjUxNEMyNS4xMjA0LDM1LjUwMTA5OTgwOTI2NTE0LDI0LjUzMDcsMzUuMjU2Nzk5ODA5MjY1MTMsMjQuMTA1MywzNC44MTY4OTk4MDkyNjUxNEwxOS44OTYzLDMwLjYwNzg5OTgwOTI2NTEzOEMxOS42NTk0LDMwLjM3MDk5OTgwOTI2NTEzNiwxOS4zMzgxMywzMC4yMzc4OTk4MDkyNjUxMzcsMTkuMDAzMTEsMzAuMjM3ODk5ODA5MjY1MTM3TDE3LjM2ODQxLDMwLjIzNzg5OTgwOTI2NTEzN0MxNS41MDkwMywzMC4yNDU2OTk4MDkyNjUxMzcsMTQsMjguNzM3ODk5ODA5MjY1MTM3LDE0LDI2Ljg2OTQ5OTgwOTI2NTEzNkwxNCwyMy4wODAwNTk4MDkyNjUxMzdDMTQsMjEuMjI5MDM5ODA5MjY1MTQsMTUuNTA5MDMsMTkuNzIxMjE5ODA5MjY1MTM2LDE3LjM2ODQzLDE5LjcxMTYxOTgwOTI2NTEzN0wxOC45Nzg5MSwxOS43MTE2MTk4MDkyNjUxMzdDMTkuMzEyNjcsMTkuNzExNjI5ODA5MjY1MTM3LDE5LjYzMjg2LDE5LjU3OTUzOTgwOTI2NTEzNSwxOS44Njk1MywxOS4zNDQyMTk4MDkyNjUxMzdMMjQuMTA1MywxNS4xMzI2Nzc4MDkyNjUxMzZDMjUuMDAwNiwxNC4yMjI4MTA4MDkyNjUxMzgsMjYuNDY3OCwxNC4yMjIwNjkwODA5MjY1MTM2LDI3LjM2ODQsMTUuMTMyNjc4ODA5MjY1MTM3Wk0zMy4xMzU2LDE4LjYzMjM4OTgwOTI2NTEzNUMzNC45Mzc2LDIwLjIxOTg0OTgwOTI2NTEzNSwzNiwyMi41ODU3NDk4MDkyNjUxNCwzNiwyNS4xMzI2OTk4MDkyNjUxMzdDMzYsMjcuNjc5NTk5ODA5MjY1MTM1LDM0LjkzNzYsMzAuMDQ1NDk5ODA5MjY1MTM4LDMzLjEzNTYsMzEuNjMyOTk5ODA5MjY1MTM3QzMyLjc4NjYsMzEuOTQwMzk5ODA5MjY1MTM4LDMyLjI1NDUsMzEuOTA2Njk5ODA5MjY1MTM4LDMxLjk0NywzMS41NTc2OTk4MDkyNjUxMzhDMzEuNjM5NiwzMS4yMDg2OTk4MDkyNjUxMzgsMzEuNjczMywzMC42NzY1OTk4MDkyNjUxMzgsMzIuMDIyMywzMC4zNjkxOTk4MDkyNjUxMzdDMzMuNDYwMzAwMDAwMDAwMDQsMjkuMTAyMzk5ODA5MjY1MTM3LDM0LjMxNTgsMjcuMTk3Mjk5ODA5MjY1MTM2LDM0LjMxNTgsMjUuMTMyNjk5ODA5MjY1MTM3QzM0LjMxNTgsMjMuMDY4MDg5ODA5MjY1MTQsMzMuNDYwMzAwMDAwMDAwMDQsMjEuMTYyOTQ5ODA5MjY1MTM2LDMyLjAyMjMsMTkuODk2MTU5ODA5MjY1MTM2QzMxLjY3MzMsMTkuNTg4NzM5ODA5MjY1MTM1LDMxLjYzOTYsMTkuMDU2NjA5ODA5MjY1MTM3LDMxLjk0NzEsMTkuNzA3NjM5ODA5MjY1MTRDMzIuMjU0NSwxOC4zNTg2Mzk4MDkyNjUxMzUsMzIuNzg2NiwxOC4zMjQ5Mzk4MDkyNjUxMzUsMzMuMTM1NiwxOC42MzIzODk4MDkyNjUxMzVaTTMwLjYyMjIsMjEuMDkwMDE5ODA5MjY1MTM3QzMxLjcwNywyMi4wODEyOTk4MDkyNjUxMzYsMzIuMzQyMSwyMy41NDA0MTk4MDkyNjUxNCwzMi4zNDIxLDI1LjEwNTU5OTgwOTI2NTEzNkMzMi4zNDIxLDI2LjY3MTc5OTgwOTI2NTE0LDMxLjcwNjMsMjguMTMxNjk5ODA5MjY1MTM2LDMwLjYyMDQsMjkuMTIyOTk5ODA5MjY1MTRDMzAuMjc2OSwyOS40MzY0OTk4MDkyNjUxMzYsMjkuNzQ0MzAwMDAwMDAwMDMsMjkuNDEyMjk5ODA5MjY1MTM2LDI5LjQzMDcsMjkuMDY4Nzk5ODA5MjY1MTM3QzI5LjEyMDMsMjguNzI4Nzk5ODA5MjY1MTM3LDI5LjE0MDkwMDAwMDAwMDAyLDI4LjIwMzM5OTgwOTI2NTEzNiwyOS40NzQ3LDI3Ljg4ODU5OTgwOTI2NTEzOEwyOS40ODQ5LDI3Ljg3OTA5OTgwOTI2NTEzNUwyOS41MDY4LDI3Ljg1ODg5OTgwOTI2NTEzNkMzMC4yMjc4LDI3LjE4ODY5OTgwOTI2NTEzOCwzMC42NTc5LDI2LjE5MDM5OTgwOTI2NTEzOCwzMC42NTc5LDI1LjEwNTY5OTgwOTI2NTEzNkMzMC42NTc5LDI0LjAxMDU5OTgwOTI2NTEzOCwzMC4yMTk2LDIzLjAwMzU3OTgwOTI2NTEzNywyOS40ODYxLDIyLjMzMzI1OTgwOTI2NTEzN0MyOS4xNDI4LDIxLjAxOTUxOTgwOTI2NTEzNywyOS4xMTg4LDIxLjQ4Njg3OTgwOTI2NTEzNywyOS40MzI1LDIxLjE0MzU0OTgwOTI2NTEzNEMyOS43NDYzLDIwLjgwMDIyOTgwOTI2NTEzNywzMC4yNzg5LDIwLjc3NjI0OTgwOTI2NTE0LDMwLjYyMjIsMjEuMDkwMDE5ODA5MjY1MTM3WiIgZmlsbD0iIzg4OEZCNSIvPjwvc3ZnPg==") no-repeat center;
+            mask: url("data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIGZpbGw9Im5vbmUiIHdpZHRoPSI1MCIgaGVpZ2h0PSI1MCIgdmlld0JveD0iMCAwIDUwIDUwIj48cGF0aCBkPSJNMjcuMzY4NCwxNS4xMzI2Nzg4MDkyNjUxMzdDMjcuODA4MiwxNS41NjAwOTk4MDkyNjUxMzYsMjguMDUyNiwxNi4xNDkzNjk4MDkyNjUxNCwyOC4wNTI2LDE2Ljc2NDI2OTgwOTI2NTEzN0wyOC4wNTI2LDMzLjE4NTI5OTgwOTI2NTEzQzI4LjA1MjYsMzQuNDY0NDk5ODA5MjY1MTM1LDI3LjAxNTIsMzUuNTAxMDk5ODA5MjY1MTQsMjUuNzM2OSwzNS41MDEwOTk4MDkyNjUxNEMyNS4xMjA0LDM1LjUwMTA5OTgwOTI2NTE0LDI0LjUzMDcsMzUuMjU2Nzk5ODA5MjY1MTMsMjQuMTA1MywzNC44MTY4OTk4MDkyNjUxNEwxOS44OTYzLDMwLjYwNzg5OTgwOTI2NTEzOEMxOS42NTk0LDMwLjM3MDk5OTgwOTI2NTEzNiwxOS4zMzgxMywzMC4yMzc4OTk4MDkyNjUxMzcsMTkuMDAzMTEsMzAuMjM3ODk5ODA5MjY1MTM3TDE3LjM2ODQxLDMwLjIzNzg5OTgwOTI2NTEzN0MxNS41MDkwMywzMC4yNDU2OTk4MDkyNjUxMzcsMTQsMjguNzM3ODk5ODA5MjY1MTM3LDE0LDI2Ljg2OTQ5OTgwOTI2NTEzNkwxNCwyMy4wODAwNTk4MDkyNjUxMzdDMTQsMjEuMjI5MDM5ODA5MjY1MTQsMTUuNTA5MDMsMTkuNzIxMjE5ODA5MjY1MTM2LDE3LjM2ODQzLDE5LjcxMTYxOTgwOTI2NTEzN0wxOC45Nzg5MSwxOS43MTE2MTk4MDkyNjUxMzdDMTkuMzEyNjcsMTkuNzExNjI5ODA5MjY1MTM3LDE5LjYzMjg2LDE5LjU3OTUzOTgwOTI2NTEzNSwxOS44Njk1MywxOS4zNDQyMTk4MDkyNjUxMzdMMjQuMTA1MywxNS4xMzI2Nzc4MDkyNjUxMzZDMjUuMDAwNiwxNC4yMjI4MTA4MDkyNjUxMzgsMjYuNDY3OCwxNC4yMjIwNjkwODA5MjY1MTM2LDI3LjM2ODQsMTUuMTMyNjc4ODA5MjY1MTM3Wk0zMy4xMzU2LDE4LjYzMjM4OTgwOTI2NTEzNUMzNC45Mzc2LDIwLjIxOTg0OTgwOTI2NTEzNSwzNiwyMi41ODU3NDk4MDkyNjUxNCwzNiwyNS4xMzI2OTk4MDkyNjUxMzdDMzYsMjcuNjc5NTk5ODA5MjY1MTM1LDM0LjkzNzYsMzAuMDQ1NDk5ODA5MjY1MTM4LDMzLjEzNTYsMzEuNjMyOTk5ODA5MjY1MTM3QzMyLjc4NjYsMzEuOTQwMzk5ODA5MjY1MTM4LDMyLjI1NDUsMzEuOTA2Njk5ODA5MjY1MTM4LDMxLjk0NywzMS41NTc2OTk4MDkyNjUxMzhDMzEuNjM5NiwzMS4yMDg2OTk4MDkyNjUxMzgsMzEuNjczMywzMC42NzY1OTk4MDkyNjUxMzgsMzIuMDIyMywzMC4zNjkxOTk4MDkyNjUxMzdDMzMuNDYwMzAwMDAwMDAwMDQsMjkuMTAyMzk5ODA5MjY1MTM3LDM0LjMxNTgsMjcuMTk3Mjk5ODA5MjY1MTM2LDM0LjMxNTgsMjUuMTMyNjk5ODA5MjY1MTM3QzM0LjMxNTgsMjMuMDY4MDg5ODA5MjY1MTQsMzMuNDYwMzAwMDAwMDAwMDQsMjEuMTYyOTQ5ODA5MjY1MTM2LDMyLjAyMjMsMTkuODk2MTU5ODA5MjY1MTM2QzMxLjY3MzMsMTkuNTg4NzM5ODA5MjY1MTM1LDMxLjYzOTYsMTkuMDU2NjA5ODA5MjY1MTM3LDMxLjk0NzEsMTkuNzA3NjM5ODA5MjY1MTRDMzIuMjU0NSwxOC4zNTg2Mzk4MDkyNjUxMzUsMzIuNzg2NiwxOC4zMjQ5Mzk4MDkyNjUxMzUsMzMuMTM1NiwxOC42MzIzODk4MDkyNjUxMzVaTTMwLjYyMjIsMjEuMDkwMDE5ODA5MjY1MTM3QzMxLjcwNywyMi4wODEyOTk4MDkyNjUxMzYsMzIuMzQyMSwyMy41NDA0MTk4MDkyNjUxNCwzMi4zNDIxLDI1LjEwNTU5OTgwOTI2NTEzNkMzMi4zNDIxLDI2LjY3MTc5OTgwOTI2NTE0LDMxLjcwNjMsMjguMTMxNjk5ODA5MjY1MTM2LDMwLjYyMDQsMjkuMTIyOTk5ODA5MjY1MTRDMzAuMjc2OSwyOS40MzY0OTk4MDkyNjUxMzYsMjkuNzQ0MzAwMDAwMDAwMDMsMjkuNDEyMjk5ODA5MjY1MTM2LDI5LjQzMDcsMjkuMDY4Nzk5ODA5MjY1MTM3QzI5LjEyMDMsMjguNzI4Nzk5ODA5MjY1MTM3LDI5LjE0MDkwMDAwMDAwMDAyLDI4LjIwMzM5OTgwOTI2NTEzNiwyOS40NzQ3LDI3Ljg4ODU5OTgwOTI2NTEzOEwyOS40ODQ5LDI3Ljg3OTA5OTgwOTI2NTEzNUwyOS41MDY4LDI3Ljg1ODg5OTgwOTI2NTEzNkMzMC4yMjc4LDI3LjE4ODY5OTgwOTI2NTEzOCwzMC42NTc5LDI2LjE5MDM5OTgwOTI2NTEzOCwzMC42NTc5LDI1LjEwNTY5OTgwOTI2NTEzNkMzMC42NTc5LDI0LjAxMDU5OTgwOTI2NTEzOCwzMC4yMTk2LDIzLjAwMzU3OTgwOTI2NTEzNywyOS40ODYxLDIyLjMzMzI1OTgwOTI2NTEzN0MyOS4xNDI4LDIxLjAxOTUxOTgwOTI2NTEzNywyOS4xMTg4LDIxLjQ4Njg3OTgwOTI2NTEzNywyOS40MzI1LDIxLjE0MzU0OTgwOTI2NTEzNEMyOS43NDYzLDIwLjgwMDIyOTgwOTI2NTEzNywzMC4yNzg5LDIwLjc3NjI0OTgwOTI2NTE0LDMwLjYyMjIsMjEuMDkwMDE5ODA5MjY1MTM3WiIgZmlsbD0iIzg4OEZCNSIvPjwvc3ZnPg==") no-repeat center;
+            -webkit-mask-size: contain;
+            mask-size: contain;
+            user-select: none;
+            pointer-events: none;
+        }
+        /* 单词/词汇进阶版speak-word-pro卡片样式 */
+        .speak-word-pro-container {
+            margin: var(--space-xl) 0 0 0;
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--space-xs) 0;
+            justify-content: space-between;
+            padding: 0;
+            box-sizing: border-box;
+            width: 100%;
+        }
+        .speak-word-pro-card {
+            flex: 1 1 calc(50% - 0.1333rem);
+            background:var(--bg2-color); /* 用户颜色，透明度 0.03 */
+            border-radius: var(--border-radius-semi);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-sizing: border-box;
+            padding: var(--space-xl) 0;
+            min-width: 0;
+            text-align: center;
+        }
+        .speak-word-pro-emoji {
+            font-size: 1.6rem;
+            line-height: 2rem;
+            margin-bottom: var(--space-xs);
+            text-align: center;
+        }
+        .speak-word-pro-character {
+            font-size: 1.13rem;
+            font-weight: 500;
+            color: var(--text-level1-color);
+            margin-bottom: var(--space-xs);
+            text-align: center;
+        }
+        .speak-word-pro-pinyin {
+            font-size: 1.1rem;
+            color:var(--text-level3-color);
+            margin-bottom: var(--space-xs);
+            text-align: center;
+        }
+        .speak-word-pro-container .speak-btn-small-container {
+            /*  intentionally left blank */
+        }
+        /* 单词/词汇进阶版speak-word-pro卡片专用按钮样式 */
+        .speak-word-pro-container [play-card-component="speak-btn-small"] {
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: opacity 0.2s;
+            width: auto;
+            height: auto;
+        }
+        .speak-word-pro-container [play-card-component="speak-btn-small"]:hover {
+            opacity: 0.8;
+        }
+        .speak-word-pro-container [play-card-component="speak-btn-small"] span {
+            display: inline-block;
+            font-size: 1.2rem;
+        }
+    </style>
+    <style>
+        /* 基础句子卡片样式 */
+        .speak-sentence-pro-container {
+            margin: var(--space-xl) 0 0 0;
+            padding: 0;
+            font-family: inherit;
+        }
+        .speak-sentence-pro-card {
+            background:var(--bg2-color); /* 用户颜色，透明度 0.03 */
+            border-radius: var(--border-radius-semi);
+            margin: var(--space-md) 0 0 0;
+            padding: var(--space-md);
+            display: flex;
+            flex-direction: column;
+            gap: var(--space-xs);
+        }
+        .speak-sentence-pro-row {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+        .speak-sentence-pro-text-en {
+            font-size: 1.1rem;
+            color:var(--text-level1-color) ;
+        }
+        .speak-sentence-pro-text-cn {
+            font-size: 1rem;
+            color:var(--text-level3-color);
+        }
+        .speak-sentence-pro-container .speak-btn-small-container {
+            /*  intentionally left blank */
+        }
+        /* 句子卡片专用按钮样式 */
+        .speak-sentence-pro-container [play-card-component="speak-btn-small"] {
+            font-size: 1.2rem;
+            background: none;
+            border: none;
+            color:currentColor;
+            cursor: pointer;
+            margin-left: var(--space-md);
+            padding: 0;
+            display: inline-flex;
+            align-items: center;
+        }
+    </style>
+    <style>
+      :root {
+        /* 环形进度条常数：2 * PI * r(45) ≈ 283 */
+        --circle-perimeter: 283;
+      }
+      @keyframes circle-fill-animation {
+        from { stroke-dasharray: 0, var(--circle-perimeter); }
+        /* 结束值由标签上的内联变量 --target-dash 控制 */
+        to { stroke-dasharray: var(--target-dash), var(--circle-perimeter); }
+      }
+    
+      @keyframes linear-fill-animation {
+        from { width: 0%; }
+        /* 结束值由标签上的内联变量 --target-width 控制 */
+        to { width: var(--target-width); }
+      }
+    
+      /* 环形进度条 - 9点钟方向起始 */
+      .circle-container { position: absolute; width: 4.5rem; height: 4.5rem; top: 1.5rem; right: 1.5rem; z-index: 2;}
+      .circle-svg { transform: rotate(180deg); width: 100%; height: 100%; }
+      .circle-bg { fill: none; stroke: var(--border-level1-color); stroke-width: 8; }
+      .circle-progress { 
+        fill: none; stroke: var(--theme-warm-red);stroke-width: 8; stroke-linecap: round;
+        stroke-dasharray: 0, var(--circle-perimeter);
+        animation: circle-fill-animation 5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+      }   
+      .score-num {
+        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); 
+        font-size: 1.9rem; color: var(--theme-warm-red); font-weight: bold; 
+      }
+      .score-bar{
+        position: absolute; top: 0rem; right: -10rem; color: white; 
+        padding: 1rem 10rem; transform: rotate(45deg); 
+        font-size:1rem; font-weight: 900; opacity: 0.3; z-index: 0;
+      }
+
+      /* 线性进度条 */
+      .linear-container { margin: 1rem 0; }
+      .progress-track { height: 0.8rem; background: var(--border-level1-color); border-radius: 1rem; overflow: hidden; margin-top: 0.5rem; }
+      .progress-fill { 
+        height: 100%; width: 0%; background: var(--theme-warm-red); border-radius: 1rem;  
+        animation:linear-fill-animation 1.5s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+          animation-delay: 0.2s;
+      }
+      .inner-box {
+         background:var(--bg2-color); 
+         padding: 1.5rem; 
+         border-radius:1.25rem; 
+         position: relative;
+         overflow: hidden;
+        }
+      #linearPercent { font-weight: bold; color: var(--theme-warm-red); font-size: 1.1rem; }
+      .bar { height: 0.4rem; flex: 1; border-radius: 0.2rem; }
+      .tag{
+            font-size: 0.9rem; 
+            color: var(--text-level2-color); 
+            border: 0.1rem solid var(--border-level1-color); 
+            padding: 0.2rem 0.5rem;
+            border-radius: 1rem;
+        }
+      .corner{
+          position: absolute; 
+          top: 1rem; 
+          left: 1rem; 
+          width: 0.5rem; 
+          height: 0.5rem; 
+          border-top: 0.06rem solid var(--theme-soft-purple); 
+          border-left: 0.06rem solid var(--theme-soft-purple);
+      }
+    .color-brick {
+        border-radius: 0.4rem; 
+        display: flex; 
+        align-items: 
+        flex-end; 
+        padding: 0.4rem;
+        flex: 1;
+    }
+    .color-name{
+      font-size: 0.8rem; 
+      opacity: 1;
+      font-weight:bold;
+    }
+    .box {
+      background: var(--bg2-color); 
+      border-radius: 1rem; 
+      padding: 0.9rem; 
+      border: 1px solid var(--border-level1-color); 
+      display: flex; 
+      flex-direction: column; 
+      gap: 0.3rem;
+    }
+    .head-tag {
+      color:white; 
+      padding: 0.25rem 0.75rem; 
+      border-radius: 0.4rem; 
+      font-size: 0.75rem; 
+      font-weight: bold; 
+      letter-spacing: 0.08rem;
+    }
+   .head-box {
+        background: var(--bg2-color); 
+        border: 0.06rem solid var(--border-level1-color); 
+        border-radius: 0.75rem; 
+        padding: 1rem; 
+        position: relative;
+    }
+    .score-bar-box {
+        border-radius: 0.75rem; 
+        padding: 0.75rem;
+     }
+    .symbol-quote{
+      position: absolute; 
+      top: -0.6rem; 
+      left: 0.6rem; 
+      background: var(--bg2-color); 
+      padding: 0 0.3rem; color: 
+      var(--theme-mountain-cyan); 
+      font-size: 1.5rem;
+   }
+    </style>
+    <style>
+      .small_attr_box{
+        background: var(--bg4-color); 
+        border-radius: 0.5rem; 
+        padding: 0.7rem 0.9rem; 
+        flex: 1 1 auto;
+  		  min-width: 0; 
+      }
+      .long_attr_box{
+        background: var(--bg4-color); 
+        border-radius: 0.5rem; 
+        padding: 0.7rem 0.9rem; 
+        flex: 1 0 100%;
+      }
+      .attr_box_title{
+        font-size: 0.9rem; 
+        color: var(--text-level2-color); 
+        margin-bottom: 0.2rem; 
+        letter-spacing: 0.5px;
+        font-weight:bold;
+      }
+      .icon_box{
+        width: 3rem; 
+        height: 3rem; 
+        border:1px solid var(--theme-glacier-cyan); 
+        border-radius: 10px; 
+        display: flex; 
+        align-items: center; 
+        justify-content: center; 
+        font-size: 2rem; 
+        flex-shrink: 0;
+    }
+    .step_content{
+        flex: 1 1 14rem; 
+        min-width: 0;
+    }
+    .step_index{
+        flex: 0 0 auto; 
+        white-space: nowrap; 
+        padding: 2px 8px; 
+        border-radius: 4px; 
+        font-family: monospace; 
+        font-weight: bold; 
+        margin-bottom:1rem;
+    }
+   </style>
+    <script>
+        window.trace_id = "7f0000011754640899231103300064";
+    </script>
+    <script>
+    
+        function compareVersion(version1, version2) {
+            if (version1 == null || version2 == null) {
+                return -1
+            }
+            // 边界处理：空值/非字符串默认转为空
+            const v1 = version1?.trim() || '';
+            const v2 = version2?.trim() || '';
+            // 按 . 拆分版本号为数组，并转为数字（自动去除前导零，如 "000001" → 1）
+            const arr1 = v1.split('.').map(num => Number(num));
+            const arr2 = v2.split('.').map(num => Number(num));
+
+            // 取两个数组的最大长度，补全短数组的末尾为 0（如 [1,0] → [1,0,0,0] 适配 [1,0,32,000001]）
+            const maxLength = Math.max(arr1.length, arr2.length);
+
+            for (let i = 0; i < maxLength; i++) {
+                // 不存在的位默认补 0
+                const num1 = arr1[i] || 0;
+                const num2 = arr2[i] || 0;
+
+                if (num1 > num2) {
+                    return 1; // v1 更大
+                } else if (num1 < num2) {
+                    return -1; // v2 更大
+                }
+                // 相等则继续对比下一位
+            }
+
+            return 0; // 所有位都相等
+        }
+
+        function need_image_by_version(userAgent) {
+            console.log('image user agent:', userAgent)
+            if (!userAgent.includes('Mobile')) {
+                return true;
+            }
+            // 正则表达式：匹配 Leopard/版本号 的结构
+            const regex = /(Leopard)\/([\d.]+)/;
+            const matchResult = userAgent.match(regex);
+
+            // 提取结果
+            version = null
+            compareNum = -1;
+            if (matchResult) {
+                // const platform = matchResult[1]; // 得到 "Leopard"
+                version = matchResult[2];  // 得到 "1.0.32.000001"
+                // console.log('平台标识：', platform); // 输出：Leopard
+                console.log('版本号：', version);   // 输出：1.0.32.000001
+                compareNum = compareVersion(version, '1.0.32')
+            } else {
+                console.log('未匹配到 Leopard 相关信息');
+                return true;
+            }
+            // console.log('compareNum', compareNum)
+            return compareNum >=0
+        }
+    </script>
+    
+    <script>
+    function setContentErrorNode(elementID, errorMessage="") {
+        // console.log("setContentErrorNode", elementID, errorMessage);
+        var chartDom = document.getElementById(elementID);
+        if (!chartDom) {
+            return;
+        }
+        chartDom.style.height = "0px";
+        chartDom.style.width = "0px";
+        chartDom.style.display = "none";
+        chartDom.style.minWidth = "0px";
+        chartDom.style.minHeight = "0px";
+        var parent = chartDom.parentElement;
+        while (parent && parent.children.length === 1) {
+            parent.style.height = "0px";
+            parent.style.width = "0px";
+            parent.style.display = "none";
+            parent.style.minWidth = "0px";
+            parent.style.minHeight = "0px";
+            parent.setAttribute("persistent-node", "true");
+            parent = parent.parentElement;
+        }
+        // 重新调整body高度，避免底部空白
+        setTimeout(function() {
+            adjustBodyHeight();
+        }, 10);
+    }
+    
+    function adjustBodyHeight() {
+        var body = document.body;
+        var html = document.documentElement;
+        var bodyHeightStart = body.offsetHeight;
+
+        var bodyContentContainer = document.getElementById('special-body-content-container');
+        if (bodyContentContainer) {
+            var rect = bodyContentContainer.getBoundingClientRect();
+            var contentHeight = rect.bottom + window.pageYOffset;
+
+            // 设置body和html的高度
+            body.style.height = contentHeight + 'px';
+            // console.log(bodyHeightStart, contentHeight);
+            
+            body.offsetHeight;
+        }
+    }
+
+
+
+    function loadScript(url, successCallback, errorCallback) {
+        if (!document.body.scriptLoadStatus) {
+            document.body.scriptLoadStatus = {};
+        }
+        var scriptLoadStatus =  document.body.scriptLoadStatus;
+        if (!scriptLoadStatus[url]) {
+            scriptLoadStatus[url] = { status: 'loading', successCallbacks: [], errorCallbacks: [] };
+            if (successCallback) {
+                scriptLoadStatus[url].successCallbacks.push(successCallback);
+            }
+            if (errorCallback) {
+                scriptLoadStatus[url].errorCallbacks.push(errorCallback);
+            }
+
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+
+            script.onload = function() {
+                console.log('脚本成功加载: ' + url);
+                scriptLoadStatus[url].status = 'loaded';
+                scriptLoadStatus[url].successCallbacks.forEach(cb => cb());
+                // 清空回调队列，因为脚本状态已确定
+                scriptLoadStatus[url].successCallbacks = [];
+                scriptLoadStatus[url].errorCallbacks = [];
+            };
+
+            script.onerror = function() {
+                console.error('脚本加载失败: ' + url);
+                scriptLoadStatus[url].status = 'error';
+                scriptLoadStatus[url].errorCallbacks.forEach(cb => cb());
+                // 清空回调队列，因为脚本状态已确定
+                scriptLoadStatus[url].successCallbacks = [];
+                scriptLoadStatus[url].errorCallbacks = [];
+            };
+            document.body.appendChild(script);
+        } else if (scriptLoadStatus[url].status === 'loaded') {
+            console.log('脚本已加载过 (状态: loaded): ' + url);
+            if (successCallback) successCallback();
+        } else if (scriptLoadStatus[url].status === 'loading') {
+            console.log('脚本正在加载中，将回调加入队列: ' + url);
+            if (successCallback) {
+                scriptLoadStatus[url].successCallbacks.push(successCallback);
+            }
+            if (errorCallback) {
+                scriptLoadStatus[url].errorCallbacks.push(errorCallback);
+            }
+        } else if (scriptLoadStatus[url].status === 'error') {
+            console.error('脚本之前加载失败: ' + url);
+            if (errorCallback) errorCallback();
+        }
+    }
+
+    function removeComponentDefaultStyle(elementID) {
+        var chartDom = document.getElementById(elementID);
+        if (!chartDom) {
+            return;
+        }
+        chartDom.style.border = "none";
+        chartDom.innerHTML = "";
+    }
+    // 全局Canvas性能优化配置
+    (function() {
+        var originalGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
+            if (contextType === '2d') {
+                contextAttributes = contextAttributes || {};
+                if (!('willReadFrequently' in contextAttributes)) {
+                    contextAttributes.willReadFrequently = true;
+                }
+            }
+            return originalGetContext.call(this, contextType, contextAttributes);
+        };
+    })();
+    </script>
+    <script src="https://render.alipay.com/p/yuyan/180020010001280215/tts/voice-v3.1.202512091500.js"></script>
+    <script>
+        // 组件注册与事件分发框架
+        window.ComponentRegistry = (function() {
+            // 用于id快速查找
+            const registryMap = {};
+            // 用于顺序遍历
+            const registryList = [];
+            return {
+                /**
+                 * 注册组件
+                 * @param {Object} config - 组件配置
+                 *   - id: 组件唯一dom_id
+                 *   - type: 组件类型
+                 *   - events: 支持的事件名数组
+                 *   - state: 该组件的一些变量
+                 *   - handlers: 事件名到回调函数的映射
+                 */
+                register({id, type, events, state, handlers}) {
+                    if (!id) {
+                        console.warn('ComponentRegistry: 注册组件时必须提供id');
+                        return;
+                    }
+                    // 只允许注册一次，重复注册忽略
+                    if (registryMap[id]) {
+                        console.warn(`ComponentRegistry: id=${id} 已注册，忽略重复注册`);
+                        return;
+                    }
+                    const comp = {id, type, events, state, handlers};
+                    registryMap[id] = comp;
+                    registryList.push(comp);
+                },
+                /**
+                 * 通过id获取组件
+                 */
+                get(id) {
+                    return registryMap[id];
+                },
+                /**
+                 * 获取所有注册组件的有序列表
+                 */
+                list() {
+                    return registryList.slice(); // 返回副本，防止外部修改
+                }
+            };
+        })();
+        
+        //点击音频事件
+        function click_play(componentId, playId) {
+            console.log('FR-voice-small-onclick',componentId, playId);
+            registerMusicComponent(playId);
+            const comp = window.ComponentRegistry.get(playId);
+            if (!comp) {
+                console.error('FR-voice-small-component-not-found');
+            } else {
+                comp.handlers.play(componentId, playId);
+            }
+        };
+    </script>
+<style>html,body{padding-left:1rem;padding-right:1rem;padding-bottom:2rem;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;}#special-body-content-container{overflow:hidden;max-width:100%;}h1{font-size:1.2rem;line-height:1.8rem;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}#intro-card{margin:var(--space-xl,1rem) 0 0 0;padding:1rem 1.2rem;background:var(--bg2-color,#fbfbfb);border-radius:var(--border-radius,0.53rem);}.intro-card-text-card .desc{margin:0;}</style></head>
+<body leopard-ama-container>
+<div id="special-body-content-container">
+
+<h1 style="color:var(--theme-active-green);">木芙蓉：秋日里的“拒霜”仙子</h1>
+<hr class="divider" style="border-color:var(--theme-active-green);">
+
+<div id="intro-card">
+  <div class="intro-card-text-card">
+    <p class="desc">图中这片盛开的花海是<strong style="color:var(--theme-active-green);font-weight: bold;">木芙蓉</strong>（Hibiscus mutabilis），又名“拒霜花”。它最显著的特征是<strong style="color:var(--theme-active-green);font-weight: bold;">“一日三变”</strong>——花朵初开时为白色或淡粉色，午后转为深粉，傍晚则呈深红色，正如图片中展现的粉白相间、色彩斑斓的景象。</p>
+  </div>
+</div>
+
+<div class="free_component">
+    <div style="text-align: center; margin-bottom: var(--space-lg);">
+        <span style="font-size: 2rem; line-height: 1; display: inline-block;flex-shrink: 0;">🌺</span>
+    </div>
+    <h3 style="text-align:center;margin: 0 0 var(--space-lg);color: var(--theme-active-green); flex-direction: column;">
+        木芙蓉 · Hibiscus mutabilis
+    </h3>
+    <p style="font-size:0.9rem; color:var(--text-level2-color); text-align:center; margin:0;">
+         🍂 秋季盛放 | 🎨 一日三变 | 🏥 药用价值
+    </p>
+    <div style="margin-top:var(--space-lg);padding:0.5rem 1rem; border: 1px solid var(--border-level1-color);border-radius: 10px;font-size: 0.95rem;text-align: center;">
+        <strong style="color:var(--theme-active-green);">辨识要点:</strong> 叶片呈掌状分裂（像枫叶），花朵大且重瓣，颜色随时间变化。
+    </div>
+</div>
+
+<h2 style="color:var(--theme-active-green);">核心特征解析</h2>
+<p style="margin-bottom: var(--space-xl);">木芙蓉是锦葵科木槿属的落叶灌木或小乔木。从图片中可以清晰地观察到它的几个关键生物学特征，这些特征也是将其与其他花卉区分开来的重要依据。</p>
+
+<div style="margin-bottom: 1rem">
+    <div class="data-point-title">
+        <span class="span-title" style="background:var(--theme-active-green); ">
+        </span>
+        独特的“一日三变”
+    </div>
+    <div class="data-point-content" style=" background-color: rgba(136, 181, 174, 0.08); border-left: 3px solid var(--theme-active-green); " >
+        这是木芙蓉最著名的特性。花朵在清晨初开时通常为白色或淡粉色，随着日照增强和温度升高，花青素合成增加，午后逐渐变为深粉色，到了傍晚凋谢前则呈现深红色。图片中同时存在白色和粉色的花朵，正是这一动态过程的完美定格。
+    </div>
+</div>
+
+<div style="margin-bottom: 1rem">
+    <div class="data-point-title">
+        <span class="span-title" style="background:var(--theme-active-green); ">
+        </span>
+        掌状分裂的叶片
+    </div>
+    <div class="data-point-content" style=" background-color: rgba(136, 181, 174, 0.08); border-left: 3px solid var(--theme-active-green);" >
+        请仔细观察图片前景中的叶子，它们呈宽卵形至圆卵形，通常有 5-7 个裂片，边缘有钝锯齿，形状非常像枫叶，因此木芙蓉也常被称为“木莲”或“地芙蓉”。这种叶形是区别于普通扶桑（叶片通常为卵形不分裂）的重要特征。
+    </div>
+</div>
+
+<div style="margin-bottom: 1rem">
+    <div class="data-point-title">
+        <span class="span-title" style="background:var(--theme-active-green); ">
+        </span>
+        晚秋盛开的习性
+    </div>
+    <div class="data-point-content" style=" background-color: rgba(136, 181, 174, 0.08); border-left: 3px solid var(--theme-active-green);" >
+        木芙蓉的花期主要在 8 月至 10 月，正值深秋时节。当大多数花卉已经凋谢时，它却迎着霜寒怒放，因此古人赋予它“拒霜花”的美名，象征着坚韧不拔的品格。
+    </div>
+</div>
+
+<h2 style="color:var(--theme-active-green);">文化与实用价值</h2>
+<p style="margin-bottom: var(--space-xl);">木芙蓉不仅具有极高的观赏价值，在中国传统文化和日常生活中也扮演着重要角色。</p>
+
+<div class="free_component">
+     <!-- 顶部标题栏 -->
+     <div style="display: flex; align-items: center; margin-bottom: 1.5rem; gap: 0.8rem;">
+          <div style="width: 0.4rem; height: 1.2rem; background:var(--theme-active-green);border-radius: 4px; flex-shrink: 0;"></div>
+          <span style="font-weight:800; font-size: 1rem;">木芙蓉的多重身份</span>
+     </div>
+
+      <!-- 核心结论卡片 -->
+     <div style="background: var(--bg-active-green); padding: 1.2rem; border-radius: 16px; margin-bottom: 1.5rem;">
+         <div style="display: flex; gap: 1rem; align-items: center;">
+             <div style="font-size: 2rem; flex-shrink: 0;">🏙️</div>
+             <div>
+                 <div style="font-size: 0.9rem; font-weight:bold; color: var(--theme-active-green); margin-bottom: 0.2rem; letter-spacing: 1px;">成都市花</div>
+                 <div style="font-size: 0.95rem; color:var(--text-level2-color);">
+                     五代后蜀时期，成都城墙上遍植木芙蓉，每到秋季，四十里如锦绣，故成都又称“蓉城”。
+                 </div>
+             </div>
+         </div>
+     </div>
+
+      <!-- 详细属性列表 -->
+     <div style="display: flex; flex-direction: column; gap: 1.2rem;">
+             <div style="border-bottom: 1px solid var( --border-level1-color); padding-bottom: 1rem; display: flex; gap: 1rem;align-items: center;">
+             <div class="icon_box" style="border-color:var(--theme-active-green);">💊</div>
+             <div>
+                 <div style="font-size: 0.9rem; font-weight:bold; margin-bottom: 0.3rem; letter-spacing: 1px;">药用价值</div>
+                 <div style="font-size: 0.95rem; color:var(--text-level2-color);">
+                     其花、叶、根皮均可入药，具有<strong style="color: var(--theme-active-green);">清热解毒、消肿排脓</strong>的功效，常用于治疗疮疡肿毒。
+                 </div>
+             </div>
+         </div>
+
+          <div style="border-bottom: 1px solid var(--border-level1-color); padding-bottom: 1rem; display: flex; gap: 1rem;align-items: center;">
+             <div class="icon_box" style="border-color:var(--theme-active-green);">🎨</div>
+             <div>
+                 <div style="font-size: 0.9rem; font-weight:bold; margin-bottom: 0.3rem; letter-spacing: 1px;">文化象征</div>
+                 <div style="font-size: 0.95rem; color:var(--text-level2-color);">
+                     因其“拒霜”的特性，常被用来比喻<strong style="color: var(--theme-active-green);">贞洁、坚韧</strong>的君子品格，是文人墨客喜爱的题材。
+                 </div>
+             </div>
+         </div>
+     </div>
+</div>
+
+<h2 style="color:var(--theme-active-green);">养护与观赏建议</h2>
+<p style="margin-bottom: var(--space-xl);">如果您也想在自家庭院或阳台种植木芙蓉，以下是一些基于其生长习性的专业建议。</p>
+
+<div class="free_component">
+    <div style="display: flex; align-items: center; gap: 0.8rem; margin-bottom: 1rem;">
+        <div style="width: 0.3rem; height: 1.2rem; background: var(--theme-active-green); border-radius: 2px; flex-shrink: 0;"></div>
+        <h3 style="font-weight: 700;">家庭养护指南</h3>
+    </div>
+    <div style="display: flex; flex-direction: column; gap: 0.8rem;">
+        <!-- Step 1 -->
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 1rem;">
+            <div class="step_index" style="color: var(--theme-active-green);background: var(--bg-active-green);">01</div>
+            <div class="step_content">
+                <strong>光照：</strong>木芙蓉喜光，应种植在<strong>阳光充足</strong>的地方，光照不足会导致开花稀少。
+            </div>
+        </div>
+        <!-- Step 2 -->
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 1rem;">
+            <div class="step_index" style="color: var(--theme-active-green);background: var(--bg-active-green);">02</div>
+            <div class="step_content">
+                <strong>水分：</strong>它不耐干旱，生长期需保持土壤<strong>湿润</strong>，但也要避免积水导致烂根。
+            </div>
+        </div>
+        <!-- Step 3 -->
+        <div style="display: flex; flex-wrap: wrap; align-items: baseline; column-gap: 1rem;">
+            <div class="step_index" style="color:var(--theme-active-green); background: var(--bg-active-green);">03</div>
+            <div class="step_content">
+                <strong>修剪：</strong>在冬季落叶后或早春发芽前进行<strong>重剪</strong>，可以促进来年萌发更多新枝，使株型更丰满，开花更多。
+            </div>
+        </div>
+    </div>
+</div>
+
+<hr class="divider-content">
+<div class="quote">
+    <span style="display: inline-block; font-size: 2rem; max-width: 2rem; max-height: 2rem; margin-bottom: 1rem;">🍁</span>
+    <br>"千林扫作一番黄，只有芙蓉独自芳。"
+    <br>
+    <quote-author>—— 苏轼《和陈述古拒霜花》</quote-author>
+</div>
+
+</div>
+</body>
+</html>
