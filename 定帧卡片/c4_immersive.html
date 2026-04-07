@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>C4 沉浸式长卡片 — 百科知识卡片</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
   body {
     background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
-    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
   }
 
   .phone {
@@ -40,6 +41,7 @@
     color: rgba(255,255,255,.9); margin-right: 36px;
   }
 
+  /* 阅读进度指示器 */
   .read-progress {
     position: absolute; top: 88px; left: 0; right: 0; z-index: 30; height: 2px;
     background: rgba(255,255,255,.06);
@@ -50,17 +52,21 @@
     transition: width .1s;
   }
 
+  /* 滚动容器 */
   .scroll-content {
     position: absolute; inset: 0; overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
+  .scroll-content::-webkit-scrollbar { display: none; }
 
+  /* 视差英雄区 */
   .hero {
     height: 480px; position: relative; overflow: hidden;
     display: flex; flex-direction: column; align-items: center;
     justify-content: flex-end; padding-bottom: 40px;
   }
 
+  /* 英雄背景 */
   .hero-bg {
     position: absolute; inset: 0; z-index: 0;
     background: linear-gradient(180deg, #1a1a3a 0%, #2a2a4a 50%, #0e0e1a 100%);
@@ -79,6 +85,7 @@
     top: 30%; right: -10%; filter: blur(40px);
   }
 
+  /* 浮动贴纸 */
   .hero-sticker {
     position: relative; z-index: 5; margin-bottom: 20px;
     will-change: transform;
@@ -109,6 +116,7 @@
     font-style: italic; margin-top: 6px;
   }
 
+  /* 向下箭头提示 */
   .scroll-arrow {
     position: relative; z-index: 5; margin-top: 28px;
     width: 30px; height: 30px; display: flex; align-items: center; justify-content: center;
@@ -119,18 +127,21 @@
     50% { transform: translateY(6px); opacity: .8; }
   }
 
+  /* 英雄底部渐变 */
   .hero::after {
     content: ''; position: absolute; bottom: 0; left: 0; right: 0;
     height: 120px; z-index: 3;
     background: linear-gradient(to top, #0e0e1a, transparent);
   }
 
+  /* 内容区 */
   .content-area {
     position: relative; z-index: 10;
     padding: 0 24px;
     background: #0e0e1a;
   }
 
+  /* 章节 */
   .chapter {
     margin-bottom: 48px;
     opacity: 0; transform: translateY(40px);
@@ -172,6 +183,7 @@
     line-height: 2; margin-bottom: 16px;
   }
 
+  /* 引用块 */
   .quote-block {
     padding: 16px 20px; border-radius: 16px;
     background: rgba(255,255,255,.03);
@@ -183,6 +195,7 @@
     line-height: 1.8; font-style: italic;
   }
 
+  /* 装饰分割线 */
   .chapter-divider {
     display: flex; align-items: center; gap: 12px;
     margin: 48px 0;
@@ -195,6 +208,7 @@
     font-size: 10px; color: rgba(255,255,255,.15); letter-spacing: 4px;
   }
 
+  /* 标签区 */
   .tags-section { margin: 8px 0 40px; }
   .tags-label {
     font-size: 10px; font-weight: 700; color: rgba(255,255,255,.2);
@@ -209,8 +223,10 @@
   }
   .tag:active { transform: scale(.95); background: rgba(255,255,255,.08); }
 
+  /* 底部留白 */
   .bottom-spacer { height: 140px; }
 
+  /* 底部操作 */
   .bottom-bar {
     position: absolute; bottom: 0; left: 0; right: 0; z-index: 30;
     padding: 10px 20px 34px;
@@ -259,6 +275,7 @@
   <div class="read-progress"><div class="read-progress-fill" id="progressFill"></div></div>
 
   <div class="scroll-content" id="scrollContent">
+    <!-- 英雄区 -->
     <div class="hero" id="hero">
       <div class="hero-bg"></div>
       <div class="hero-glow g1"></div>
@@ -275,6 +292,7 @@
       </div>
     </div>
 
+    <!-- 内容 -->
     <div class="content-area">
 
       <div class="chapter" data-reveal>
@@ -328,6 +346,7 @@
 
       <div class="chapter-divider"><span>✦</span></div>
 
+      <!-- 标签 -->
       <div class="tags-section" data-reveal>
         <div class="tags-label">相关标签</div>
         <div class="tags">
@@ -357,13 +376,16 @@
   const heroSticker = document.getElementById('heroSticker');
   const chapters = document.querySelectorAll('[data-reveal]');
 
+  // 滚动监听
   scrollContent.addEventListener('scroll', () => {
     const scrollTop = scrollContent.scrollTop;
     const scrollHeight = scrollContent.scrollHeight - scrollContent.clientHeight;
     const progress = Math.min(scrollTop / scrollHeight, 1);
 
+    // 阅读进度条
     progressFill.style.width = (progress * 100) + '%';
 
+    // 贴纸视差：滚动时缓慢上移 + 缩小
     const heroH = 480;
     const stickerProgress = Math.min(scrollTop / heroH, 1);
     const scale = 1 - stickerProgress * 0.3;
@@ -371,6 +393,7 @@
     heroSticker.style.transform = `translateY(${ty}px) scale(${scale})`;
     heroSticker.style.opacity = 1 - stickerProgress * 0.8;
 
+    // 章节渐入
     chapters.forEach(ch => {
       const rect = ch.getBoundingClientRect();
       const phoneRect = scrollContent.getBoundingClientRect();
