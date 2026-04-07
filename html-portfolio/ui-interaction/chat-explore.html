@@ -1,0 +1,574 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵光 · 金价洞察</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #FAFAF7;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+  }
+  .serif { font-family: 'Noto Serif SC', serif; }
+
+  #chat-container {
+    width: 100%;
+    max-width: 480px;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    background: #FAFAF7;
+  }
+
+  #chat-header {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    background: rgba(250, 250, 247, 0.92);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border-bottom: 1px solid rgba(196, 116, 43, 0.1);
+    padding: 16px 20px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  #chat-header .avatar {
+    width: 36px; height: 36px;
+    background: linear-gradient(135deg, #C4742B, #D4944B);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 600;
+    flex-shrink: 0;
+  }
+
+  #chat-header .info h1 {
+    font-size: 15px; font-weight: 600; color: #1a1a1a; line-height: 1.3;
+  }
+  #chat-header .info p {
+    font-size: 11px; color: #999; line-height: 1.3;
+  }
+
+  #messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 16px 16px 120px;
+    scroll-behavior: smooth;
+  }
+
+  .msg {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 16px;
+    opacity: 0;
+    transform: translateY(16px);
+    animation: msgIn 0.4s ease forwards;
+  }
+  @keyframes msgIn {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg-ai { align-items: flex-start; }
+  .msg-user { flex-direction: row-reverse; }
+
+  .msg .avatar-sm {
+    width: 28px; height: 28px;
+    background: linear-gradient(135deg, #C4742B, #D4944B);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    flex-shrink: 0;
+    margin-top: 2px;
+  }
+
+  .bubble {
+    max-width: 82%;
+    padding: 12px 16px;
+    border-radius: 18px;
+    font-size: 14px;
+    line-height: 1.7;
+    color: #2a2a2a;
+  }
+
+  .bubble-ai {
+    background: #fff;
+    border-radius: 18px 18px 18px 4px;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+  }
+
+  .bubble-user {
+    background: linear-gradient(135deg, #C4742B, #b5682a);
+    color: #fff;
+    border-radius: 18px 18px 4px 18px;
+    box-shadow: 0 2px 8px rgba(196, 116, 43, 0.25);
+  }
+
+  .bubble canvas {
+    width: 100% !important;
+    max-height: 200px;
+    margin: 10px 0 4px;
+    border-radius: 8px;
+  }
+
+  .driver-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    padding: 8px 0;
+    border-bottom: 1px solid rgba(0,0,0,0.04);
+  }
+  .driver-item:last-child { border-bottom: none; }
+  .driver-icon { font-size: 18px; flex-shrink: 0; margin-top: 1px; }
+  .driver-label { font-weight: 600; color: #C4742B; font-size: 13px; }
+  .driver-desc { font-size: 13px; color: #666; margin-top: 1px; }
+
+  .forecast-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+    margin: 10px 0;
+  }
+  .forecast-card {
+    background: #FAFAF7;
+    border-radius: 10px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .forecast-card .org {
+    font-size: 11px;
+    color: #999;
+    font-weight: 500;
+  }
+  .forecast-card .price {
+    font-size: 20px;
+    font-weight: 700;
+    color: #C4742B;
+    margin-top: 2px;
+  }
+
+  .chips-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-left: 36px;
+    opacity: 0;
+    transform: translateY(12px);
+    animation: msgIn 0.35s ease 0.1s forwards;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 8px 16px;
+    background: #fff;
+    border: 1.5px solid rgba(196, 116, 43, 0.3);
+    border-radius: 20px;
+    font-size: 13px;
+    color: #C4742B;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-family: 'Noto Sans SC', sans-serif;
+    line-height: 1.4;
+  }
+  .chip:hover {
+    background: rgba(196, 116, 43, 0.08);
+    border-color: #C4742B;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(196, 116, 43, 0.15);
+  }
+  .chip:active {
+    transform: scale(0.97);
+  }
+
+  .typing-indicator {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 14px 18px;
+  }
+  .typing-dot {
+    width: 7px; height: 7px;
+    background: #ccc;
+    border-radius: 50%;
+    animation: bounce 1.2s infinite;
+  }
+  .typing-dot:nth-child(2) { animation-delay: 0.15s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.3s; }
+  @keyframes bounce {
+    0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+    30% { transform: translateY(-6px); opacity: 1; }
+  }
+
+  .quote-block {
+    border-left: 3px solid #C4742B;
+    padding: 12px 16px;
+    margin: 10px 0;
+    background: rgba(196, 116, 43, 0.04);
+    border-radius: 0 8px 8px 0;
+    font-size: 14px;
+    line-height: 1.8;
+    color: #444;
+  }
+
+  .insight-footer {
+    text-align: right;
+    font-size: 11px;
+    color: #bbb;
+    margin-top: 8px;
+    letter-spacing: 1px;
+  }
+
+  .data-highlight {
+    display: inline-block;
+    background: rgba(196, 116, 43, 0.08);
+    color: #C4742B;
+    font-weight: 600;
+    padding: 1px 6px;
+    border-radius: 4px;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div id="chat-container">
+  <div id="chat-header">
+    <div class="avatar">灵</div>
+    <div class="info">
+      <h1>灵光 &middot; Insight</h1>
+      <p>金价分析 &middot; 实时洞察</p>
+    </div>
+  </div>
+  <div id="messages"></div>
+</div>
+
+<script>
+var messagesEl = document.getElementById('messages');
+var chartCounter = 0;
+var answered = new Set();
+
+var HL = 'data-highlight';
+
+var FLOW = {
+  opening: {
+    ai: '皘，金价又破新高了。AU9999 冲到 <span class="' + HL + '">1502 元/克</span>，比起点涨了 80%。想聊聊为什么？',
+    options: ['为什么一直在涨？', '涨了多少？给我看看数据']
+  },
+  '为什么一直在涨？': {
+    ai: '三个核心驱动力在同时发力：',
+    extra: 'drivers',
+    options: ['央行为什么在囤金？', '降息怎么影响金价？', '地缘风险具体指什么？']
+  },
+  '涨了多少？给我看看数据': {
+    ai: '来，一起看。',
+    chart: 'priceLineChart',
+    afterChart: '7个月，从 <span class="' + HL + '">832</span> 到 <span class="' + HL + '">1502</span>，接近翻倍。多条均线完美多头排列。',
+    options: ['机构怎么看后市？', '为什么一直在涨？']
+  },
+  '央行为什么在囤金？': {
+    ai: '央行们在玩一场长期博弈。',
+    chart: 'centralBankBarChart',
+    afterChart: '2025年Q3全球央行净购金量创新高。主力：中国、印度、土耳其。本质上是 <span class="' + HL + '">去美元化</span> 的战略行为。',
+    options: ['ETF资金也在流入吗？', '机构怎么看后市？']
+  },
+  '降息怎么影响金价？': {
+    ai: '逻辑很直接：利率降 \u2192 持有黄金的机会成本降 \u2192 更多资金流入。<br><br>市场已经定价了 <span class="' + HL + '">2025年3次降息</span> 的预期。每次降息25个基点，联邦基金利率目标从5.25%降到4.50%。<br><br>历史规律：降息周期中，黄金平均涨幅 <span class="' + HL + '">28%</span>。这轮才走了一半。',
+    options: ['机构怎么看后市？', 'ETF资金也在流入吗？']
+  },
+  '地缘风险具体指什么？': {
+    ai: '中东、欧洲、大国博弈，全球军费连续8年增长。<br><br>市场在定价\u201c<span class="' + HL + '">冲突长期化</span>\u201d这个预期。不是某一个事件，是整个全球安全格局的结构性变化。<br><br>资金在用脚投票 \u2014\u2014 黄金是最古老的\u201c乱世资产\u201d。',
+    options: ['机构怎么看后市？', '央行为什么在囤金？']
+  },
+  '机构怎么看后市？': {
+    ai: '华尔街一致看多，分歧只在幅度：',
+    extra: 'forecasts',
+    afterExtra: '共识很清楚 \u2014\u2014 不是涨不涨的问题，是涨多少的问题。',
+    options: ['ETF资金也在流入吗？', '总结一下？']
+  },
+  'ETF资金也在流入吗？': {
+    ai: 'SPDR 过去6个月增持 <span class="' + HL + '">12%</span>。',
+    chart: 'etfBarChart',
+    afterChart: '从投机到配置，养老基金黄金配比从 <span class="' + HL + '">2.1% \u2192 3.8%</span>。<br><br>黄金不再是\u201c避险品种\u201d，是\u201c<span class="' + HL + '">核心资产</span>\u201d了。',
+    options: ['总结一下？']
+  },
+  '总结一下？': {
+    ai: '',
+    extra: 'summary',
+    options: []
+  }
+};
+
+function scrollToBottom() {
+  requestAnimationFrame(function() {
+    messagesEl.scrollTo({ top: messagesEl.scrollHeight, behavior: 'smooth' });
+  });
+}
+
+function addAIBubble(html) {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'msg msg-ai';
+  wrapper.innerHTML = '<div class="avatar-sm">\u7075</div><div class="bubble bubble-ai">' + html + '</div>';
+  messagesEl.appendChild(wrapper);
+  scrollToBottom();
+  return wrapper.querySelector('.bubble');
+}
+
+function addUserBubble(text) {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'msg msg-user';
+  wrapper.innerHTML = '<div class="bubble bubble-user">' + text + '</div>';
+  messagesEl.appendChild(wrapper);
+  scrollToBottom();
+}
+
+function addTypingIndicator() {
+  var wrapper = document.createElement('div');
+  wrapper.className = 'msg msg-ai';
+  wrapper.id = 'typing';
+  wrapper.innerHTML = '<div class="avatar-sm">\u7075</div><div class="bubble bubble-ai typing-indicator"><div class="typing-dot"></div><div class="typing-dot"></div><div class="typing-dot"></div></div>';
+  messagesEl.appendChild(wrapper);
+  scrollToBottom();
+}
+
+function removeTyping() {
+  var el = document.getElementById('typing');
+  if (el) el.remove();
+}
+
+function addChips(options) {
+  if (!options || options.length === 0) return;
+  var container = document.createElement('div');
+  container.className = 'chips-container';
+  options.forEach(function(text) {
+    var chip = document.createElement('button');
+    chip.className = 'chip';
+    chip.textContent = text;
+    chip.addEventListener('click', function() { handleChoice(text); });
+    container.appendChild(chip);
+  });
+  messagesEl.appendChild(container);
+  scrollToBottom();
+}
+
+function removeChips() {
+  var chips = messagesEl.querySelectorAll('.chips-container');
+  chips.forEach(function(c) { c.remove(); });
+}
+
+function buildDriversHTML() {
+  var items = [
+    { icon: '\ud83c\udfe6', label: '\u592e\u884c\u8d2d\u91d1', desc: '\u8fde\u7eed8\u5e74\u51c0\u8d2d\u5165\uff0c2025\u5e74\u52a0\u901f' },
+    { icon: '\ud83d\udcc9', label: '\u5229\u7387\u9884\u671f', desc: '\u7f8e\u8054\u50a8\u964d\u606f\u5468\u671f\uff0c\u9ec4\u91d1\u673a\u4f1a\u6210\u672c\u964d\u4f4e' },
+    { icon: '\ud83d\udee1\ufe0f', label: '\u98ce\u9669\u5bf9\u51b2', desc: '\u5730\u7f18\u51b2\u7a81\u957f\u671f\u5316 + \u5168\u7403\u503a\u52a1' }
+  ];
+  return items.map(function(i) {
+    return '<div class="driver-item"><div class="driver-icon">' + i.icon + '</div><div><div class="driver-label">' + i.label + '</div><div class="driver-desc">' + i.desc + '</div></div></div>';
+  }).join('');
+}
+
+function buildForecastsHTML() {
+  var forecasts = [
+    { org: '\u6469\u6839\u5927\u901a', price: '2035' },
+    { org: '\u9ad8\u76db', price: '1980' },
+    { org: '\u745e\u94f6', price: '1920' },
+    { org: '\u82b1\u65d7', price: '1850' }
+  ];
+  return '<div class="forecast-cards">' + forecasts.map(function(d) {
+    return '<div class="forecast-card"><div class="org">' + d.org + '</div><div class="price">' + d.price + '</div></div>';
+  }).join('') + '</div>';
+}
+
+function buildSummaryHTML() {
+  return '<div class="quote-block serif">\u91d1\u4ef7\u7684\u6bcf\u4e00\u6b21\u65b0\u9ad8\uff0c\u90fd\u662f\u5bf9\u65e7\u79e9\u5e8f\u7684\u4e00\u6b21\u53e9\u95ee\u3002<br>\u524d\u65b9\u4e0d\u662fK\u7ebf\u7684\u5ef6\u7eed\uff0c\u662f\u706f\u58544.0\u65f6\u4ee3\u7684\u8d77\u70b9\u3002</div><div class="insight-footer">\u7075\u5149 &middot; Insight</div>';
+}
+
+function createChart(type, canvasId) {
+  var canvas = document.getElementById(canvasId);
+  if (!canvas) return;
+  var ctx = canvas.getContext('2d');
+
+  var chartConfig = null;
+
+  if (type === 'priceLineChart') {
+    chartConfig = {
+      type: 'line',
+       {
+        labels: ['7\u6708', '8\u6708', '9\u6708', '10\u6708', '11\u6708', '12\u6708', '1\u6708', '2\u6708'],
+        datasets: [{
+          label: 'AU9999 (\u5143/\u514b)',
+           [832, 915, 1020, 1105, 1215, 1340, 1430, 1502],
+          borderColor: '#C4742B',
+          backgroundColor: 'rgba(196, 116, 43, 0.08)',
+          fill: true,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#C4742B',
+          borderWidth: 2
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.8,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } }
+        },
+        animation: { duration: 1000, easing: 'easeOutQuart' }
+      }
+    };
+  } else if (type === 'centralBankBarChart') {
+    chartConfig = {
+      type: 'bar',
+       {
+        labels: ['Q1', 'Q2', 'Q3'],
+        datasets: [{
+          label: '\u51c0\u8d2d\u91d1\u91cf (\u5428)',
+          data: [228, 287, 364],
+          backgroundColor: ['rgba(196,116,43,0.5)', 'rgba(196,116,43,0.7)', 'rgba(196,116,43,0.95)'],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.8,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } }
+        },
+        animation: { duration: 800, easing: 'easeOutQuart' }
+      }
+    };
+  } else if (type === 'etfBarChart') {
+    chartConfig = {
+      type: 'bar',
+      data: {
+        labels: ['9\u6708', '10\u6708', '11\u6708', '12\u6708', '1\u6708', '2\u6708'],
+        datasets: [{
+          label: 'SPDR \u6301\u4ed3\u53d8\u5316 (\u5428)',
+           [12, 18, 31, 28, 42, 55],
+          backgroundColor: 'rgba(196, 116, 43, 0.75)',
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: true,
+        aspectRatio: 1.8,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } },
+          y: { grid: { color: 'rgba(0,0,0,0.04)' }, ticks: { font: { size: 10, family: 'Noto Sans SC' }, color: '#999' } }
+        },
+        animation: { duration: 800, easing: 'easeOutQuart' }
+      }
+    };
+  }
+
+  if (chartConfig) {
+    new Chart(ctx, chartConfig);
+  }
+}
+
+function delay(ms) {
+  return new Promise(function(r) { setTimeout(r, ms); });
+}
+
+async function showResponse(key) {
+  var node = FLOW[key];
+  if (!node) return;
+
+  answered.add(key);
+
+  addTypingIndicator();
+  await delay(1000 + Math.random() * 500);
+  removeTyping();
+
+  var bubbleHTML = '';
+  if (node.ai) {
+    bubbleHTML += '<div>' + node.ai + '</div>';
+  }
+
+  if (node.extra === 'drivers') {
+    bubbleHTML += buildDriversHTML();
+  } else if (node.extra === 'forecasts') {
+    bubbleHTML += buildForecastsHTML();
+    if (node.afterExtra) {
+      bubbleHTML += '<div style="margin-top:8px">' + node.afterExtra + '</div>';
+    }
+  } else if (node.extra === 'summary') {
+    bubbleHTML += buildSummaryHTML();
+  }
+
+  if (node.chart) {
+    chartCounter++;
+    var cid = 'chart-' + chartCounter;
+    bubbleHTML += '<canvas id="' + cid + '"></canvas>';
+    if (node.afterChart) {
+      bubbleHTML += '<div style="margin-top:6px">' + node.afterChart + '</div>';
+    }
+    addAIBubble(bubbleHTML);
+    await delay(100);
+    createChart(node.chart, cid);
+  } else {
+    addAIBubble(bubbleHTML);
+  }
+
+  await delay(300);
+
+  if (node.options && node.options.length > 0) {
+    var availableOptions = node.options.filter(function(o) { return !answered.has(o); });
+    if (availableOptions.length > 0) {
+      addChips(availableOptions);
+    }
+  }
+}
+
+function handleChoice(text) {
+  removeChips();
+  addUserBubble(text);
+
+  if (answered.has(text)) {
+    var node = FLOW[text];
+    if (node && node.options) {
+      var nextOptions = node.options.filter(function(o) { return !answered.has(o); });
+      if (nextOptions.length > 0) {
+        setTimeout(function() { addChips(nextOptions); }, 400);
+      }
+    }
+    return;
+  }
+
+  showResponse(text);
+}
+
+async function init() {
+  await delay(500);
+  var opening = FLOW.opening;
+  addAIBubble(opening.ai);
+  await delay(400);
+  addChips(opening.options);
+}
+
+init();
+</script>
+</body>
+</html>
