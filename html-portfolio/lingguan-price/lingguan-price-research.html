@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵光开眼·商品价格识别功能调研报告</title>
+<style>
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,"PingFang SC","Microsoft YaHei",sans-serif; background:#f5f5f7; color:#1d1d1f; line-height:1.75; }
+.cover { background:linear-gradient(135deg,#0f2027,#203a43,#2c5364); color:white; padding:80px 60px; }
+.cover h1 { font-size:38px; font-weight:700; margin-bottom:10px; }
+.cover .sub { font-size:15px; color:rgba(255,255,255,.55); margin-bottom:36px; }
+.cover .tags { display:flex; gap:12px; flex-wrap:wrap; }
+.cover .tags span { background:rgba(255,255,255,.12); padding:5px 14px; border-radius:20px; font-size:13px; }
+.wrap { max-width:920px; margin:0 auto; padding:48px 24px; }
+
+.verdict { background:linear-gradient(135deg,#667eea,#764ba2); color:white; border-radius:16px; padding:36px; margin-bottom:32px; }
+.verdict .label { font-size:12px; letter-spacing:1.5px; text-transform:uppercase; opacity:.7; margin-bottom:12px; }
+.verdict .main { font-size:22px; font-weight:700; margin-bottom:14px; line-height:1.4; }
+.verdict p { font-size:15px; line-height:1.8; opacity:.9; }
+
+.section { background:white; border-radius:16px; padding:32px; margin-bottom:24px; box-shadow:0 2px 12px rgba(0,0,0,.06); }
+.section h2 { font-size:19px; font-weight:700; padding-bottom:14px; border-bottom:2px solid #f0f0f5; margin-bottom:22px; }
+.section h3 { font-size:15px; font-weight:600; color:#3a3a3c; margin:22px 0 10px; }
+
+table { width:100%; border-collapse:collapse; font-size:14px; }
+th { background:#f5f5f7; padding:10px 14px; text-align:left; font-size:11px; font-weight:700; color:#6e6e73; text-transform:uppercase; letter-spacing:.6px; }
+td { padding:12px 14px; border-bottom:1px solid #f5f5f7; vertical-align:top; }
+tr:last-child td { border:none; }
+
+.tag { display:inline-block; padding:3px 10px; border-radius:12px; font-size:12px; font-weight:600; }
+.g { background:#d1fae5; color:#065f46; }
+.y { background:#fef3c7; color:#92400e; }
+.r { background:#fee2e2; color:#991b1b; }
+
+.flow { display:flex; flex-direction:column; gap:0; margin:16px 0; }
+.flow-step { background:#f8f7ff; border:1px solid #e0e0f5; border-radius:12px; padding:18px 22px; }
+.flow-step .step-no { font-size:11px; font-weight:700; color:#667eea; letter-spacing:1px; margin-bottom:6px; }
+.flow-step h4 { font-size:15px; font-weight:600; margin-bottom:6px; }
+.flow-step p { font-size:13px; color:#6e6e73; }
+.flow-arrow { text-align:center; color:#c7c7cc; font-size:20px; padding:4px 0; }
+
+.intent-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(180px,1fr)); gap:14px; margin-top:14px; }
+.intent-card { background:#f5f5f7; border-radius:12px; padding:18px; }
+.intent-card .icon { font-size:24px; margin-bottom:8px; }
+.intent-card h4 { font-size:14px; font-weight:600; margin-bottom:4px; }
+.intent-card p { font-size:12px; color:#6e6e73; }
+
+.hl { background:#f0f4ff; border-left:4px solid #667eea; border-radius:0 8px 8px 0; padding:14px 18px; margin:14px 0; font-size:14px; }
+
+.risk { display:flex; align-items:flex-start; gap:12px; padding:12px 0; border-bottom:1px solid #f5f5f7; font-size:14px; }
+.risk:last-child { border:none; }
+.dot { width:8px; height:8px; border-radius:50%; margin-top:6px; flex-shrink:0; }
+.dot-o { background:#f59e0b; }
+.dot-r { background:#ef4444; }
+
+.pending { border:2px dashed #e0e0f5; box-shadow:none; background:#fafafe; }
+.pending h2 { color:#667eea; }
+
+footer { text-align:center; font-size:12px; color:#aeaeb2; padding:32px 0 48px; }
+</style>
+</head>
+<body>
+
+<div class="cover">
+  <h1>灵光开眼 · 商品价格识别</h1>
+  <div class="sub">调研报告 &amp; 可行性分析</div>
+  <div class="tags">
+    <span>📅 2026年4月</span>
+    <span>🎯 功能决策</span>
+    <span>差异化竞争视角</span>
+  </div>
+</div>
+
+<div class="wrap">
+
+  <div class="verdict">
+    <div class="label">核心结论</div>
+    <div class="main">做，定位「识物即知价」——开眼识物能力的价格维度延伸</div>
+    <p>用户拍照时不需要预先知道价格，识别本身就是起点。价格、渠道、价值判断都是识物之后自然给出的信息层。竞品均为「主动查价」逻辑，灵光的差异是「识物即得价」，用户无需带着任何前置知识触发功能。</p>
+  </div>
+
+  <div class="section">
+    <h2>一、市场现状与竞品格局</h2>
+    <table>
+      <tr><th>产品</th><th>触发逻辑</th><th>服务对象</th><th>根本局限</th></tr>
+      <tr>
+        <td><b>淘宝拍立淘「AI找低价」</b><br><span style="color:#6e6e73;font-size:12px">2025.8全量上线</span></td>
+        <td>用户主动拍照找同款</td><td>买家</td><td>只在淘宝生态内，出不了围墙</td>
+      </tr>
+      <tr>
+        <td><b>闲鱼AI相机</b><br><span style="color:#6e6e73;font-size:12px">2026.3.25上线，2周1200万用户</span></td>
+        <td>卖家拍照估价上架</td><td>二手卖家</td><td>只服务卖家侧，只限闲鱼平台</td>
+      </tr>
+      <tr>
+        <td><b>Google Lens购物</b></td>
+        <td>用户主动拍照查价</td><td>买家</td><td>国内不可用</td>
+      </tr>
+      <tr>
+        <td><b>微信/支付宝扫一扫</b></td>
+        <td>扫码跳转商品页</td><td>买家</td><td>无价格聚合，无比较能力</td>
+      </tr>
+    </table>
+
+    <div class="hl">
+      <b>关键空白</b>：所有竞品都是「用户带着查价意图主动触发」。没有任何产品在用户只是「扫了一眼某件东西」时，自然地把价格信息给出来。这是灵光的入口差异。
+    </div>
+
+    <h3>为何全网精确比价是伪命题</h3>
+    <p style="font-size:14px;color:#3a3a3c;line-height:1.8">各平台对不同用户有差异化定价：88VIP折扣、京东Plus会员价、拼多多百亿补贴券、平台历史行为个性化优惠……同一件商品，不同用户实际到手价可能相差 10%-30%。「全网最低价」对任何单个用户都不存在客观答案，精确比价是结构性做不到的事。灵光的价值不在于给一个精确数字，而在于给出有说服力的价值判断。</p>
+  </div>
+
+  <div class="section">
+    <h2>二、产品定位：识物即知价</h2>
+
+    <h3>核心产品逻辑</h3>
+    <div class="flow">
+      <div class="flow-step">
+        <div class="step-no">STEP 01 · 识物</div>
+        <h4>用户对准任何商品拍照</h4>
+        <p>开眼识别品牌、型号、品类——无需用户预先知道这是什么</p>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="step-no">STEP 02 · 知价</div>
+        <h4>给出市场价格区间 + AI 价值判断</h4>
+        <p>这东西大概值多少、贵不贵、值不值、现在是不是好时机</p>
+      </div>
+      <div class="flow-arrow">↓</div>
+      <div class="flow-step">
+        <div class="step-no">STEP 03 · 决策</div>
+        <h4>根据用户意图自然分流</h4>
+        <p>去哪买 / 在哪卖 / 了解更多——不强制用户声明意图</p>
+      </div>
+    </div>
+
+    <h3>覆盖的用户意图</h3>
+    <div class="intent-grid">
+      <div class="intent-card">
+        <div class="icon">👀</div>
+        <h4>纯好奇</h4>
+        <p>这是什么牌子，大概多少钱</p>
+      </div>
+      <div class="intent-card">
+        <div class="icon">🛒</div>
+        <h4>想买</h4>
+        <p>哪里买最合适，现在是不是好时机</p>
+      </div>
+      <div class="intent-card">
+        <div class="icon">💸</div>
+        <h4>想卖</h4>
+        <p>我有这个东西，能卖多少，去哪卖</p>
+      </div>
+      <div class="intent-card">
+        <div class="icon">🤔</div>
+        <h4>验价</h4>
+        <p>这个价格是否合理，有没有被坑</p>
+      </div>
+    </div>
+
+    <h3>与竞品的本质差异</h3>
+    <table>
+      <tr><th>维度</th><th>竞品（淘宝/闲鱼等）</th><th>灵光开眼</th></tr>
+      <tr><td>触发方式</td><td>用户带着明确查价意图进入</td><td>用户只是拍了一下，价格自然出现</td></tr>
+      <tr><td>信息定位</td><td>价格是核心目标</td><td>价格是识物之后的延伸信息层</td></tr>
+      <tr><td>中立性</td><td>平台有利益导向，不会说「去别家买」</td><td>AI 助手无偏向，可给出真实判断</td></tr>
+      <tr><td>决策深度</td><td>给数字，不给建议</td><td>给判断：贵不贵、等不等、去哪买</td></tr>
+    </table>
+  </div>
+
+  <div class="section">
+    <h2>三、可行性评估</h2>
+
+    <h3>技术可行性</h3>
+    <table>
+      <tr><th>能力模块</th><th>可行性</th><th>说明</th></tr>
+      <tr><td>视觉识别商品</td><td><span class="tag g">✅ 高</span></td><td>开眼已有基础，可直接复用</td></tr>
+      <tr><td>商品知识库 + 价格区间</td><td><span class="tag g">✅ 高</span></td><td>模型知识 + 少量结构化数据即可支撑首期</td></tr>
+      <tr><td>AI 价值判断</td><td><span class="tag g">✅ 高</span></td><td>纯模型能力，不依赖实时数据</td></tr>
+      <tr><td>跨平台实时价格</td><td><span class="tag y">⚠️ 中</span></td><td>需数据采购或战略合作，作为增强层逐步接入</td></tr>
+      <tr><td>历史价格趋势</td><td><span class="tag y">⚠️ 中</span></td><td>可向慢慢买等第三方采购，非首期必须</td></tr>
+    </table>
+
+    <h3>主要风险</h3>
+    <div class="risk"><div class="dot dot-o"></div><div>识别精度不足时价格区间偏差大，损害用户信任——需设置置信度阈值，低置信度时降级展示</div></div>
+    <div class="risk"><div class="dot dot-o"></div><div>无品牌/手工/二手品类识别困难，需要明确这类场景的降级策略</div></div>
+    <div class="risk"><div class="dot dot-r"></div><div>闲鱼/淘宝如果扩展产品边界可能正面竞争，但中立性护城河短期难以被复制</div></div>
+  </div>
+
+  <div class="section pending">
+    <h2>四、待进一步讨论</h2>
+    <p style="font-size:14px;color:#6e6e73;margin-bottom:16px">以下内容需结合产品团队判断，尚未形成结论：</p>
+    <div class="risk"><div class="dot dot-o"></div><div><b>扫描后的具体交互设计</b>：价格信息如何在结果页呈现，默认展示深度，与其他开眼信息的优先级关系</div></div>
+    <div class="risk"><div class="dot dot-o"></div><div><b>识别失败的降级体验</b>：无品牌商品、手工品等无明确市场价的场景如何处理</div></div>
+    <div class="risk"><div class="dot dot-o"></div><div><b>跨平台数据接入的优先级与时间节点</b>：首期以模型知识支撑，后续接入路径需内部确认</div></div>
+  </div>
+
+</div>
+<footer>置信度：竞品数据 A 级 | 定位分析 A 级 | 技术可行性 B 级 | 交互设计待定</footer>
+</body>
+</html>
