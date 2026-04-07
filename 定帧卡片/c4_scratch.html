@@ -5,10 +5,11 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>C4 刮刮卡揭秘 — 百科知识卡片</title>
 <style>
-  * { margin: 0; padding: 0; box-sizing: border-box; }
+  * { margin: 0; padding: 0; box-sizing: border-box; scrollbar-width: none; }
+  *::-webkit-scrollbar { display: none; }
   body {
     background: #111; font-family: -apple-system, 'PingFang SC', 'SF Pro Display', sans-serif;
-    display: flex; justify-content: center; padding: 40px 20px; min-height: 100vh;
+    display: flex; justify-content: center; align-items: center; height: 100vh; overflow: hidden;
   }
 
   .phone {
@@ -42,8 +43,9 @@
   .scroll-content {
     position: absolute; inset: 0; overflow-y: auto;
     padding: 96px 0 120px;
-    -webkit-overflow-scrolling: touch;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
   }
+  .scroll-content::-webkit-scrollbar { display: none; }
 
   /* 头部 */
   .header {
