@@ -1,0 +1,2067 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>工作过程管理工具</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Microsoft YaHei', sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            overflow: hidden;
+        }
+
+        .tabs {
+            display: flex;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e0e0e0;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 15px 20px;
+            background: transparent;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            font-weight: 600;
+            color: #666;
+            transition: all 0.3s;
+            border-bottom: 3px solid transparent;
+        }
+
+        .tab-btn.active {
+            color: #667eea;
+            border-bottom-color: #667eea;
+            background: white;
+        }
+
+        .tab-btn:hover {
+            background: #f0f0f0;
+        }
+
+        .tab-content {
+            display: none !important;
+        }
+
+        .tab-content.active {
+            display: block !important;
+        }
+
+        #daily-tab.active {
+            display: flex !important;
+            flex-direction: column;
+            height: calc(100vh - 100px);
+        }
+
+        .main-content {
+            padding: 15px 20px;
+            display: grid;
+            grid-template-columns: 380px 1fr;
+            gap: 20px;
+            height: calc(100vh - 100px);
+        }
+
+        @media (max-width: 1024px) {
+            .main-content {
+                grid-template-columns: 1fr;
+                height: auto;
+            }
+
+            .add-task-section {
+                position: relative;
+            }
+
+            .filters {
+                position: relative;
+            }
+        }
+
+        .left-panel {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .right-panel {
+            display: flex;
+            flex-direction: column;
+            overflow-y: auto;
+        }
+
+        .add-task-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 12px;
+            position: sticky;
+            top: 0;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
+            margin-bottom: 12px;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px;
+            border-radius: 8px;
+            text-align: center;
+        }
+
+        .stat-card h3 {
+            font-size: 1.3em;
+            margin-bottom: 3px;
+        }
+
+        .stat-card p {
+            opacity: 0.9;
+            font-size: 0.85em;
+        }
+
+        .form-group {
+            margin-bottom: 12px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 6px;
+            font-weight: 600;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            width: 100%;
+            padding: 8px 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 6px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 100px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .btn {
+            padding: 12px 30px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-secondary {
+            background: #6c757d;
+            color: white;
+        }
+
+        .btn-secondary:hover {
+            background: #5a6268;
+        }
+
+        .btn-success {
+            background: #28a745;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #dc3545;
+            color: white;
+        }
+
+        .btn-sm {
+            padding: 6px 12px;
+            font-size: 14px;
+        }
+
+        .filters {
+            display: flex;
+            gap: 8px;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            position: sticky;
+            top: 0;
+            background: white;
+            padding: 8px 0;
+            z-index: 10;
+        }
+
+        .filter-btn {
+            padding: 8px 16px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .filter-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .filter-btn:hover {
+            background: #667eea;
+            color: white;
+        }
+
+        .tasks-container {
+            display: grid;
+            gap: 12px;
+            padding-right: 10px;
+        }
+
+        .task-card {
+            background: white;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 15px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .task-card:hover {
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .task-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: start;
+            margin-bottom: 10px;
+        }
+
+        .task-title {
+            font-size: 1.15em;
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 4px;
+        }
+
+        .task-description {
+            color: #666;
+            margin-bottom: 10px;
+            line-height: 1.5;
+            font-size: 14px;
+        }
+
+        .task-meta {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-bottom: 10px;
+        }
+
+        .badge {
+            padding: 5px 12px;
+            border-radius: 15px;
+            font-size: 12px;
+            font-weight: 600;
+            display: inline-block;
+        }
+
+        .priority-p0 {
+            background: #fee;
+            color: #c33;
+        }
+
+        .priority-p1 {
+            background: #ffd;
+            color: #c90;
+        }
+
+        .priority-p2 {
+            background: #efe;
+            color: #3c3;
+        }
+
+        .status-todo {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .status-progress {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .status-done {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .status-delay {
+            background: #fce4ec;
+            color: #c2185b;
+        }
+
+        .progress-updates {
+            margin: 15px 0;
+        }
+
+        .progress-update-form {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 15px;
+        }
+
+        .progress-update-form input {
+            flex: 1;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            font-family: inherit;
+        }
+
+        .progress-update-form input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .progress-update-form button {
+            padding: 10px 20px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .progress-update-form button:hover {
+            background: #5568d3;
+        }
+
+        .progress-updates-list {
+            max-height: 200px;
+            overflow-y: auto;
+            padding-right: 5px;
+        }
+
+        .progress-updates-list::-webkit-scrollbar {
+            width: 6px;
+        }
+
+        .progress-updates-list::-webkit-scrollbar-track {
+            background: #f1f1f1;
+            border-radius: 3px;
+        }
+
+        .progress-updates-list::-webkit-scrollbar-thumb {
+            background: #667eea;
+            border-radius: 3px;
+        }
+
+        .progress-update-item {
+            padding: 8px 10px;
+            margin-bottom: 8px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            border-left: 3px solid #667eea;
+            position: relative;
+            padding-left: 12px;
+        }
+
+        .progress-update-item:last-child {
+            margin-bottom: 0;
+        }
+
+        .progress-update-item .update-time {
+            font-size: 11px;
+            color: #999;
+            margin-bottom: 4px;
+            font-weight: 500;
+        }
+
+        .progress-update-item .update-content {
+            color: #333;
+            line-height: 1.4;
+            word-break: break-word;
+            font-size: 13px;
+        }
+
+        .progress-update-label {
+            font-weight: 600;
+            color: #333;
+            margin-bottom: 8px;
+            display: block;
+            font-size: 14px;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 6px;
+            background: #e0e0e0;
+            border-radius: 3px;
+            overflow: hidden;
+            margin: 8px 0;
+        }
+
+        .progress-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.3s;
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #999;
+        }
+
+        .empty-state svg {
+            width: 100px;
+            height: 100px;
+            margin-bottom: 20px;
+            opacity: 0.5;
+        }
+
+
+        .progress-slider {
+            flex: 1;
+            min-width: 150px;
+        }
+
+        /* 工作日报样式 */
+        .daily-report-view {
+            position: relative;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .view-selector {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+
+        .view-btn {
+            padding: 10px 20px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
+        }
+
+        .calendar-view {
+            height: 100%;
+            overflow-y: auto;
+            display: none;
+            flex-direction: column;
+        }
+
+        .calendar-view.active {
+            display: flex;
+        }
+
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+            flex: 1;
+            min-height: 0;
+            padding-bottom: 20px;
+            align-content: start;
+        }
+
+        .calendar-day {
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 8px;
+            min-height: 100px;
+            background: white;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        .calendar-day:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .calendar-day.weekend {
+            background: #f8f9fa;
+        }
+
+        .calendar-day.workday {
+            background: #fff;
+        }
+
+        .calendar-day.has-content {
+            border-color: #667eea;
+            background: #f0f4ff;
+        }
+
+        .calendar-day-header {
+            font-weight: 600;
+            margin-bottom: 5px;
+            font-size: 14px;
+        }
+
+        .calendar-day-date {
+            font-size: 12px;
+            color: #999;
+            margin-bottom: 5px;
+        }
+
+        .calendar-day-preview {
+            font-size: 12px;
+            color: #666;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+        }
+
+        .day-preview-section {
+            margin-bottom: 5px;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 11px;
+        }
+
+        .day-preview-work {
+            background: #e3f2fd;
+            color: #1976d2;
+        }
+
+        .day-preview-fitness {
+            background: #e8f5e9;
+            color: #388e3c;
+        }
+
+        .day-preview-todo {
+            background: #fff3e0;
+            color: #f57c00;
+        }
+
+        .day-preview-section-title {
+            font-weight: 600;
+            margin-right: 5px;
+        }
+
+        .timeline-view {
+            height: 100%;
+            overflow-y: auto;
+            padding-right: 10px;
+            display: none;
+        }
+
+        .timeline-view.active {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .timeline-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 10px 15px;
+            background: #f8f9fa;
+            border-radius: 6px;
+            margin-bottom: 12px;
+            flex-shrink: 0;
+        }
+
+        .timeline-pagination button {
+            padding: 6px 12px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .timeline-pagination button:hover:not(:disabled) {
+            background: #667eea;
+            color: white;
+        }
+
+        .timeline-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .timeline-pagination span {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .timeline-items-container {
+            flex: 1;
+            overflow-y: auto;
+        }
+
+        .timeline-item {
+            padding: 0;
+            margin-bottom: 15px;
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+            transition: all 0.3s;
+            overflow: hidden;
+        }
+
+        .timeline-item:hover {
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+            transform: translateY(-1px);
+        }
+
+        .timeline-date {
+            font-weight: 700;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 15px;
+            font-size: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin: 0;
+        }
+
+        .timeline-date::before {
+            content: '📅';
+            font-size: 18px;
+        }
+
+        .timeline-content {
+            padding: 12px 15px;
+            color: #333;
+            line-height: 1.6;
+            white-space: pre-wrap;
+        }
+
+        .timeline-section {
+            margin-bottom: 10px;
+            padding: 0;
+            border-radius: 6px;
+            overflow: hidden;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.08);
+        }
+
+        .timeline-section:last-child {
+            margin-bottom: 0;
+        }
+
+        .timeline-section-work {
+            background: #e3f2fd;
+            border-top: 3px solid #1976d2;
+        }
+
+        .timeline-section-fitness {
+            background: #e8f5e9;
+            border-top: 3px solid #388e3c;
+        }
+
+        .timeline-section-todo {
+            background: #fff3e0;
+            border-top: 3px solid #f57c00;
+        }
+
+        .timeline-section-title {
+            font-weight: 700;
+            font-size: 14px;
+            padding: 8px 12px;
+            margin: 0;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            background: rgba(255, 255, 255, 0.5);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.08);
+        }
+
+        .timeline-section-content {
+            padding: 10px 12px;
+            white-space: pre-wrap;
+            line-height: 1.6;
+        }
+
+        .work-item {
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .work-item:last-child {
+            margin-bottom: 0;
+            padding-bottom: 0;
+            border-bottom: none;
+        }
+
+        .work-project-name {
+            font-weight: 700;
+            font-size: 15px;
+            color: #1976d2;
+            margin-bottom: 6px;
+            padding: 6px 10px;
+            background: rgba(25, 118, 210, 0.12);
+            border-left: 3px solid #1976d2;
+            border-radius: 4px;
+            display: inline-block;
+        }
+
+        .work-project-content {
+            color: #333;
+            line-height: 1.6;
+            padding-left: 2px;
+            white-space: pre-wrap;
+            font-size: 14px;
+        }
+
+        .report-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .report-modal.active {
+            display: flex;
+        }
+
+        .report-modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            width: 90%;
+        }
+
+        .report-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .report-header h2 {
+            color: #333;
+        }
+
+        .close-btn {
+            background: #dc3545;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .report-content {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 8px;
+            white-space: pre-wrap;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .day-edit-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .day-edit-modal.active {
+            display: flex;
+        }
+
+        .day-edit-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 600px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+        }
+
+        .report-actions {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .month-selector {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: #f8f9fa;
+            border-radius: 8px;
+            flex-shrink: 0;
+        }
+
+        .month-nav-btn {
+            padding: 8px 16px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+        }
+
+        .month-nav-btn:hover {
+            background: #5568d3;
+        }
+
+        .current-month {
+            font-size: 18px;
+            font-weight: 600;
+            color: #333;
+            flex: 1;
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="tabs">
+            <button class="tab-btn active" data-tab="project">项目管理</button>
+            <button class="tab-btn" data-tab="daily">工作日报</button>
+        </div>
+
+        <!-- 项目管理 Tab -->
+        <div class="tab-content active" id="project-tab">
+        <div class="main-content">
+            <!-- 左侧面板：表单和统计 -->
+            <div class="left-panel">
+                <!-- 统计信息 -->
+                <div class="stats" id="stats">
+                    <div class="stat-card">
+                        <h3 id="totalTasks">0</h3>
+                        <p>总任务数</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="todoTasks">0</h3>
+                        <p>待办</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="progressTasks">0</h3>
+                        <p>进行中</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="delayTasks">0</h3>
+                        <p>延迟</p>
+                    </div>
+                    <div class="stat-card">
+                        <h3 id="doneTasks">0</h3>
+                        <p>已完成</p>
+                    </div>
+                </div>
+
+                <!-- 导入Excel数据 -->
+                <div style="margin-bottom: 15px;">
+                    <button class="btn btn-primary" onclick="importExcelData()" style="width: 100%;">📥 导入Excel数据</button>
+                </div>
+
+                <!-- 添加任务表单 -->
+                <div class="add-task-section">
+                    <h2 style="margin-bottom: 20px; font-size: 1.3em;">➕ 添加新任务</h2>
+                    <form id="taskForm">
+                        <div class="form-group">
+                            <label for="taskTitle">任务标题 *</label>
+                            <input type="text" id="taskTitle" required placeholder="输入任务标题">
+                        </div>
+                        <div class="form-group">
+                            <label for="taskDescription">任务描述</label>
+                            <textarea id="taskDescription" placeholder="输入任务详细描述"></textarea>
+                        </div>
+                        <div class="form-row">
+                            <div class="form-group">
+                                <label for="taskPriority">优先级</label>
+                                <select id="taskPriority">
+                                    <option value="p0">P0</option>
+                                    <option value="p1" selected>P1</option>
+                                    <option value="p2">P2</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label for="taskStatus">状态</label>
+                                <select id="taskStatus">
+                                    <option value="todo" selected>待办</option>
+                                    <option value="progress">进行中</option>
+                                    <option value="delay">延迟</option>
+                                    <option value="done">已完成</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label for="taskProgress">完成进度 (%)</label>
+                            <input type="range" id="taskProgress" min="0" max="100" value="0" step="5">
+                            <div style="text-align: center; margin-top: 5px;">
+                                <span id="progressValue">0%</span>
+                            </div>
+                        </div>
+                        <button type="submit" class="btn btn-primary">添加任务</button>
+                    </form>
+                </div>
+            </div>
+
+            <!-- 右侧面板：任务列表 -->
+            <div class="right-panel">
+                <!-- 筛选器 -->
+                <div class="filters">
+                    <button class="filter-btn active" data-filter="all">全部</button>
+                    <button class="filter-btn" data-filter="todo">待办</button>
+                    <button class="filter-btn" data-filter="progress">进行中</button>
+                    <button class="filter-btn" data-filter="delay">延迟</button>
+                    <button class="filter-btn" data-filter="done">已完成</button>
+                    <button class="filter-btn" data-filter="p0">P0</button>
+                    <button class="filter-btn" data-filter="p1">P1</button>
+                    <button class="filter-btn" data-filter="p2">P2</button>
+                </div>
+
+                <!-- 任务列表 -->
+                <div class="tasks-container" id="tasksContainer">
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                        </svg>
+                        <p>还没有任务，添加一个开始吧！</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        </div>
+
+        <!-- 工作日报 Tab -->
+        <div class="tab-content" id="daily-tab">
+            <div style="padding: 20px 30px 0 30px; flex-shrink: 0;">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                    <h2 style="margin: 0; color: #333;">📅 日历视图</h2>
+                    <div style="display: flex; gap: 10px;">
+                        <button class="btn btn-primary" onclick="generateWeeklyReport()">生成周报</button>
+                        <button class="btn btn-primary" onclick="generateMonthlyReport()">生成月报</button>
+                        <button class="btn btn-primary" onclick="generateOKR()">生成OKR</button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="daily-report-view" style="flex: 1; padding: 20px 30px 30px 30px; overflow: hidden;">
+                <!-- 日历视图 -->
+                <div class="calendar-view active" id="calendar-view">
+                    <div class="month-selector">
+                        <button class="month-nav-btn" id="prevMonthBtn" onclick="changeMonth(-1)">← 上月</button>
+                        <div class="current-month" id="currentMonth">2026年1月</div>
+                        <button class="month-nav-btn" id="nextMonthBtn" onclick="changeMonth(1)">下月 →</button>
+                    </div>
+                    <div class="calendar-grid" id="calendarGrid"></div>
+                </div>
+            </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 日报编辑模态框 -->
+    <div class="day-edit-modal" id="dayEditModal">
+        <div class="day-edit-content">
+            <div class="report-header">
+                <h2 id="dayEditTitle">编辑日报</h2>
+                <button class="close-btn" onclick="closeDayEdit()">关闭</button>
+            </div>
+            <div class="form-group">
+                <label>日期</label>
+                <input type="text" id="dayEditDate" readonly>
+            </div>
+            <div class="form-group">
+                <label style="color: #667eea; font-size: 18px;">💼 工作</label>
+                <textarea id="dayEditWork" rows="6" placeholder="记录今天的工作内容、遇到的问题、完成的任务等..."></textarea>
+            </div>
+            <div class="form-group">
+                <label style="color: #28a745; font-size: 18px;">🏃 健身</label>
+                <textarea id="dayEditFitness" rows="6" placeholder="记录今天的运动内容、健身计划、运动时长等..."></textarea>
+            </div>
+            <div class="form-group">
+                <label style="color: #ff9800; font-size: 18px;">📋 待办</label>
+                <textarea id="dayEditTodo" rows="6" placeholder="记录明天的计划、待办事项、重要提醒等..."></textarea>
+            </div>
+            <button class="btn btn-primary" onclick="saveDailyReport()">保存</button>
+        </div>
+    </div>
+
+    <!-- 报告查看模态框 -->
+    <div class="report-modal" id="reportModal">
+        <div class="report-modal-content">
+            <div class="report-header">
+                <h2 id="reportTitle">报告</h2>
+                <button class="close-btn" onclick="closeReport()">关闭</button>
+            </div>
+            <div class="report-content" id="reportContent"></div>
+            <div class="report-actions">
+                <button class="btn btn-primary" onclick="copyReport()">复制报告</button>
+                <button class="btn btn-secondary" onclick="closeReport()">关闭</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Excel数据常量
+        const EXCEL_PROJECTS_DATA = [
+          {
+            "title": "投流承接",
+            "priority": "p0",
+            "status": "progress",
+            "progress": 50,
+            "ddl": "1.31",
+            "description": "DDL: 1.31"
+          },
+          {
+            "title": "push",
+            "priority": "p0",
+            "status": "delay",
+            "progress": 30,
+            "ddl": "12.21",
+            "description": "DDL: 12.21"
+          },
+          {
+            "title": "理解侧长期计划",
+            "priority": "p0",
+            "status": "todo",
+            "progress": 0,
+            "ddl": "-",
+            "description": "DDL: -"
+          },
+          {
+            "title": "运营后台",
+            "priority": "p1",
+            "status": "progress",
+            "progress": 50,
+            "ddl": "-",
+            "description": "DDL: -"
+          },
+          {
+            "title": "长期记忆",
+            "priority": "p1",
+            "status": "progress",
+            "progress": 50,
+            "ddl": "-",
+            "description": "DDL: -"
+          },
+          {
+            "title": "allinone新prompt",
+            "priority": "p1",
+            "status": "progress",
+            "progress": 50,
+            "ddl": "12.31",
+            "description": "DDL: 12.31"
+          },
+          {
+            "title": "定帧deeplink",
+            "priority": "p1",
+            "status": "progress",
+            "progress": 50,
+            "ddl": "2.2",
+            "description": "DDL: 2.2"
+          },
+          {
+            "title": "小黄条",
+            "priority": "p2",
+            "status": "delay",
+            "progress": 30,
+            "ddl": "-",
+            "description": "DDL: -"
+          },
+          {
+            "title": "理解侧优化",
+            "priority": "p1",
+            "status": "done",
+            "progress": 100,
+            "ddl": "12.26",
+            "description": "DDL: 12.26"
+          },
+          {
+            "title": "五福效果评测",
+            "priority": "p1",
+            "status": "done",
+            "progress": 100,
+            "ddl": "12.22",
+            "description": "DDL: 12.22"
+          },
+          {
+            "title": "五福预生产",
+            "priority": "p0",
+            "status": "done",
+            "progress": 100,
+            "ddl": "12.19",
+            "description": "DDL: 12.19"
+          },
+          {
+            "title": "理解侧评测",
+            "priority": "p1",
+            "status": "done",
+            "progress": 100,
+            "ddl": "12.31",
+            "description": "DDL: 12.31"
+          },
+          {
+            "title": "首页气泡引导",
+            "priority": "p0",
+            "status": "done",
+            "progress": 100,
+            "ddl": "1.14",
+            "description": "DDL: 1.14"
+          }
+        ];
+
+        const EXCEL_DAILY_REPORTS = {
+          "2026-01-27": {
+            "work": "投流承接: 评审完，下一步继续对AB\npush: 明天和适人对需要整理的部分\n运营后台: 明天和设计定稿子\nallinone新prompt: 写了竞对初稿",
+            "fitness": "",
+            "todo": ""
+          },
+          "2026-01-23": {
+            "work": "投流承接: 已完成prd&mrd，下周拉评审。\npush: 下周需要开始申请互动消息push权限&和潘通聊端内通知的形式。\n理解侧长期计划: 需要思考定帧页面的改版，和程乙对完后出prd。\n长期记忆: 给完了query，待测试上线。\n定帧deeplink: 已需求评审完毕，待排期开发。",
+            "fitness": "",
+            "todo": ""
+          },
+          "2026-01-18": {
+            "work": "投流承接: 本周四之前需要写完prd文案；\npush: 今天需要整理这两周计划。\n理解侧长期计划: 本周要思考用增方面的联动，周五前写一版\n运营后台: 优化3.0，审批流+用增优化\n长期记忆: 结合闪应用？\n定帧deeplink: 写完prd，预计周三需求评审\n五福效果评测: 1、补充评测攻略图✅\n2、VIP精确配置✅@之芽\n五福预生产: IP方、法务、安全三方已确认。\n首页气泡引导: 已验收。",
+            "fitness": "",
+            "todo": ""
+          },
+          "2026-01-04": {
+            "work": "五福效果评测: 又双叒叕检查了评测集的缺陷并且补充了建议。\n五福预生产: 明天结合所有反馈整理一版变更：已修改的所有主体、非商业化IP方反馈、追商业化IP方结果。",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-30": {
+            "work": "push: 1、冷启动问题要推zfb侧解决\n2、承接页开发&提需&具体应用场景给交互\n五福效果评测: 1、检查了现有评测集的缺陷。\n2、同步了一次评测报告。\n五福预生产: 1、检查并修复已知文案问题；\n2、已和安全、IP方开始核对。",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-25": {
+            "work": "push: 1、push相关prd结束，明天评审完给dvd看；\n2、埋点问题还没回复\n运营后台: 1、短期DRM顶一下，长期需求和孝行多给的开发同学+设计+向善搞\n2、气泡配置提了\n长期记忆: 需要写一下mbti的system prompt\n小黄条: 单独需求，另外聊\n五福预生产: 1、主会场原因delay，预计明天下午交付；\n2、之后的变更流程：五福映射-志舒，灵光映射-一峰，详情页入库-周充。\n理解侧评测: 1、百分制【明年】\n2、徉羽已部署好，可以调整提示词了\n首页气泡引导: ued评审done",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-24": {
+            "work": "push: 1、埋点聊完，等明天【t+1】看相关效果；\n2、IOS端内加白，未注册用户收到push，和实宽对过，整理完需求即可评审；\n3、其余消息类型/承接页，待整理\nallinone新prompt: 预计月底可开始调一版生成描述的效果\n五福预生产: 1、已拉标注进场，预计明天下班前交付；\n2、之后的变更流程：五福映射-志舒，灵光映射-一峰，详情页入库-周充。\n首页气泡引导: 放到1.14版本，本周需要ued评审",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-23": {
+            "work": "push: 1、IOS端内加白、埋点双方BI【这个p0】、37版预设query评审；\n2、支付宝其他类型消息申请&厂商沟通；\n3、其余承接页开发。\n长期记忆: 1、补了一版筛选条件。\n五福效果评测: 1、第一版报告已出（已拒绝马戏团）；\n2、记得拉IP方体验效果。\n五福预生产: 1、所有第一版变更均ready且提需入库，需要进一步确认线上链路是通的，拉标注入场截图。\n2、之后的变更流程：五福映射-志舒，灵光映射-一峰，详情页入库-周充。\n理解侧评测: 1、已补完所有竞对prompt；\n2、结果可信done；\n3、百分制-萧关；\n4、desc年底评测 @徉羽",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-22": {
+            "work": "push: 1、类型一期提完了，二期要申请还要和厂商沟通；\n2、具体评审看看怎么拉\n运营后台: 1、短期DRM顶一下，长期需求和孝行多给的开发同学+设计+向善搞\n2、气泡配置也提一下\n定帧deeplink: 评估完毕，需要单独提需，保证进入链路，无须考虑耗时@柯里@束苗\n五福效果评测: 1、跑完结果，计算中&写报告ing（记得马戏团识别不了）；\n2、需要拉IP方体验识别效果\n五福预生产: 1、跟IP方初步沟通，需要给他们完整的pdf预览。。。\n2、整理一轮变更，切图需要更改（恋与深空更正&新增），已向设计提需，@蚊子 在画眉变更即可，记得还要补上loopy；\n3、志舒的表https://yuque.antfin.com/leopard/xlc3qx/lzlxi2tvvlgzanxy#Nasg\n4、详情页内容要让周充感知到；\n5、要追一下商业化IP的进度，科普卡是他们来提供的；\n6、最后查漏补缺一下缺失的详情页。\n理解侧评测: 1、对完材料后补充所有竞对prompt；\n2、结果可信的准确率再问一下，只参考gt的情况或者重写步骤规则的情况；\n3、百分制V3；\n4、desc年底再评测。\n首页气泡引导: 1、和设计补充了web端需求，本周排期会要提；\n2、服务端/客户端方案同理",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-18": {
+            "work": "push: 1、消息类型列完了，在催支付宝pd提供正确类型；\n2、一期做闪应用全屏和native，二期做query上屏；\n3、具体需求还要和之芽确认要拉什么评审。\n运营后台: 正常不了一点！！！！！！！怎么又加功能了\n\nUED开完拉向善、孝行、传鹿串技术和平台方案\n五福效果评测: 1、接口在适配中，评测集基本ready；\n2、需要拉IP方体验识别效果；\n3、马戏团要拒绝。\n五福预生产: 1、跟法务对完，整体需要过一遍安全，下周一先拉IP方过一下需求，随后要过一遍安全（尤其注意切图）；\n2、已为\\\"福\\\"提需，还需要跟设计一起生产几套内容；\n3、ff检查且生产完了。\n4、详情页开始重新生产了。\n5、映射表已经列好，和IP对接的文档处理中。\n6、跟志舒对了一遍离线内容的变更，之后变更的时候也要同步周充。",
+            "fitness": "",
+            "todo": ""
+          },
+          "2025-12-17": {
+            "work": "push: 1、12.19对一下一期的需求，主要是消息类型；\n2、要明确端内的承接进展，和寒洛确认第一次促活能做到什么程度、能接受到什么程度。\n3、催@漠念 的deeplink；\n理解侧长期计划: 1、BI分析看板@义谋 ；可能要先出一个短期内的定帧报告；\n2、长期，新出现的数据如何update？线上有反馈的badcase如何dima处置？\n运营后台: 正常推进，预期12.19UED评审开完后拉前端和设计修改后台\n长期记忆: 1、依赖首页引导升级，预计月底之前上线，需要测好端到端效果。\nallinone新prompt: pending\n小黄条: 和@孝行 先聊\n理解侧优化: 1、allin1的提示词：重新写生产部分，等到12.24预发完初版；\n2、描述的提示词更新一版。\n五福效果评测: 1、本周至少评测集和接口要ready；\n2、二轮or1/10之后要拉ip方体验效果；\n3、马戏团等结果要拒掉。\n五福预生产: 1、name、描述、主副标题、funfacts都没问题，但需要拉法务@则正 对一遍；\n2、\\\"福\\\"需要多套内容，专门的需求先和@志舒 提，知会设计，同步生产内容；\n3、切图需要检验一遍@之芽；\n4、funfacts详情页：补充新条目，同时校验一致性；\n5、详情页：映射具体内容重新生产，生产完后验收正确性，以及详述区只选2，修改时的citation更改；\n6、详情页id映射表，可以等五福一轮演练和ip方商量完。\n理解侧评测: 1、竞对采集prompt需要补所有评测类目；\n2、L1评测集结果：只依赖指标调优，结果可信的准确率@慎星 ，可能需要我补充结果可信的具体规则；\n3、未来可能会改成百分制；\n4、desc在年底希望再评测一次。\n首页气泡引导: 1、和@它山 细聊一下，目前期望排进1.14版本，下周排期会要提；\n2、需要更细看一下方案。跟@妙筱 再对一下降级方案。",
+            "fitness": "",
+            "todo": ""
+          }
+        };
+
+        // 数据存储
+        let tasks = JSON.parse(localStorage.getItem('tasks')) || [];
+        let currentFilter = 'all';
+
+        // 数据迁移：确保所有任务都有progressUpdates字段
+        tasks = tasks.map(task => {
+            // 迁移旧优先级格式
+            if (task.priority === 'high') task.priority = 'p0';
+            else if (task.priority === 'medium') task.priority = 'p1';
+            else if (task.priority === 'low') task.priority = 'p2';
+            
+            // 迁移progressText到progressUpdates
+            if (!task.hasOwnProperty('progressUpdates')) {
+                task.progressUpdates = [];
+                if (task.progressText && task.progressText.trim()) {
+                    task.progressUpdates.push({
+                        content: task.progressText,
+                        timestamp: task.createdAt || new Date().toISOString()
+                    });
+                }
+                delete task.progressText;
+            }
+            return task;
+        });
+        if (tasks.length > 0) {
+            saveTasks();
+        }
+
+        // DOM 元素
+        const taskForm = document.getElementById('taskForm');
+        const tasksContainer = document.getElementById('tasksContainer');
+        const progressInput = document.getElementById('taskProgress');
+        const progressValue = document.getElementById('progressValue');
+        const filterButtons = document.querySelectorAll('.filter-btn');
+
+        // 进度条显示
+        progressInput.addEventListener('input', (e) => {
+            progressValue.textContent = e.target.value + '%';
+        });
+
+        // 表单提交
+        taskForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const task = {
+                id: Date.now(),
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                priority: document.getElementById('taskPriority').value,
+                status: document.getElementById('taskStatus').value,
+                progress: parseInt(document.getElementById('taskProgress').value),
+                progressUpdates: [],
+                createdAt: new Date().toISOString()
+            };
+
+            tasks.push(task);
+            saveTasks();
+            renderTasks();
+            updateStats();
+            taskForm.reset();
+            progressValue.textContent = '0%';
+        });
+
+        // 保存任务到 localStorage
+        function saveTasks() {
+            localStorage.setItem('tasks', JSON.stringify(tasks));
+        }
+
+        // 更新统计信息
+        function updateStats() {
+            document.getElementById('totalTasks').textContent = tasks.length;
+            document.getElementById('todoTasks').textContent = tasks.filter(t => t.status === 'todo').length;
+            document.getElementById('progressTasks').textContent = tasks.filter(t => t.status === 'progress').length;
+            document.getElementById('delayTasks').textContent = tasks.filter(t => t.status === 'delay').length;
+            document.getElementById('doneTasks').textContent = tasks.filter(t => t.status === 'done').length;
+        }
+
+        // 渲染任务列表
+        function renderTasks() {
+            let filteredTasks = tasks;
+
+            // 应用筛选
+            if (currentFilter !== 'all') {
+                if (['todo', 'progress', 'delay', 'done'].includes(currentFilter)) {
+                    filteredTasks = tasks.filter(t => t.status === currentFilter);
+                } else if (['p0', 'p1', 'p2'].includes(currentFilter)) {
+                    filteredTasks = tasks.filter(t => t.priority === currentFilter);
+                }
+            }
+
+            if (filteredTasks.length === 0) {
+                tasksContainer.innerHTML = `
+                    <div class="empty-state">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M9 11l3 3L22 4"></path>
+                            <path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                        </svg>
+                        <p>没有找到匹配的任务</p>
+                    </div>
+                `;
+                return;
+            }
+
+            tasksContainer.innerHTML = filteredTasks.map(task => `
+                <div class="task-card">
+                    <div class="task-header">
+                        <div>
+                            <div class="task-title">${escapeHtml(task.title)}</div>
+                            <div class="task-meta">
+                                <span class="badge priority-${task.priority}">
+                                    ${task.priority === 'p0' ? '🔴 P0' : task.priority === 'p1' ? '🟡 P1' : '🟢 P2'}
+                                </span>
+                                <span class="badge status-${task.status}">
+                                    ${task.status === 'todo' ? '📝 待办' : task.status === 'progress' ? '⚙️ 进行中' : task.status === 'delay' ? '⏸️ 延迟' : '✅ 已完成'}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    ${task.description ? `<div class="task-description">${escapeHtml(task.description)}</div>` : ''}
+                    <div class="progress-bar">
+                        <div class="progress-fill" style="width: ${task.progress}%"></div>
+                    </div>
+                    <div style="text-align: center; margin-bottom: 15px; color: #666; font-size: 14px;">
+                        完成度: ${task.progress}%
+                    </div>
+                    <div class="progress-updates">
+                        <label class="progress-update-label">进展更新：</label>
+                        <div class="progress-update-form">
+                            <input 
+                                type="text" 
+                                id="progressInput_${task.id}"
+                                placeholder="记录任务进展、遇到的问题、下一步计划等..."
+                                onkeypress="if(event.key === 'Enter') addProgressUpdate(${task.id})"
+                            >
+                            <button type="button" onclick="addProgressUpdate(${task.id})">发布</button>
+                        </div>
+                        <div class="progress-updates-list">
+                            ${(task.progressUpdates && task.progressUpdates.length > 0) 
+                                ? task.progressUpdates.slice()
+                                    .sort((a, b) => {
+                                        const timeA = a.timestamp ? new Date(a.timestamp).getTime() : 0;
+                                        const timeB = b.timestamp ? new Date(b.timestamp).getTime() : 0;
+                                        return timeB - timeA; // 降序，最新的在前
+                                    })
+                                    .map(update => `
+                                    <div class="progress-update-item">
+                                        <div class="update-time">${formatDateTime(update.timestamp)}</div>
+                                        <div class="update-content">${escapeHtml(update.content)}</div>
+                                    </div>
+                                `).join('')
+                                : '<div style="padding: 10px; text-align: center; color: #999; font-size: 14px;">暂无进展更新</div>'
+                            }
+                        </div>
+                    </div>
+                    <div class="task-actions">
+                        <select class="btn btn-sm" onchange="updateTaskStatus(${task.id}, this.value)" style="padding: 6px 12px;">
+                            <option value="todo" ${task.status === 'todo' ? 'selected' : ''}>待办</option>
+                            <option value="progress" ${task.status === 'progress' ? 'selected' : ''}>进行中</option>
+                            <option value="delay" ${task.status === 'delay' ? 'selected' : ''}>延迟</option>
+                            <option value="done" ${task.status === 'done' ? 'selected' : ''}>已完成</option>
+                        </select>
+                        <input type="range" min="0" max="100" value="${task.progress}" step="5" 
+                               onchange="updateTaskProgress(${task.id}, this.value)" 
+                               class="progress-slider">
+                        <button class="btn btn-sm btn-danger" onclick="deleteTask(${task.id})">删除</button>
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // 更新任务状态
+        function updateTaskStatus(id, status) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.status = status;
+                if (status === 'done') {
+                    task.progress = 100;
+                }
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // 更新任务进度
+        function updateTaskProgress(id, progress) {
+            const task = tasks.find(t => t.id === id);
+            if (task) {
+                task.progress = parseInt(progress);
+                if (progress == 100) {
+                    task.status = 'done';
+                } else if (progress > 0) {
+                    task.status = 'progress';
+                }
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // 添加进展更新
+        function addProgressUpdate(id) {
+            const task = tasks.find(t => t.id === id);
+            const input = document.getElementById(`progressInput_${id}`);
+            if (task && input && input.value.trim()) {
+                if (!task.progressUpdates) {
+                    task.progressUpdates = [];
+                }
+                task.progressUpdates.push({
+                    content: input.value.trim(),
+                    timestamp: new Date().toISOString()
+                });
+                input.value = '';
+                saveTasks();
+                renderTasks();
+            }
+        }
+
+        // 格式化日期时间
+        function formatDateTime(isoString) {
+            const date = new Date(isoString);
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day} ${hours}:${minutes}`;
+        }
+
+        // 删除任务
+        function deleteTask(id) {
+            if (confirm('确定要删除这个任务吗？')) {
+                tasks = tasks.filter(t => t.id !== id);
+                saveTasks();
+                renderTasks();
+                updateStats();
+            }
+        }
+
+        // 筛选按钮事件
+        filterButtons.forEach(btn => {
+            btn.addEventListener('click', () => {
+                filterButtons.forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                renderTasks();
+            });
+        });
+
+        // HTML 转义
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        // 初始化
+        renderTasks();
+        updateStats();
+
+        // ========== 工作日报功能 ==========
+        let dailyReports = JSON.parse(localStorage.getItem('dailyReports')) || {};
+        const today = new Date();
+        let currentMonth = today.getMonth();
+        let currentYear = today.getFullYear();
+        
+        // 限制年份范围在2025-2026
+        if (currentYear < 2025) {
+            currentYear = 2025;
+            currentMonth = 0;
+        } else if (currentYear > 2026) {
+            currentYear = 2026;
+            currentMonth = 11;
+        }
+        let currentEditingDate = null;
+
+        // Tab切换
+        document.querySelectorAll('.tab-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('.tab-content').forEach(c => c.classList.remove('active'));
+                btn.classList.add('active');
+                document.getElementById(btn.dataset.tab + '-tab').classList.add('active');
+                
+                if (btn.dataset.tab === 'daily') {
+                    renderCalendar();
+                }
+            });
+        });
+
+        // 2026年中国法定节假日和调休日（示例，需要根据实际情况更新）
+        const holidays2026 = [
+            '2026-01-01', '2026-01-02', '2026-01-03', // 元旦
+            '2026-02-06', '2026-02-07', '2026-02-08', '2026-02-09', '2026-02-10', '2026-02-11', '2026-02-12', '2026-02-13', '2026-02-14', // 春节（示例）
+            '2026-04-04', '2026-04-05', '2026-04-06', // 清明节（示例）
+            '2026-05-01', '2026-05-02', '2026-05-03', // 劳动节（示例）
+            '2026-06-08', '2026-06-09', '2026-06-10', // 端午节（示例）
+            '2026-09-15', '2026-09-16', '2026-09-17', // 中秋节（示例）
+            '2026-10-01', '2026-10-02', '2026-10-03', '2026-10-04', '2026-10-05', '2026-10-06', '2026-10-07', '2026-10-08', // 国庆节（示例）
+        ];
+
+        const workdays2026 = [
+            // 调休工作日（周末需要上班的日期）
+            // 根据实际2026年调休安排填写
+        ];
+
+        // 判断是否为工作日
+        function isWorkday(date) {
+            const dateStr = formatDateString(date);
+            const dayOfWeek = date.getDay();
+            
+            // 如果是法定节假日，不是工作日
+            if (holidays2026.includes(dateStr)) {
+                return false;
+            }
+            
+            // 如果是调休工作日，是工作日
+            if (workdays2026.includes(dateStr)) {
+                return true;
+            }
+            
+            // 周一到周五是工作日
+            return dayOfWeek >= 1 && dayOfWeek <= 5;
+        }
+
+        // 格式化日期字符串
+        function formatDateString(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        }
+
+        // 渲染日历
+        function renderCalendar() {
+            const calendarGrid = document.getElementById('calendarGrid');
+            const monthName = document.getElementById('currentMonth');
+            monthName.textContent = `${currentYear}年${currentMonth + 1}月`;
+            
+            calendarGrid.innerHTML = '';
+            
+            // 添加星期标题
+            const weekDays = ['日', '一', '二', '三', '四', '五', '六'];
+            weekDays.forEach(day => {
+                const dayHeader = document.createElement('div');
+                dayHeader.style.textAlign = 'center';
+                dayHeader.style.fontWeight = '600';
+                dayHeader.style.padding = '12px 8px';
+                dayHeader.style.background = '#f8f9fa';
+                dayHeader.style.borderRadius = '8px';
+                dayHeader.style.fontSize = '14px';
+                dayHeader.textContent = day;
+                calendarGrid.appendChild(dayHeader);
+            });
+            
+            // 获取当月第一天和最后一天
+            const firstDay = new Date(currentYear, currentMonth, 1);
+            const lastDay = new Date(currentYear, currentMonth + 1, 0);
+            const firstDayOfWeek = firstDay.getDay();
+            const daysInMonth = lastDay.getDate();
+            
+            // 填充空白
+            for (let i = 0; i < firstDayOfWeek; i++) {
+                const emptyDay = document.createElement('div');
+                calendarGrid.appendChild(emptyDay);
+            }
+            
+            // 生成日期
+            for (let day = 1; day <= daysInMonth; day++) {
+                const date = new Date(currentYear, currentMonth, day);
+                const dateStr = formatDateString(date);
+                const isWork = isWorkday(date);
+                
+                // 处理数据迁移：如果旧数据是字符串格式，转换为新格式
+                let report = dailyReports[dateStr];
+                if (typeof report === 'string') {
+                    report = { work: report, fitness: '', todo: '' };
+                    dailyReports[dateStr] = report;
+                } else if (!report) {
+                    report = { work: '', fitness: '', todo: '' };
+                }
+                
+                const hasContent = report.work || report.fitness || report.todo;
+                
+                const dayElement = document.createElement('div');
+                dayElement.className = `calendar-day ${isWork ? 'workday' : 'weekend'}`;
+                if (hasContent) {
+                    dayElement.classList.add('has-content');
+                }
+                
+                // 生成预览内容
+                let previewHTML = '';
+                if (hasContent) {
+                    if (report.work) {
+                        const workPreview = report.work.length > 20 ? report.work.substring(0, 20) + '...' : report.work;
+                        previewHTML += `<div class="day-preview-section day-preview-work"><span class="day-preview-section-title">💼</span>${escapeHtml(workPreview)}</div>`;
+                    }
+                    if (report.fitness) {
+                        const fitnessPreview = report.fitness.length > 20 ? report.fitness.substring(0, 20) + '...' : report.fitness;
+                        previewHTML += `<div class="day-preview-section day-preview-fitness"><span class="day-preview-section-title">🏃</span>${escapeHtml(fitnessPreview)}</div>`;
+                    }
+                    if (report.todo) {
+                        const todoPreview = report.todo.length > 20 ? report.todo.substring(0, 20) + '...' : report.todo;
+                        previewHTML += `<div class="day-preview-section day-preview-todo"><span class="day-preview-section-title">📋</span>${escapeHtml(todoPreview)}</div>`;
+                    }
+                }
+                
+                dayElement.innerHTML = `
+                    <div class="calendar-day-header">${day}日</div>
+                    <div class="calendar-day-date">${dateStr}</div>
+                    ${previewHTML}
+                `;
+                
+                dayElement.onclick = () => openDayEdit(dateStr, date);
+                calendarGrid.appendChild(dayElement);
+            }
+            
+            // 保存迁移后的数据
+            if (Object.keys(dailyReports).some(key => typeof dailyReports[key] === 'string')) {
+                localStorage.setItem('dailyReports', JSON.stringify(dailyReports));
+            }
+            
+            updateMonthButtons();
+        }
+
+
+        // 获取星期几
+        function getWeekday(date) {
+            const weekdays = ['日', '一', '二', '三', '四', '五', '六'];
+            return '星期' + weekdays[date.getDay()];
+        }
+
+        // 切换月份
+        function changeMonth(delta) {
+            currentMonth += delta;
+            if (currentMonth < 0) {
+                currentMonth = 11;
+                currentYear--;
+            } else if (currentMonth > 11) {
+                currentMonth = 0;
+                currentYear++;
+            }
+            // 限制年份范围在2025-2026
+            if (currentYear < 2025) {
+                currentYear = 2025;
+                currentMonth = 0;
+            } else if (currentYear > 2026) {
+                currentYear = 2026;
+                currentMonth = 11;
+            }
+            renderCalendar();
+            updateMonthButtons();
+        }
+
+        // 更新月份按钮状态
+        function updateMonthButtons() {
+            const prevBtn = document.getElementById('prevMonthBtn');
+            const nextBtn = document.getElementById('nextMonthBtn');
+            if (prevBtn && nextBtn) {
+                const isFirstMonth = currentYear === 2025 && currentMonth === 0;
+                const isLastMonth = currentYear === 2026 && currentMonth === 11;
+                prevBtn.disabled = isFirstMonth;
+                nextBtn.disabled = isLastMonth;
+                prevBtn.style.opacity = isFirstMonth ? '0.5' : '1';
+                nextBtn.style.opacity = isLastMonth ? '0.5' : '1';
+                prevBtn.style.cursor = isFirstMonth ? 'not-allowed' : 'pointer';
+                nextBtn.style.cursor = isLastMonth ? 'not-allowed' : 'pointer';
+            }
+        }
+
+        // 打开日报编辑
+        function openDayEdit(dateStr, date) {
+            currentEditingDate = dateStr;
+            document.getElementById('dayEditDate').value = `${dateStr} ${getWeekday(date)}`;
+            
+            // 处理数据迁移：如果旧数据是字符串格式，转换为新格式
+            let report = dailyReports[dateStr];
+            if (typeof report === 'string') {
+                report = { work: report, fitness: '', todo: '' };
+                dailyReports[dateStr] = report;
+                localStorage.setItem('dailyReports', JSON.stringify(dailyReports));
+            } else if (!report) {
+                report = { work: '', fitness: '', todo: '' };
+            }
+            
+            document.getElementById('dayEditWork').value = report.work || '';
+            document.getElementById('dayEditFitness').value = report.fitness || '';
+            document.getElementById('dayEditTodo').value = report.todo || '';
+            document.getElementById('dayEditModal').classList.add('active');
+        }
+
+        // 关闭日报编辑
+        function closeDayEdit() {
+            document.getElementById('dayEditModal').classList.remove('active');
+            currentEditingDate = null;
+        }
+
+        // 点击背景关闭模态框
+        document.getElementById('dayEditModal').addEventListener('click', (e) => {
+            if (e.target.id === 'dayEditModal') {
+                closeDayEdit();
+            }
+        });
+
+        document.getElementById('reportModal').addEventListener('click', (e) => {
+            if (e.target.id === 'reportModal') {
+                closeReport();
+            }
+        });
+
+        // 保存日报
+        function saveDailyReport() {
+            if (currentEditingDate) {
+                dailyReports[currentEditingDate] = {
+                    work: document.getElementById('dayEditWork').value.trim(),
+                    fitness: document.getElementById('dayEditFitness').value.trim(),
+                    todo: document.getElementById('dayEditTodo').value.trim()
+                };
+                localStorage.setItem('dailyReports', JSON.stringify(dailyReports));
+                renderCalendar();
+                closeDayEdit();
+            }
+        }
+
+        // 生成周报
+        function generateWeeklyReport() {
+            const today = new Date();
+            const dayOfWeek = today.getDay();
+            const monday = new Date(today);
+            monday.setDate(today.getDate() - (dayOfWeek === 0 ? 6 : dayOfWeek - 1));
+            
+            const weekReports = [];
+            for (let i = 0; i < 7; i++) {
+                const date = new Date(monday);
+                date.setDate(monday.getDate() + i);
+                const dateStr = formatDateString(date);
+                let report = dailyReports[dateStr];
+                if (report) {
+                    // 处理数据迁移
+                    if (typeof report === 'string') {
+                        report = { work: report, fitness: '', todo: '' };
+                    }
+                    if (report.work || report.fitness || report.todo) {
+                        weekReports.push({
+                            date: dateStr,
+                            weekday: getWeekday(date),
+                            report: report
+                        });
+                    }
+                }
+            }
+            
+            if (weekReports.length === 0) {
+                alert('本周还没有日报记录');
+                return;
+            }
+            
+            const reportText = `# 周报 - ${formatDateString(monday)} 至 ${formatDateString(new Date(monday.getTime() + 6 * 24 * 60 * 60 * 1000))}
+
+## 本周工作总结
+
+${weekReports.map(r => {
+                let sections = [];
+                if (r.report.work) sections.push(`💼 **工作**\n${r.report.work}`);
+                if (r.report.fitness) sections.push(`🏃 **健身**\n${r.report.fitness}`);
+                if (r.report.todo) sections.push(`📋 **待办**\n${r.report.todo}`);
+                return `### ${r.date} ${r.weekday}\n\n${sections.join('\n\n')}`;
+            }).join('\n\n')}
+
+## 下周计划
+
+（待填写）
+
+`;
+            
+            showReport('周报', reportText);
+        }
+
+        // 生成月报
+        function generateMonthlyReport() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const month = today.getMonth();
+            
+            const monthReports = [];
+            const lastDay = new Date(year, month + 1, 0).getDate();
+            
+            for (let day = 1; day <= lastDay; day++) {
+                const date = new Date(year, month, day);
+                const dateStr = formatDateString(date);
+                let report = dailyReports[dateStr];
+                if (report) {
+                    // 处理数据迁移
+                    if (typeof report === 'string') {
+                        report = { work: report, fitness: '', todo: '' };
+                    }
+                    if (report.work || report.fitness || report.todo) {
+                        monthReports.push({
+                            date: dateStr,
+                            weekday: getWeekday(date),
+                            report: report
+                        });
+                    }
+                }
+            }
+            
+            if (monthReports.length === 0) {
+                alert('本月还没有日报记录');
+                return;
+            }
+            
+            const reportText = `# 月报 - ${year}年${month + 1}月
+
+## 本月工作总结
+
+${monthReports.map(r => {
+                let sections = [];
+                if (r.report.work) sections.push(`💼 **工作**\n${r.report.work}`);
+                if (r.report.fitness) sections.push(`🏃 **健身**\n${r.report.fitness}`);
+                if (r.report.todo) sections.push(`📋 **待办**\n${r.report.todo}`);
+                return `### ${r.date} ${r.weekday}\n\n${sections.join('\n\n')}`;
+            }).join('\n\n')}
+
+## 本月亮点
+
+（待填写）
+
+## 下月计划
+
+（待填写）
+
+`;
+            
+            showReport('月报', reportText);
+        }
+
+        // 生成OKR
+        function generateOKR() {
+            const today = new Date();
+            const year = today.getFullYear();
+            const halfYear = today.getMonth() < 6 ? 1 : 2;
+            
+            // 获取半年内的所有日报
+            const startMonth = halfYear === 1 ? 0 : 6;
+            const endMonth = halfYear === 1 ? 5 : 11;
+            
+            const halfYearReports = [];
+            for (let month = startMonth; month <= endMonth; month++) {
+                const lastDay = new Date(year, month + 1, 0).getDate();
+                for (let day = 1; day <= lastDay; day++) {
+                    const date = new Date(year, month, day);
+                    const dateStr = formatDateString(date);
+                    let report = dailyReports[dateStr];
+                    if (report) {
+                        // 处理数据迁移
+                        if (typeof report === 'string') {
+                            report = { work: report, fitness: '', todo: '' };
+                        }
+                        if (report.work || report.fitness || report.todo) {
+                            halfYearReports.push({
+                                date: dateStr,
+                                weekday: getWeekday(date),
+                                report: report
+                            });
+                        }
+                    }
+                }
+            }
+            
+            if (halfYearReports.length === 0) {
+                alert('本半年还没有日报记录');
+                return;
+            }
+            
+            const reportText = `# OKR - ${year}年${halfYear === 1 ? '上半年' : '下半年'}
+
+## 工作回顾
+
+${halfYearReports.slice(0, 20).map(r => {
+                let sections = [];
+                if (r.report.work) sections.push(`💼 **工作**\n${r.report.work}`);
+                if (r.report.fitness) sections.push(`🏃 **健身**\n${r.report.fitness}`);
+                if (r.report.todo) sections.push(`📋 **待办**\n${r.report.todo}`);
+                return `### ${r.date} ${r.weekday}\n\n${sections.join('\n\n')}`;
+            }).join('\n\n')}
+${halfYearReports.length > 20 ? `\n\n（共${halfYearReports.length}条记录，此处显示前20条）` : ''}
+
+## Objectives（目标）
+
+### O1: （待填写）
+- KR1: （待填写）
+- KR2: （待填写）
+- KR3: （待填写）
+
+### O2: （待填写）
+- KR1: （待填写）
+- KR2: （待填写）
+
+### O3: （待填写）
+- KR1: （待填写）
+- KR2: （待填写）
+
+## 总结与反思
+
+（待填写）
+
+`;
+            
+            showReport('OKR', reportText);
+        }
+
+        // 显示报告
+        function showReport(title, content) {
+            document.getElementById('reportTitle').textContent = title;
+            document.getElementById('reportContent').textContent = content;
+            document.getElementById('reportModal').classList.add('active');
+        }
+
+        // 关闭报告
+        function closeReport() {
+            document.getElementById('reportModal').classList.remove('active');
+        }
+
+        // 复制报告
+        function copyReport() {
+            const content = document.getElementById('reportContent').textContent;
+            navigator.clipboard.writeText(content).then(() => {
+                alert('报告已复制到剪贴板');
+            });
+        }
+
+        // 初始化日历
+        if (document.getElementById('calendar-view')) {
+            renderCalendar();
+        }
+
+        // 导入Excel数据函数（必须在所有变量和函数定义之后）
+        function importExcelData() {
+            if (!confirm('确定要导入Excel数据吗？这将添加项目任务和工作日报，不会删除现有数据。')) {
+                return;
+            }
+            
+            let importedCount = 0;
+            
+            // 导入项目任务
+            EXCEL_PROJECTS_DATA.forEach(project => {
+                // 检查是否已存在同名任务
+                const exists = tasks.some(t => t.title === project.title);
+                if (!exists) {
+                    const task = {
+                        id: Date.now() + Math.random(),
+                        title: project.title,
+                        description: project.description,
+                        priority: project.priority,
+                        status: project.status,
+                        progress: project.progress,
+                        progressUpdates: [],
+                        createdAt: new Date().toISOString()
+                    };
+                    tasks.push(task);
+                    importedCount++;
+                }
+            });
+            
+            // 导入工作日报
+            let reportsCount = 0;
+            
+            Object.keys(EXCEL_DAILY_REPORTS).forEach(dateStr => {
+                const report = EXCEL_DAILY_REPORTS[dateStr];
+                
+                // 如果该日期已有日报，合并工作内容
+                if (dailyReports[dateStr]) {
+                    const existing = dailyReports[dateStr];
+                    if (existing.work) {
+                        dailyReports[dateStr].work = existing.work + '\n\n' + report.work;
+                    } else {
+                        dailyReports[dateStr].work = report.work;
+                    }
+                } else {
+                    dailyReports[dateStr] = report;
+                    reportsCount++;
+                }
+            });
+            
+            // 保存数据
+            saveTasks();
+            localStorage.setItem('dailyReports', JSON.stringify(dailyReports));
+            
+            // 刷新显示
+            renderTasks();
+            updateStats();
+            if (document.getElementById('calendar-view')) {
+                renderCalendar();
+            }
+            
+            alert(`导入完成！\n- 新增 ${importedCount} 个项目任务\n- 新增 ${reportsCount} 条工作日报`);
+        }
+    </script>
+</body>
+</html>

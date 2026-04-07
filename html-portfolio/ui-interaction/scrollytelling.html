@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金价屡创新高：多维力量共振下的资产重估</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@300;400;500;700&family=Noto+Serif+SC:wght@400;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: '#FAFAF7',
+        amber: '#C4742B',
+        amberLight: '#E8A85C',
+        amberDark: '#8B4513',
+        warmGray: '#6B6560',
+      },
+      fontFamily: {
+        serif: ['Noto Serif SC', 'serif'],
+        sans: ['Noto Sans SC', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: 'Noto Sans SC', sans-serif;
+    background: #FAFAF7;
+    color: #2D2A26;
+    overflow-x: hidden;
+  }
+  #progress-bar {
+    position: fixed; top: 0; left: 0; height: 3px;
+    background: linear-gradient(90deg, #C4742B, #E8A85C);
+    z-index: 9999; width: 0%; transition: width 0.1s linear;
+  }
+  .reveal-section {
+    opacity: 0; transform: translateY(40px);
+    transition: opacity 0.8s ease, transform 0.8s ease;
+  }
+  .reveal-section.visible { opacity: 1; transform: translateY(0); }
+  .highlight-sweep {
+    background: linear-gradient(90deg, #C4742B33 50%, transparent 50%);
+    background-size: 200% 100%; background-position: 100% 0;
+    transition: background-position 1s ease; padding: 2px 4px; border-radius: 2px;
+  }
+  .highlight-sweep.active { background-position: 0% 0; }
+  .typewriter {
+    overflow: hidden; white-space: nowrap;
+    border-right: 2px solid #C4742B; width: 0;
+  }
+  .typewriter.active {
+    animation: typewrite 2s steps(30) forwards, blink-caret 0.75s step-end 3;
+  }
+  @keyframes typewrite { from { width: 0; } to { width: 100%; } }
+  @keyframes blink-caret { from, to { border-color: transparent; } 50% { border-color: #C4742B; } }
+  .sticky-header {
+    position: sticky; top: 0; z-index: 50;
+    backdrop-filter: blur(10px); background: rgba(250, 250, 247, 0.85);
+  }
+  .card {
+    background: #fff; border-radius: 16px;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.06); padding: 24px; margin-bottom: 20px;
+  }
+  .counter-num {
+    font-family: 'Noto Serif SC', serif; font-weight: 700; color: #C4742B;
+  }
+  #hero {
+    position: relative; min-height: 100vh;
+    display: flex; flex-direction: column; justify-content: center; align-items: center; overflow: hidden;
+  }
+  #hero-bg {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, #FAFAF7 0%, #F0E6D6 40%, #E8D5B8 100%);
+    will-change: transform;
+  }
+  #hero-content { position: relative; z-index: 10; text-align: center; padding: 0 24px; }
+  .gold-circle {
+    width: 120px; height: 120px; border-radius: 50%;
+    background: radial-gradient(circle at 40% 35%, #E8A85C, #C4742B 60%, #8B4513);
+    margin: 0 auto 32px; box-shadow: 0 0 40px rgba(196,116,43,0.3); position: relative;
+  }
+  .gold-circle::after {
+    content: 'Au'; position: absolute; inset: 0;
+    display: flex; align-items: center; justify-content: center;
+    font-family: 'Noto Serif SC', serif; font-size: 32px; font-weight: 700; color: #FAFAF7;
+  }
+  .quote-block {
+    border-left: 3px solid #C4742B; padding-left: 16px;
+    font-family: 'Noto Serif SC', serif; font-style: italic; color: #6B6560;
+  }
+  .data-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  .data-table th {
+    background: #C4742B; color: white; padding: 10px 8px; text-align: left; font-weight: 500;
+  }
+  .data-table th:first-child { border-radius: 8px 0 0 0; }
+  .data-table th:last-child { border-radius: 0 8px 0 0; }
+  .data-table td { padding: 10px 8px; border-bottom: 1px solid #F0E6D6; }
+  .data-table tr:last-child td:first-child { border-radius: 0 0 0 8px; }
+  .data-table tr:last-child td:last-child { border-radius: 0 0 8px 0; }
+  .data-table tr:hover td { background: #FAFAF7; }
+  .section-num {
+    font-family: 'Noto Serif SC', serif; font-size: 48px; font-weight: 700;
+    color: #C4742B; opacity: 0.15; line-height: 1;
+  }
+  .pillar-card {
+    background: linear-gradient(135deg, #fff 0%, #FDF8F0 100%);
+    border: 1px solid #F0E6D6; border-radius: 12px; padding: 20px; margin-bottom: 12px;
+  }
+  .pillar-icon {
+    width: 40px; height: 40px; border-radius: 10px; background: #C4742B;
+    display: flex; align-items: center; justify-content: center;
+    color: white; font-size: 18px; margin-bottom: 12px;
+  }
+  .scroll-indicator {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    animation: float 2s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%, 100% { transform: translateX(-50%) translateY(0); }
+    50% { transform: translateX(-50%) translateY(-8px); }
+  }
+  .fade-left { opacity: 0; transform: translateX(-30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-right { opacity: 0; transform: translateX(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+  .fade-left.visible, .fade-right.visible { opacity: 1; transform: translateX(0); }
+</style>
+</head>
+<body>
+<div id="progress-bar"></div>
+
+<!-- HERO -->
+<section id="hero">
+  <div id="hero-bg"></div>
+  <div id="hero-content">
+    <div class="gold-circle"></div>
+    <p class="font-sans text-sm tracking-widest text-warmGray mb-4 uppercase">Insight Report &middot; 2025</p>
+    <h1 class="font-serif text-3xl md:text-4xl font-bold leading-tight mb-6" style="color:#2D2A26;">
+      金价屡创新高<br>
+      <span class="text-amber">多维力量共振下的资产重估</span>
+    </h1>
+    <div class="flex justify-center gap-8 mt-8 mb-4">
+      <div class="text-center">
+        <p class="text-xs text-warmGray mb-1">AU9999 现货价</p>
+        <p class="counter-num text-3xl" data-target="1502.00" data-suffix="" data-prefix="&yen;" data-decimals="2">&yen;0.00</p>
+      </div>
+      <div class="text-center">
+        <p class="text-xs text-warmGray mb-1">年涨幅</p>
+        <p class="counter-num text-3xl" data-target="80" data-suffix="%" data-prefix="+" data-decimals="0">+0%</p>
+      </div>
+    </div>
+    <p class="text-xs text-warmGray mt-4">数据截至 2025.02.05</p>
+  </div>
+  <div class="scroll-indicator">
+    <svg width="24" height="24" fill="none" stroke="#C4742B" stroke-width="2" viewBox="0 0 24 24">
+      <path d="M12 5v14M5 12l7 7 7-7"/>
+    </svg>
+    <p class="text-xs text-warmGray mt-1">向下滑动</p>
+  </div>
+</section>
+
+<!-- MAIN -->
+<main class="max-w-[480px] mx-auto px-5 pb-20">
+
+  <!-- SECTION 01 -->
+  <section class="py-8" id="section-01">
+    <div class="sticky-header py-4">
+      <div class="flex items-baseline gap-3">
+        <span class="section-num">01</span>
+        <div>
+          <h2 class="font-serif text-xl font-bold text-amber">金价核心驱动三支柱</h2>
+          <p class="text-xs text-warmGray">Three Pillars of Gold Rally</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section mt-6">
+      <div class="pillar-card fade-left">
+        <div class="pillar-icon">&#127974;</div>
+        <h3 class="font-serif font-bold text-base mb-2">央行购金</h3>
+        <p class="text-sm text-warmGray leading-relaxed">
+          连续<span class="counter-num text-lg inline-block" data-target="8" data-suffix="年" data-prefix="" data-decimals="0">0年</span>净购入，2025年入场加速。全球央行正以前所未有的速度增加黄金储备，去美元化趋势不可逆转。
+        </p>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="pillar-card fade-right">
+        <div class="pillar-icon">&#128201;</div>
+        <h3 class="font-serif font-bold text-base mb-2">利率预期</h3>
+        <p class="text-sm text-warmGray leading-relaxed">
+          美联储2026年前降息至<span class="counter-num text-lg inline-block" data-target="3.50" data-suffix="%" data-prefix="" data-decimals="2">0.00%</span>，实际利率持续下行为黄金打开估值空间。
+        </p>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="pillar-card fade-left">
+        <div class="pillar-icon">&#128737;</div>
+        <h3 class="font-serif font-bold text-base mb-2">风险对冲</h3>
+        <p class="text-sm text-warmGray leading-relaxed">
+          地缘冲突长期化叠加全球债务高企，避险需求从阶段性转向结构性。黄金作为终极避险资产的地位再次被确认。
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 02 -->
+  <section class="py-8" id="section-02">
+    <div class="sticky-header py-4">
+      <div class="flex items-baseline gap-3">
+        <span class="section-num">02</span>
+        <div>
+          <h2 class="font-serif text-xl font-bold text-amber">宏观政策与流动性</h2>
+          <p class="text-xs text-warmGray">Macro Policy &amp; Liquidity</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section mt-6">
+      <div class="card">
+        <h3 class="font-serif font-bold text-base mb-1">降息预期重塑资产定价</h3>
+        <p class="text-sm text-warmGray leading-relaxed mb-4">
+          当名义利率下行而通胀预期维持高位时，实际利率为负——这是黄金最甜蜜的宏观环境。市场正在为2026年前的连续降息路径定价。
+        </p>
+        <div class="highlight-sweep text-sm font-serif text-amber font-bold py-1">
+          实际利率为负 = 黄金最强驱动力
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="card">
+        <h3 class="font-serif font-bold text-sm mb-3 text-warmGray">AU9999 价格走势（元/克）</h3>
+        <div style="position:relative; height:220px;">
+          <canvas id="lineChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="card">
+        <h3 class="font-serif font-bold text-sm mb-3 text-warmGray">机构目标价预测</h3>
+        <table class="data-table">
+          <thead>
+            <tr><th>机构</th><th>目标价（美元/盎司）</th><th>预测时间</th></tr>
+          </thead>
+          <tbody>
+            <tr><td class="font-medium">摩根大通</td><td class="counter-num" data-target="3150" data-prefix="$" data-suffix="" data-decimals="0">$0</td><td class="text-warmGray">2025 Q2</td></tr>
+            <tr><td class="font-medium">高盛</td><td class="counter-num" data-target="3100" data-prefix="$" data-suffix="" data-decimals="0">$0</td><td class="text-warmGray">2025 H2</td></tr>
+            <tr><td class="font-medium">瑞银</td><td class="counter-num" data-target="2900" data-prefix="$" data-suffix="" data-decimals="0">$0</td><td class="text-warmGray">2025 Q3</td></tr>
+            <tr><td class="font-medium">花旗</td><td class="counter-num" data-target="3000" data-prefix="$" data-suffix="" data-decimals="0">$0</td><td class="text-warmGray">2025 H2</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 03 -->
+  <section class="py-8" id="section-03">
+    <div class="sticky-header py-4">
+      <div class="flex items-baseline gap-3">
+        <span class="section-num">03</span>
+        <div>
+          <h2 class="font-serif text-xl font-bold text-amber">地缘政治与央行行为</h2>
+          <p class="text-xs text-warmGray">Geopolitics &amp; Central Banks</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section mt-6">
+      <div class="card">
+        <h3 class="font-serif font-bold text-base mb-1">长期结构性支撑</h3>
+        <p class="text-sm text-warmGray leading-relaxed mb-4">
+          俄乌冲突后西方冻结俄罗斯外汇储备的操作，让全球央行重新审视美元资产的安全性。黄金从「配置选项」升级为「战略必需」。
+        </p>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="card">
+        <h3 class="font-serif font-bold text-base mb-3">央行购金：全球性战略行为</h3>
+        <div class="space-y-4">
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-lg bg-amber flex items-center justify-center text-white text-sm font-bold shrink-0">需求</div>
+            <div>
+              <p class="text-sm font-medium">年购金量突破 1000 吨</p>
+              <p class="text-xs text-warmGray">连续两年超千吨级别采购，创历史纪录</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-lg bg-amber flex items-center justify-center text-white text-sm font-bold shrink-0">主力</div>
+            <div>
+              <p class="text-sm font-medium">中国、波兰、印度领跑</p>
+              <p class="text-xs text-warmGray">新兴市场央行成为最大买家群体</p>
+            </div>
+          </div>
+          <div class="flex gap-4 items-start">
+            <div class="w-10 h-10 rounded-lg bg-amber flex items-center justify-center text-white text-sm font-bold shrink-0">战略</div>
+            <div>
+              <p class="text-sm font-medium">从分散风险到去美元化</p>
+              <p class="text-xs text-warmGray">购金逻辑从被动防御转向主动布局</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- SECTION 04 -->
+  <section class="py-8" id="section-04">
+    <div class="sticky-header py-4">
+      <div class="flex items-baseline gap-3">
+        <span class="section-num">04</span>
+        <div>
+          <h2 class="font-serif text-xl font-bold text-amber">市场情绪与资金流向</h2>
+          <p class="text-xs text-warmGray">Sentiment &amp; Capital Flow</p>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section mt-6">
+      <div class="card">
+        <h3 class="font-serif font-bold text-base mb-1">从投机到配置的转变</h3>
+        <p class="text-sm text-warmGray leading-relaxed">
+          黄金ETF持仓量持续攀升，表明资金性质从短期投机转向长期配置。机构投资者正将黄金从「交易品种」重新定义为「核心仓位」。
+        </p>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="card">
+        <h3 class="font-serif font-bold text-sm mb-3 text-warmGray">黄金ETF月度净流入（吨）</h3>
+        <div style="position:relative; height:200px;">
+          <canvas id="barChart"></canvas>
+        </div>
+      </div>
+    </div>
+    <div class="reveal-section">
+      <div class="card" style="background: linear-gradient(135deg, #2D2A26 0%, #3D3530 100%); color: #FAFAF7;">
+        <div class="quote-block" style="border-left-color: #E8A85C; color: #E8A85C;">
+          <p class="typewriter text-base leading-relaxed">
+            &ldquo;金价的每一次新高，都是对旧秩序的一次叩问。&rdquo;
+          </p>
+        </div>
+        <p class="text-xs mt-4" style="color: #8B8580;">&mdash;&mdash; 灵光 &middot; Insight 编辑部</p>
+      </div>
+    </div>
+  </section>
+</main>
+
+<!-- FOOTER -->
+<footer class="text-center py-12 border-t border-gray-200">
+  <p class="font-serif text-lg font-bold text-amber">灵光 &middot; Insight</p>
+  <p class="text-xs text-warmGray mt-2">数据驱动，洞见未来</p>
+</footer>
+
+<script>
+(function() {
+  var progressBar = document.getElementById('progress-bar');
+  var heroBg = document.getElementById('hero-bg');
+
+  function updateProgress() {
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    var docHeight = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+    var progress = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+    progressBar.style.width = progress + '%';
+  }
+
+  function updateParallax() {
+    var scrollTop = window.pageYOffset || document.documentElement.scrollTop;
+    if (scrollTop < window.innerHeight * 1.5) {
+      heroBg.style.transform = 'translateY(' + (scrollTop * 0.35) + 'px)';
+    }
+  }
+
+  window.addEventListener('scroll', function() {
+    updateProgress();
+    updateParallax();
+  }, { passive: true });
+
+  /* Reveal sections */
+  var revealElements = document.querySelectorAll('.reveal-section');
+  var revealObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('visible');
+        var fades = entry.target.querySelectorAll('.fade-left, .fade-right');
+        fades.forEach(function(el) { el.classList.add('visible'); });
+        var sweeps = entry.target.querySelectorAll('.highlight-sweep');
+        sweeps.forEach(function(el) { el.classList.add('active'); });
+        var tws = entry.target.querySelectorAll('.typewriter');
+        tws.forEach(function(el) { el.classList.add('active'); });
+      }
+    });
+  }, { threshold: 0.15 });
+  revealElements.forEach(function(el) { revealObserver.observe(el); });
+
+  /* Animated counters */
+  var counters = document.querySelectorAll('.counter-num[data-target]');
+  var counterDone = new WeakSet();
+
+  function animateCounter(el) {
+    if (counterDone.has(el)) return;
+    counterDone.add(el);
+    var target = parseFloat(el.getAttribute('data-target'));
+    var decimals = parseInt(el.getAttribute('data-decimals')) || 0;
+    var prefix = el.getAttribute('data-prefix') || '';
+    var suffix = el.getAttribute('data-suffix') || '';
+    var duration = 1500;
+    var startTime = null;
+
+    function step(timestamp) {
+      if (!startTime) startTime = timestamp;
+      var elapsed = timestamp - startTime;
+      var progress = Math.min(elapsed / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = eased * target;
+      el.textContent = prefix + current.toFixed(decimals) + suffix;
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      } else {
+        el.textContent = prefix + target.toFixed(decimals) + suffix;
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  var counterObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting) { animateCounter(entry.target); }
+    });
+  }, { threshold: 0.5 });
+  counters.forEach(function(el) { counterObserver.observe(el); });
+
+  /* Charts */
+  var lineChartCreated = false;
+  var barChartCreated = false;
+
+  var lineCanvas = document.getElementById('lineChart');
+  var lineObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !lineChartCreated) {
+        lineChartCreated = true;
+        createLineChart();
+      }
+    });
+  }, { threshold: 0.3 });
+  lineObserver.observe(lineCanvas);
+
+  function createLineChart() {
+    var ctx = lineCanvas.getContext('2d');
+    var gradient = ctx.createLinearGradient(0, 0, 0, 220);
+    gradient.addColorStop(0, 'rgba(196,116,43,0.3)');
+    gradient.addColorStop(1, 'rgba(196,116,43,0.02)');
+
+    new Chart(ctx, {
+      type: 'line',
+      data: {
+        labels: ['7\u6708', '8\u6708', '9\u6708', '10\u6708', '11\u6708', '12\u6708', '1\u6708', '2\u6708'],
+        datasets: [{
+          label: 'AU9999\uFF08\u5143/\u514B\uFF09',
+          data: [832, 910, 978, 1050, 1180, 1290, 1410, 1502],
+          borderColor: '#C4742B',
+          backgroundColor: gradient,
+          borderWidth: 2.5,
+          pointBackgroundColor: '#C4742B',
+          pointBorderColor: '#fff',
+          pointBorderWidth: 2,
+          pointRadius: 4,
+          pointHoverRadius: 6,
+          fill: true,
+          tension: 0.3
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: { duration: 2000, easing: 'easeInOutQuart' },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#2D2A26',
+            titleFont: { family: 'Noto Sans SC', size: 12 },
+            bodyFont: { family: 'Noto Sans SC', size: 12 },
+            cornerRadius: 8, padding: 10
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#8B8580' }
+          },
+          y: {
+            grid: { color: '#F0E6D6' },
+            ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#8B8580' },
+            min: 750, max: 1600
+          }
+        }
+      }
+    });
+  }
+
+  var barCanvas = document.getElementById('barChart');
+  var barObserver = new IntersectionObserver(function(entries) {
+    entries.forEach(function(entry) {
+      if (entry.isIntersecting && !barChartCreated) {
+        barChartCreated = true;
+        createBarChart();
+      }
+    });
+  }, { threshold: 0.3 });
+  barObserver.observe(barCanvas);
+
+  function createBarChart() {
+    var ctx = barCanvas.getContext('2d');
+    new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['9\u6708', '10\u6708', '11\u6708', '12\u6708', '1\u6708', '2\u6708'],
+        datasets: [{
+          label: '\u51C0\u6D41\u5165\uFF08\u5428\uFF09',
+          data: [18, 32, 45, 58, 72, 86],
+          backgroundColor: [
+            'rgba(196,116,43,0.4)', 'rgba(196,116,43,0.5)',
+            'rgba(196,116,43,0.6)', 'rgba(196,116,43,0.7)',
+            'rgba(196,116,43,0.85)', 'rgba(196,116,43,1)'
+          ],
+          borderRadius: 6,
+          borderSkipped: false
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 1500, easing: 'easeOutQuart',
+          delay: function(context) { return context.dataIndex * 200; }
+        },
+        plugins: {
+          legend: { display: false },
+          tooltip: {
+            backgroundColor: '#2D2A26',
+            titleFont: { family: 'Noto Sans SC', size: 12 },
+            bodyFont: { family: 'Noto Sans SC', size: 12 },
+            cornerRadius: 8, padding: 10,
+            callbacks: {
+              label: function(context) { return context.parsed.y + ' \u5428'; }
+            }
+          }
+        },
+        scales: {
+          x: {
+            grid: { display: false },
+            ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#8B8580' }
+          },
+          y: {
+            grid: { color: '#F0E6D6' },
+            ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#8B8580' },
+            min: 0
+          }
+        }
+      }
+    });
+  }
+})();
+</script>
+</body>
+</html>

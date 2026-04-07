@@ -1,0 +1,1080 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AGI应用图片输入能力全景与战略规划 - 灵光App</title>
+  <style>
+    :root {
+      --color-primary: #4A4A48;
+      --color-secondary: #6B6B67;
+      --color-accent: #8FA3B0;
+      --color-highlight: #B08968;
+      --color-success: #7D9D8C;
+      --color-danger: #B5838D;
+      --color-warning: #C4A882;
+      --text-primary: #3D3D3B;
+      --text-secondary: #8A8A85;
+      --bg-light: #F5F2EE;
+      --bg-card: #FFFFFF;
+      --border-color: #D9D5CF;
+      --page-bg: #E8E4DF;
+      --chart-bg: #EDE9E4;
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { font-size: 14px; -webkit-print-color-adjust: exact !important; print-color-adjust: exact !important; }
+    body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "PingFang SC", "Microsoft YaHei", sans-serif; line-height: 1.6; color: var(--text-primary); background: var(--page-bg); min-height: 100vh; }
+    .page { max-width: 900px; margin: 0 auto 20px; background: var(--page-bg); box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+    .cover-page { min-height: 100vh; background: linear-gradient(135deg, #3D3D3B 0%, #4A4A48 40%, #6B6B67 100%); color: white; position: relative; display: flex; flex-direction: row; align-items: center; padding: 0; overflow: hidden; }
+    .cover-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(ellipse at 30% 50%, rgba(102,126,234,0.15) 0%, transparent 60%), radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 40%); pointer-events: none; }
+    .cover-left { flex: 0 0 35%; display: flex; flex-direction: column; align-items: center; justify-content: center; position: relative; z-index: 1; }
+    .cover-number { font-size: 280px; font-weight: 800; color: rgba(255,255,255,0.08); line-height: 1; letter-spacing: -10px; position: absolute; left: -30px; }
+    .cover-right { flex: 1; padding: 60px 80px 60px 40px; position: relative; z-index: 1; }
+    .cover-badge { display: inline-block; background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); padding: 10px 24px; border-radius: 20px; font-size: 12px; letter-spacing: 2px; margin-bottom: 40px; border: 1px solid rgba(255,255,255,0.15); text-transform: uppercase; }
+    .cover-title { font-size: 42px; font-weight: 700; letter-spacing: 4px; margin-bottom: 20px; line-height: 1.3; }
+    .cover-subtitle { font-size: 20px; opacity: 0.9; margin-bottom: 50px; letter-spacing: 2px; font-weight: 400; }
+    .cover-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #B08968 0%, #C9A98B 100%); border-radius: 2px; margin-bottom: 40px; }
+    .cover-meta { font-size: 18px; opacity: 0.85; letter-spacing: 2px; }
+    .cover-date { font-size: 18px; opacity: 0.75; letter-spacing: 2px; margin-top: 15px; }
+    .cover-footer { position: absolute; bottom: 40px; left: 80px; right: 80px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.15); display: flex; justify-content: space-between; font-size: 12px; opacity: 0.6; letter-spacing: 1px; }
+    .toc-page { padding: 80px; min-height: 100vh; background: linear-gradient(180deg, #FFFFFF 0%, var(--page-bg) 100%); }
+    .toc-header { margin-bottom: 50px; padding-bottom: 20px; border-bottom: 3px solid var(--color-primary); }
+    .toc-title { font-size: 28px; font-weight: 700; color: var(--color-primary); letter-spacing: 8px; }
+    .toc-item { display: flex; padding: 18px 0; border-bottom: 1px dashed var(--border-color); align-items: center; }
+    .toc-number { width: 50px; height: 50px; background: linear-gradient(135deg, #4A4A48 0%, #6B6B67 100%); color: white; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; margin-right: 25px; box-shadow: 0 4px 12px rgba(26,54,93,0.3); }
+    .toc-text { flex: 1; font-size: 16px; font-weight: 500; }
+    .toc-conclusion { background: linear-gradient(135deg, #F2E8EA 0%, #FFF 100%); border-left: 4px solid var(--color-highlight); padding: 25px 30px; border-radius: 0 8px 8px 0; margin-top: 40px; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .toc-conclusion-title { font-size: 14px; font-weight: 600; color: var(--color-highlight); margin-bottom: 12px; }
+    .chapter-section { background: var(--page-bg); }
+    .chapter-header { background: linear-gradient(135deg, #4A4A48 0%, #6B6B67 100%); color: white; padding: 40px 50px; display: flex; align-items: center; position: relative; overflow: hidden; }
+    .chapter-header::after { content: ''; position: absolute; right: 0; top: 0; bottom: 0; width: 200px; background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 100%); }
+    .chapter-num { font-size: 60px; font-weight: 700; opacity: 0.3; margin-right: 25px; }
+    .chapter-name { font-size: 26px; font-weight: 600; letter-spacing: 2px; }
+    .chapter-body { padding: 40px 50px; background: linear-gradient(180deg, #FFFFFF 0%, var(--page-bg) 100%); }
+    h2 { font-size: 18px; font-weight: 600; color: var(--color-primary); margin: 30px 0 15px; padding-left: 15px; border-left: 4px solid var(--color-accent); }
+    h3 { font-size: 15px; font-weight: 600; margin: 20px 0 12px; color: var(--text-primary); }
+    h4 { font-size: 14px; font-weight: 600; margin: 16px 0 8px; color: var(--text-primary); }
+    p { margin-bottom: 12px; color: var(--text-secondary); text-align: justify; }
+    ul, ol { margin: 12px 0 12px 24px; }
+    li { margin-bottom: 6px; color: var(--text-secondary); }
+    strong { color: var(--text-primary); }
+    .highlight-box { background: linear-gradient(135deg, #E8EEF2 0%, #FFF 100%); border-left: 4px solid var(--color-accent); padding: 20px 25px; border-radius: 0 8px 8px 0; margin: 20px 0; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .highlight-box.yellow { background: linear-gradient(135deg, #F5F0E8 0%, #FFF 100%); border-left-color: #C4A882; }
+    .highlight-box.red { background: linear-gradient(135deg, #F0E5E7 0%, #FFF 100%); border-left-color: var(--color-highlight); }
+    .highlight-box.green { background: linear-gradient(135deg, #EDF3EF 0%, #FFF 100%); border-left-color: var(--color-success); }
+    .highlight-text { font-size: 14px; color: var(--text-primary); }
+    .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; margin: 25px 0; }
+    .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .stats-grid-2 { grid-template-columns: repeat(2, 1fr); }
+    .stat-card { background: linear-gradient(180deg, #FFFFFF 0%, #F7F4F0 100%); border-radius: 12px; padding: 24px 16px; text-align: center; box-shadow: 0 4px 12px rgba(0,0,0,0.04); border: 1px solid var(--border-color); transition: transform 0.2s, box-shadow 0.2s; }
+    .stat-card:hover { transform: translateY(-3px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+    .stat-icon { width: 48px; height: 48px; border-radius: 12px; display: flex; align-items: center; justify-content: center; margin: 0 auto 12px; font-size: 24px; }
+    .stat-icon.red { background: linear-gradient(135deg, #E8D5D8 0%, #D9C2C7 100%); }
+    .stat-icon.green { background: linear-gradient(135deg, #D5E3DC 0%, #B8CFC4 100%); }
+    .stat-icon.purple { background: linear-gradient(135deg, #DDE4E8 0%, #C8D5DB 100%); }
+    .stat-icon.blue { background: linear-gradient(135deg, #D3DDE4 0%, #C0CED8 100%); }
+    .stat-value { font-size: 28px; font-weight: 700; color: var(--color-primary); margin-bottom: 4px; }
+    .stat-value.red { color: var(--color-highlight); }
+    .stat-value.green { color: var(--color-success); }
+    .stat-value.purple { color: var(--color-accent); }
+    .stat-label { font-size: 12px; color: var(--text-secondary); }
+    .stat-trend { font-size: 11px; margin-top: 8px; padding: 3px 8px; border-radius: 12px; display: inline-block; }
+    .stat-trend.up { background: #D5E3DC; color: #6B8C7A; }
+    .stat-trend.down { background: #E8D5D8; color: #9C6B75; }
+    .chart-container { background: linear-gradient(135deg, #FFFFFF 0%, #F5F2EE 100%); border-radius: 12px; padding: 24px; margin: 20px 0; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: 1px solid var(--border-color); }
+    .chart-title { font-size: 14px; font-weight: 600; color: var(--text-primary); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 2px solid #D9D5CF; }
+    .data-table { width: 100%; border-collapse: collapse; margin: 20px 0; font-size: 13px; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .data-table th { background: linear-gradient(180deg, #4A4A48 0%, #6B6B67 100%); color: white; padding: 14px 16px; text-align: left; font-weight: 600; }
+    .data-table td { padding: 14px 16px; border-bottom: 1px solid var(--border-color); color: var(--text-secondary); background: white; }
+    .data-table tr:nth-child(even) td { background: var(--bg-light); }
+    .data-table tr:last-child td { border-bottom: none; }
+    .strategy-card { display: flex; padding: 22px; border-radius: 12px; margin-bottom: 16px; align-items: flex-start; box-shadow: 0 2px 8px rgba(0,0,0,0.05); }
+    .strategy-card.blue { background: linear-gradient(135deg, #E8EEF2 0%, #D3DDE4 100%); }
+    .strategy-card.green { background: linear-gradient(135deg, #EDF3EF 0%, #DBE8E0 100%); }
+    .strategy-card.yellow { background: linear-gradient(135deg, #F5F0E8 0%, #EDE5D5 100%); }
+    .strategy-card.red { background: linear-gradient(135deg, #F0E5E7 0%, #E8D5D8 100%); }
+    .strategy-num { width: 40px; height: 40px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; margin-right: 20px; color: white; flex-shrink: 0; box-shadow: 0 4px 12px rgba(0,0,0,0.15); }
+    .strategy-card.blue .strategy-num { background: linear-gradient(135deg, #6B6B67 0%, #4A4A48 100%); }
+    .strategy-card.green .strategy-num { background: linear-gradient(135deg, #7D9D8C 0%, #6B8C7A 100%); }
+    .strategy-card.yellow .strategy-num { background: linear-gradient(135deg, #C4A882 0%, #A07855 100%); }
+    .strategy-card.red .strategy-num { background: linear-gradient(135deg, #B5838D 0%, #9C6B75 100%); }
+    .strategy-title { font-size: 16px; font-weight: 600; margin-bottom: 6px; }
+    .strategy-card.blue .strategy-title { color: var(--color-secondary); }
+    .strategy-card.green .strategy-title { color: #6B8C7A; }
+    .strategy-card.yellow .strategy-title { color: #A07855; }
+    .strategy-card.red .strategy-title { color: #9C6B75; }
+    .strategy-desc { font-size: 13px; color: var(--text-secondary); line-height: 1.6; }
+    .insight-card { background: var(--bg-card); border-radius: 12px; padding: 24px; margin: 20px 0; border: 1px solid var(--border-color); box-shadow: 0 2px 8px rgba(0,0,0,0.04); }
+    .insight-card h4 { margin-top: 0; color: var(--color-primary); font-size: 16px; margin-bottom: 12px; }
+    .insight-card p { margin-bottom: 8px; }
+    .tag { display: inline-block; padding: 5px 12px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-bottom: 10px; }
+    .tag-p0 { background: linear-gradient(135deg, #F0E5E7 0%, #E8D5D8 100%); color: var(--color-highlight); border: 1px solid #D9C2C7; }
+    .tag-p1 { background: linear-gradient(135deg, #E8EEF2 0%, #D3DDE4 100%); color: var(--color-secondary); border: 1px solid #C0CED8; }
+    .tag-p2 { background: linear-gradient(135deg, #EDF3EF 0%, #DBE8E0 100%); color: #6B8C7A; border: 1px solid #B8CFC4; }
+    .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600; margin-right: 6px; vertical-align: middle; }
+    .badge-high { background: #F0E5E7; color: #9C6B75; border: 1px solid #D9C2C7; }
+    .badge-medium { background: #F5F0E8; color: #A07855; border: 1px solid #DDD0BB; }
+    .badge-low { background: #EDF3EF; color: #6B8C7A; border: 1px solid #B8CFC4; }
+    .badge-a { background: #D5E3DC; color: #6B8C7A; border: 1px solid #B8CFC4; }
+    .badge-b { background: #D3DDE4; color: #6B8BA0; border: 1px solid #C0CED8; }
+    blockquote { margin: 20px 0; padding: 16px 24px; background: linear-gradient(135deg, #E8EEF2 0%, #FFF 100%); border-left: 4px solid var(--color-accent); border-radius: 0 8px 8px 0; color: var(--text-secondary); font-style: italic; }
+    .page-number { text-align: center; font-size: 11px; color: var(--text-secondary); padding-top: 20px; margin-top: 30px; border-top: 1px solid var(--border-color); }
+    .text-highlight { color: var(--color-highlight); font-weight: 600; }
+    .footer-page { background: linear-gradient(135deg, #3D3D3B 0%, #4A4A48 40%, #6B6B67 100%); min-height: 50vh; color: white; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding: 80px 60px; position: relative; overflow: hidden; }
+    .footer-page::before { content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0; background-image: radial-gradient(ellipse at 50% 30%, rgba(102,126,234,0.2) 0%, transparent 50%); pointer-events: none; }
+    .footer-content { position: relative; z-index: 1; }
+    .footer-icon { font-size: 48px; margin-bottom: 30px; opacity: 0.9; }
+    .footer-title { font-size: 28px; font-weight: 600; margin-bottom: 25px; letter-spacing: 8px; }
+    .footer-divider { width: 60px; height: 3px; background: linear-gradient(90deg, #B08968 0%, #C9A98B 100%); border-radius: 2px; margin: 0 auto 30px; }
+    .footer-text { font-size: 15px; opacity: 0.85; margin-bottom: 10px; letter-spacing: 1px; }
+    .footer-date { font-size: 13px; opacity: 0.6; margin-top: 25px; letter-spacing: 1px; }
+    .no-print { position: fixed; bottom: 30px; right: 30px; z-index: 1000; }
+    .print-btn { background: linear-gradient(135deg, #4A4A48 0%, #6B6B67 100%); color: white; border: none; padding: 14px 35px; border-radius: 50px; font-size: 14px; font-weight: 600; cursor: pointer; box-shadow: 0 6px 20px rgba(26,54,93,0.4); transition: all 0.3s; }
+    .print-btn:hover { transform: translateY(-2px); box-shadow: 0 8px 25px rgba(26,54,93,0.5); }
+    @media (max-width: 768px) { .cover-page { flex-direction: column; } .cover-left { display: none; } .cover-right { padding: 40px 24px; } .cover-title { font-size: 32px; letter-spacing: 2px; } .toc-page { padding: 40px 24px; } .chapter-body { padding: 24px; } .chapter-header { padding: 24px; } .stats-grid, .stats-grid-3 { grid-template-columns: repeat(2, 1fr); } }
+    @media print { @page { margin: 1.5cm; size: A4; } body { background: white; } .page { box-shadow: none; margin: 0; } .no-print { display: none !important; } .cover-page { min-height: auto; page-break-after: always; } .toc-page { page-break-after: always; } .chapter-section { page-break-before: always; } .stat-card:hover { transform: none; box-shadow: none; } h2, h3, h4 { page-break-after: avoid; } .data-table, .chart-container, .highlight-box { page-break-inside: avoid; } }
+</style>
+  <script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+
+  <div class="page cover-page">
+    <div class="cover-left">
+      <div class="cover-number">AI</div>
+    </div>
+    <div class="cover-right">
+      <div class="cover-badge">Alpha Insights - BizAdvisor</div>
+      <h1 class="cover-title">AGI应用「图片输入」<br>能力全景与战略规划</h1>
+      <p class="cover-subtitle">灵光App多模态产品规划决策参考</p>
+      <div class="cover-divider"></div>
+      <p class="cover-meta">灵光App产品团队</p>
+      <p class="cover-date">2026年4月7日</p>
+    </div>
+    <div class="cover-footer">
+      <span>内部参考 - 请勿外传</span>
+      <span>Tier 3 深度报告 V1.0</span>
+    </div>
+  </div>
+
+
+  <div class="page toc-page">
+    <div class="toc-header">
+      <div class="toc-title">目 录</div>
+    </div>
+    <div class="toc-item"><div class="toc-number">1</div><span class="toc-text">Executive Summary</span></div>
+    <div class="toc-item"><div class="toc-number">2</div><span class="toc-text">研究背景与方法</span></div>
+    <div class="toc-item"><div class="toc-number">3</div><span class="toc-text">图片输入八大能力域全景</span></div>
+    <div class="toc-item"><div class="toc-number">4</div><span class="toc-text">国内外竞品能力矩阵</span></div>
+    <div class="toc-item"><div class="toc-number">5</div><span class="toc-text">行业趋势：Agent与实时交互前沿</span></div>
+    <div class="toc-item"><div class="toc-number">6</div><span class="toc-text">核心洞察与战略建议</span></div>
+    <div class="toc-item"><div class="toc-number">7</div><span class="toc-text">风险评估与应对预案</span></div>
+    <div class="toc-item"><div class="toc-number">8</div><span class="toc-text">研究局限与后续方向</span></div>
+    <div class="toc-conclusion">
+      <div class="toc-conclusion-title">核心结论</div>
+      <div class="toc-conclusion-text">图片输入的价值重心正从「看懂内容」迁移到「触发行动」。灵光应走「感知变现养行动探索」的双轨路线，以「金融信息翻译器」为垂直锚点，同步布局独立Agent产品路线。</div>
+    </div>
+  </div>
+
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">01</div>
+      <div class="chapter-name">Executive Summary</div>
+    </div>
+    <div class="chapter-body">
+
+      <div class="highlight-box">
+        <div class="highlight-text"><strong>一句话结论：</strong>图片不只是「被理解」，而是「撬动价值链的输入模态」。灵光应以感知变现为短期引擎、金融信息翻译为垂直锚点、独立Agent产品为中长期方向，三线并进。</div>
+      </div>
+
+      <h2>研究全景</h2>
+      <p>本报告调研了<strong>国外5大</strong>（ChatGPT、Claude、Gemini、Perplexity、Grok）和<strong>国内10大</strong>（豆包、Kimi、通义千问、文心一言、智谱清言、讯飞星火、腾讯元宝、DeepSeek、MiniMax、百川）AGI应用在「上传图片」功能上的能力全景，覆盖感知提取、分析推理、视觉搜索、知识增强、决策辅助、工作流自动化、Agent行动、实时交互八大能力域。</p>
+
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon blue">🔍</div>
+          <div class="stat-value">15</div>
+          <div class="stat-label">覆盖应用数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">📊</div>
+          <div class="stat-value">8</div>
+          <div class="stat-label">能力域维度</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">💡</div>
+          <div class="stat-value">7</div>
+          <div class="stat-label">核心洞察数</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">🎯</div>
+          <div class="stat-value">4</div>
+          <div class="stat-label">战略建议数</div>
+        </div>
+      </div>
+
+      <h2>三大核心洞察</h2>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">1</div>
+        <div>
+          <div class="strategy-title">双轨路线：感知变现 + 行动探索</div>
+          <div class="strategy-desc">图片输入价值重心正从「看懂」迁移到「触发行动」（Claude Computer Use 6个月5倍增长、豆包手机秒光），但行动层全球无商业化验证，感知层已有盈利模型。灵光应「感知变现养团队 + 行动探索布局未来」，资源配比70:30。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card green">
+        <div class="strategy-num">2</div>
+        <div>
+          <div class="strategy-title">垂直锚点：拍照看懂金融</div>
+          <div class="strategy-desc">定位「金融信息翻译器」而非「金融顾问」——帮用户看懂保险条款、拆解理财产品参数、对比收益说明书，只做信息整理+对比展示，不输出推荐/建议。首个标杆场景：理财产品对比。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">3</div>
+        <div>
+          <div class="strategy-title">独立Agent：灵光自主发展</div>
+          <div class="strategy-desc">灵光作为独立Agent产品自主发展，以图片输入为核心交互入口，蚂蚁系能力以API形式接入而非依赖BU嵌入，绕开组织协调瓶颈。</div>
+        </div>
+      </div>
+
+      <h2>关键时间线</h2>
+      <table class="data-table">
+        <tr><th>时间</th><th>里程碑</th><th>交付物</th></tr>
+        <tr><td>2026 Q2-Q3</td><td>感知功能上线</td><td>文档摘要 / 图表解读 / OCR增强</td></tr>
+        <tr><td>2026 Q3</td><td>法务合规评审</td><td>金融信息翻译合规方案</td></tr>
+        <tr><td>2026 Q3</td><td>实时视觉预研</td><td>技术可行性报告 + Demo</td></tr>
+        <tr><td>2026 Q4</td><td>金融翻译MVP</td><td>理财产品对比功能上线</td></tr>
+        <tr><td>2026 Q4</td><td>Agent原型内测</td><td>图片→工作流Agent v1</td></tr>
+        <tr><td>2027 Q2</td><td>Agent迭代</td><td>跨场景Agent v2</td></tr>
+      </table>
+
+      <div class="page-number">— 1 —</div>
+    </div>
+  </div>
+
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">02</div>
+      <div class="chapter-name">研究背景与方法</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>研究背景</h2>
+      <p>2025-2026年，多模态AI进入爆发期。全球主流AGI应用纷纷将图片输入作为核心交互方式，图片不再只是「被看懂的对象」，而是「撬动价值链的输入模态」——从OCR识别到Agent自动执行，图片输入正在重塑用户与AI的交互方式。</p>
+      <p>灵光App作为蚂蚁集团旗下AI应用（周活295万，国内原生AI App Top 10），正处于多模态能力规划的关键窗口期。本报告旨在回答：<strong>图片作为输入模态，能撬动哪些价值链？灵光的差异化切入点在哪？</strong></p>
+
+      <h2>研究框架</h2>
+      <div class="highlight-box">
+        <div class="highlight-text">
+          <strong>主框架：</strong>JTBD（Jobs To Be Done）— 从用户任务视角构建分析骨架<br>
+          <strong>增强框架：</strong>竞争定位图（可视化能力矩阵）+ 蓝海战略画布（差异化空间）+ 三层面增长（H1/H2/H3分层）<br>
+          <strong>可选框架：</strong>PESTEL（政策与技术趋势影响）
+        </div>
+      </div>
+
+      <h2>能力域定义</h2>
+      <p>本报告将图片输入触发的能力分为<strong>八大域</strong>，从基础感知到高阶行动，形成完整的价值阶梯：</p>
+
+      <table class="data-table">
+        <tr><th>层级</th><th>能力域</th><th>典型场景</th><th>价值定位</th></tr>
+        <tr><td>L1 基础层</td><td>感知提取</td><td>OCR、物体识别、场景理解</td><td>数据入口</td></tr>
+        <tr><td>L2 分析层</td><td>分析推理</td><td>图表解读、医疗影像、多图对比</td><td>专业增值</td></tr>
+        <tr><td>L3 检索层</td><td>视觉搜索</td><td>以图搜图、同款识别</td><td>连接信息</td></tr>
+        <tr><td>L4 知识层</td><td>知识增强</td><td>拍照问答、实物科普、题目解析</td><td>教育赋能</td></tr>
+        <tr><td>L5 决策层</td><td>决策辅助</td><td>商品比价、健康评估、穿搭建议</td><td>辅助判断</td></tr>
+        <tr><td>L6 工作流层</td><td>工作流自动化</td><td>截图→代码/PPT/文档</td><td>效率倍增</td></tr>
+        <tr><td>L7 行动层</td><td>Agent行动</td><td>UI操控、跨应用执行</td><td>替代操作</td></tr>
+        <tr><td>L8 实时层</td><td>实时交互</td><td>摄像头流式分析、AR叠加</td><td>即时感知</td></tr>
+      </table>
+
+      <h2>研究方法与数据源</h2>
+      <div class="stats-grid stats-grid-3">
+        <div class="stat-card">
+          <div class="stat-icon blue">📡</div>
+          <div class="stat-value">4轮</div>
+          <div class="stat-label">定向搜索</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">📄</div>
+          <div class="stat-value">A/B级</div>
+          <div class="stat-label">核心数据置信度</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🔄</div>
+          <div class="stat-value">红蓝队</div>
+          <div class="stat-label">双重审查机制</div>
+        </div>
+      </div>
+
+      <h3>数据源覆盖</h3>
+      <ul>
+        <li><strong>Track A 公开数据</strong>：各应用官网、行业报告（澎湃新闻、新华网、科技日报）、Benchmark排行榜（LMArena、OSWorld）</li>
+        <li><strong>Track B 定向搜索</strong>：4轮深度搜索覆盖智谱/文心/百川/MiniMax/Benchmark/Agent前沿</li>
+        <li><strong>Track D 语雀</strong>：未发现灵光相关内部文档权限，已跳过</li>
+        <li><strong>已跳过</strong>：专家访谈（公开信息充足）、小红书（B端产品规划非消费者洞察）、ODPS/用户原声（无权限）</li>
+      </ul>
+
+      <h3>假设驱动</h3>
+      <p>研究围绕5个核心假设展开，通过证据三角验证：</p>
+      <table class="data-table">
+        <tr><th>#</th><th>假设</th><th>终验结果</th></tr>
+        <tr><td>H1</td><td>感知层趋同，差异化在行动层</td><td><span class="badge badge-medium">部分成立</span> 基础OCR趋同但文档/图表仍有差异</td></tr>
+        <tr><td>H2</td><td>国内领先生态，国外领先Agent</td><td><span class="badge badge-a">大致成立</span> 但国内Agent快速追赶</td></tr>
+        <tr><td>H3</td><td>最大价值在「看图后行动」</td><td><span class="badge badge-a">成立</span> 但需分阶段（短期感知，长期行动）</td></tr>
+        <tr><td>H4</td><td>实时交互是蓝海</td><td><span class="badge badge-medium">成立但窗口紧迫</span> 竞品跟进6-9个月</td></tr>
+        <tr><td>H5</td><td>灵光差异化在垂直深耕</td><td><span class="badge badge-a">成立</span> 锚点为金融信息翻译</td></tr>
+      </table>
+
+      <div class="page-number">— 2 —</div>
+    </div>
+  </div>
+
+
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">03</div>
+      <div class="chapter-name">图片输入八大能力域全景</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>能力域价值阶梯</h2>
+      <p>图片作为输入模态所触发的能力，可以沿价值阶梯从基础感知逐步攀升至Agent行动。当前行业竞争的主战场正在从L1-L4（感知/分析/搜索/知识）向L5-L8（决策/工作流/Agent/实时）迁移。</p>
+
+      <div class="chart-container">
+        <div class="chart-title">图片输入能力域价值阶梯</div>
+        <div id="chart-value-ladder" style="width:100%;height:400px;"></div>
+      </div>
+
+      <h2>L1-L2：感知与分析层 — 基础但仍有差异</h2>
+      <div class="highlight-box yellow">
+        <div class="highlight-text"><strong>反直觉发现：</strong>「感知能力趋同」可能是错的。ERNIE 5.0/Qwen在OCR/文档/图表上仍有15-20%的性能差距（OCRBench v1: Qwen 920 vs 其他模型&lt;860），基础层并非完全趋同。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>成熟度</th></tr>
+        <tr><td>OCR文字识别</td><td>Gemini, ERNIE 5.0</td><td>文心一言, 通义千问</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>物体识别</td><td>GPT-4o, Gemini</td><td>豆包, 通义千问</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>场景理解</td><td>GPT-4o, Claude</td><td>豆包（地点识别）</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>图表解读</td><td>ERNIE 5.0（ChartQA领先）</td><td>文心一言</td><td><span class="badge badge-b">较成熟</span></td></tr>
+        <tr><td>文档理解</td><td>ERNIE 5.0（DocVQA领先）</td><td>文心一言, Kimi</td><td><span class="badge badge-b">较成熟</span></td></tr>
+        <tr><td>医疗影像</td><td>GPT-5</td><td>百川M3（HealthBench全球第一 65.1分）</td><td><span class="badge badge-medium">发展中</span></td></tr>
+      </table>
+
+      <h2>L3-L4：搜索与知识层 — 生态决定上限</h2>
+      <p>视觉搜索和知识增强的竞争力取决于背后的数据生态。Google凭借Google Lens+知识图谱在全球遥遥领先，国内豆包依托字节生态在以图搜图和购物场景领先。</p>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>关键壁垒</th></tr>
+        <tr><td>以图搜图</td><td>Google Lens/Gemini</td><td>豆包</td><td>图片索引库规模</td></tr>
+        <tr><td>同款识别</td><td>Gemini（购物集成）</td><td>豆包（AI穿搭助手）</td><td>电商数据接入</td></tr>
+        <tr><td>拍照问答</td><td>GPT-4o, Gemini</td><td>豆包, 通义千问</td><td>通用知识覆盖</td></tr>
+        <tr><td>题目解析</td><td>GPT-4o</td><td>讯飞星火, 豆包</td><td>教育内容库</td></tr>
+      </table>
+
+      <h2>L5-L6：决策与工作流层 — PMF最清晰的战场</h2>
+      <div class="highlight-box green">
+        <div class="highlight-text"><strong>关键发现：</strong>「截图→办公文档」是当前工作流场景中PMF最清晰的方向，Kimi已验证。灵光可快速跟进，但需结合蚂蚁场景做差异化（截图→财务报表分析、保险合同摘要生成）。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>商业化进度</th></tr>
+        <tr><td>商品比价</td><td>Gemini（购物集成）</td><td>豆包（购买推荐）</td><td><span class="badge badge-a">已变现</span></td></tr>
+        <tr><td>截图→代码</td><td>Claude（最强）</td><td>Kimi K2.5</td><td><span class="badge badge-b">免费功能</span></td></tr>
+        <tr><td>图片→PPT/文档</td><td>—</td><td>Kimi Office Agent</td><td><span class="badge badge-b">免费功能</span></td></tr>
+        <tr><td>健康评估</td><td>—</td><td>百川（AI医生）</td><td><span class="badge badge-medium">探索中</span></td></tr>
+      </table>
+
+      <h2>L7-L8：Agent与实时层 — 增速最快的前沿</h2>
+      <div class="highlight-box red">
+        <div class="highlight-text"><strong>重要趋势：</strong>纯视觉GUI Agent正在引发「OS入口之争」。Claude Computer Use从&lt;15%飙升至72.5%（6个月5倍增长），豆包手机3万台秒光后被微信/美团/阿里集体封杀——威胁等级极高。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>成熟度</th></tr>
+        <tr><td>UI操控（Computer Use）</td><td>Claude（72.5%）</td><td>手机厂商GUI智能体</td><td><span class="badge badge-medium">预览阶段</span></td></tr>
+        <tr><td>跨应用执行</td><td>Claude Cowork/Dispatch</td><td>MiniMax Agent 2.0</td><td><span class="badge badge-medium">预览阶段</span></td></tr>
+        <tr><td>实时摄像头交互</td><td>Gemini Search Live</td><td>国内空白</td><td><span class="badge badge-high">早期</span></td></tr>
+        <tr><td>Agent集群并行</td><td>—</td><td>Kimi K2.5 Agent Swarm</td><td><span class="badge badge-medium">已上线</span></td></tr>
+      </table>
+
+      <div class="page-number">— 3 —</div>
+    </div>
+  </div>
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">04</div>
+      <div class="chapter-name">国内外竞品能力矩阵</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>全球竞品能力雷达图</h2>
+      <p>以下雷达图从八大能力域维度对比全球Top 5应用的综合能力（评分基于公开Benchmark + 产品功能覆盖度，10分制）：</p>
+
+      <div class="chart-container">
+        <div class="chart-title">全球Top 5应用八大能力域雷达图</div>
+        <div id="chart-radar" style="width:100%;height:450px;"></div>
+      </div>
+
+      <h2>国外应用详解</h2>
+
+      <h3>ChatGPT (OpenAI) — 六边形战士</h3>
+      <div class="insight-card">
+        <h4>GPT-4o / GPT-5</h4>
+        <p><strong>核心能力：</strong>OCR、图表解读、UI分析、截图→代码、文档解析，支持上传最多20个文件</p>
+        <p><strong>Agent能力：</strong>Operator/CUA整合进ChatGPT核心体验，OSWorld 32.6%</p>
+        <p><strong>差异化：</strong>综合最均衡，生态最完善（插件/GPTs/API），搜索+视觉联合能力强</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Claude (Anthropic) — Computer Use王者</h3>
+      <div class="insight-card">
+        <h4>Claude 4.x / Sonnet 4.6</h4>
+        <p><strong>核心能力：</strong>截图→代码、UI逆向工程、白板转录、竞品分析截图，API最多600张图片</p>
+        <p><strong>Agent能力：</strong>Computer Use OSWorld <strong>72.5%</strong>（全行业最高），Cowork跨设备协作，14.5小时任务跨度</p>
+        <p><strong>差异化：</strong>Computer Use遥遥领先（72.5% vs OpenAI 32.6%），代码生成质量业界公认最强</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Gemini (Google) — 搜索+视觉之王</h3>
+      <div class="insight-card">
+        <h4>Gemini 2.5 Pro / 3.x</h4>
+        <p><strong>核心能力：</strong>Google Lens深度集成、1M token上下文、Search Live实时摄像头、物体检测（bounding box）、AI Mode购物集成</p>
+        <p><strong>差异化：</strong>最强搜索+视觉联合（Google生态），实时摄像头交互最成熟，购物→购买闭环</p>
+        <p><strong>Benchmark：</strong>LMArena Rank 1（1452分），MMMU ~84.6%</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h2>国内应用详解</h2>
+
+      <h3>国内竞品能力分组对比</h3>
+      <div class="chart-container">
+        <div class="chart-title">国内Top 5应用核心能力对比</div>
+        <div id="chart-domestic" style="width:100%;height:400px;"></div>
+      </div>
+
+      <h3>豆包 (字节跳动) — C端陪伴之王</h3>
+      <div class="insight-card">
+        <h4>Seed系列</h4>
+        <p><strong>核心能力：</strong>深度思考+图片输入、以图搜图/搜文/搜图、地点识别、物体识别+购买推荐、AI穿搭助手</p>
+        <p><strong>Agent能力：</strong>手机端GUI智能体（字节系App串联），豆包手机3万台秒光</p>
+        <p><strong>差异化：</strong>日活最高的国产AI，视觉→购物闭环最成熟（字节电商生态）</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Kimi (月之暗面) — 工作流效率王</h3>
+      <div class="insight-card">
+        <h4>K2 / K2.5</h4>
+        <p><strong>核心能力：</strong>截图→代码/视频→代码、Office Agent图片→PPT/Word/Excel、Agent集群并行、可视化编程区域编辑</p>
+        <p><strong>差异化：</strong>截图→办公文档最强，长文本+多图联合理解，Agent集群并行执行</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>文心一言 (百度) — 文档理解之王</h3>
+      <div class="insight-card">
+        <h4>ERNIE 5.0</h4>
+        <p><strong>核心能力：</strong>2.4万亿参数原生全模态、OCRBench/DocVQA/ChartQA三项领先、深度搜索、视频理解→代码</p>
+        <p><strong>差异化：</strong>原生全模态技术路线（非后融合），文档/图表理解企业场景最强</p>
+        <p><strong>Benchmark：</strong>LMArena视觉理解榜中国第一（1226分），文本榜1460分中国第一</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>其他国内应用速览</h3>
+      <table class="data-table">
+        <tr><th>应用</th><th>核心定位</th><th>图片能力特色</th><th>置信度</th></tr>
+        <tr><td>通义千问</td><td>阿里生态全能</td><td>视频理解、自动点餐、阿里生态闭环</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>百川智能</td><td>医疗AI All-in</td><td>HealthBench全球第一(65.1)，4K分辨率医疗图片</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>MiniMax</td><td>Agent+全球化</td><td>Agent 2.0本地工作空间，M2.5编程能力突出</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>智谱清言</td><td>数据分析</td><td>工具调用出图表，GLM-OCR OmniDocBench登顶</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>讯飞星火</td><td>教育垂直</td><td>题目解析、作业批改、语音+视觉</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>腾讯元宝</td><td>社交场景</td><td>微信/QQ全场景集成</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>DeepSeek</td><td>开源/推理</td><td>图片理解非重点，编程最强</td><td><span class="badge badge-b">B级</span></td></tr>
+      </table>
+
+      <h2>竞争定位：生态深度 vs Agent能力</h2>
+      <div class="chart-container">
+        <div class="chart-title">竞品定位散点图：生态闭环深度 × Agent/行动能力</div>
+        <div id="chart-scatter" style="width:100%;height:400px;"></div>
+      </div>
+
+      <div class="page-number">— 4 —</div>
+    </div>
+  </div>
+
+<script>
+// 能力域价值阶梯图
+var c1 = echarts.init(document.getElementById('chart-value-ladder'));
+c1.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: '15%', right: '10%', top: '8%', bottom: '10%' },
+  xAxis: { type: 'value', name: '行业竞争激烈度', nameLocation: 'middle', nameGap: 30 },
+  yAxis: { type: 'category', data: ['L1 感知提取','L2 分析推理','L3 视觉搜索','L4 知识增强','L5 决策辅助','L6 工作流自动化','L7 Agent行动','L8 实时交互'], axisLabel: { fontSize: 12 } },
+  series: [
+    { name: '成熟度', type: 'bar', data: [90,75,70,72,55,50,30,15], itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#8FA3B0'},{offset:1,color:'#6B6B67'}]) } },
+    { name: '增长潜力', type: 'bar', data: [20,40,35,30,65,70,90,95], itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#C9A98B'},{offset:1,color:'#B08968'}]) } }
+  ]
+});
+
+// 全球Top5雷达图
+var c2 = echarts.init(document.getElementById('chart-radar'));
+c2.setOption({
+  tooltip: {},
+  legend: { data: ['ChatGPT','Claude','Gemini','豆包','Kimi'], bottom: 0 },
+  radar: {
+    indicator: [
+      {name: '感知提取', max: 10},
+      {name: '分析推理', max: 10},
+      {name: '视觉搜索', max: 10},
+      {name: '知识增强', max: 10},
+      {name: '决策辅助', max: 10},
+      {name: '工作流', max: 10},
+      {name: 'Agent行动', max: 10},
+      {name: '实时交互', max: 10}
+    ],
+    radius: '60%'
+  },
+  series: [{
+    type: 'radar',
+    data: [
+      { value: [9,9,8,9,7,8,6,5], name: 'ChatGPT', lineStyle: {color: '#7D9D8C'} },
+      { value: [8,9,5,7,5,9,10,4], name: 'Claude', lineStyle: {color: '#8FA3B0'} },
+      { value: [9,8,10,9,8,6,5,9], name: 'Gemini', lineStyle: {color: '#C4A882'} },
+      { value: [8,7,8,8,7,5,6,6], name: '豆包', lineStyle: {color: '#B5838D'} },
+      { value: [7,8,5,7,5,9,7,3], name: 'Kimi', lineStyle: {color: '#9B8EB0'} }
+    ]
+  }]
+});
+
+// 国内Top5分组柱状图
+var c3 = echarts.init(document.getElementById('chart-domestic'));
+c3.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['感知/分析','搜索/知识','决策/工作流','Agent/实时'], bottom: 0 },
+  grid: { left: '8%', right: '5%', bottom: '15%', top: '8%' },
+  xAxis: { type: 'category', data: ['豆包','Kimi','文心一言','通义千问','百川'] },
+  yAxis: { type: 'value', max: 10 },
+  series: [
+    { name: '感知/分析', type: 'bar', data: [7.5,7.5,9,8,7], itemStyle: {color: '#8FA3B0'} },
+    { name: '搜索/知识', type: 'bar', data: [8,6,6.5,7.5,4], itemStyle: {color: '#7D9D8C'} },
+    { name: '决策/工作流', type: 'bar', data: [6,9,5.5,6,5], itemStyle: {color: '#C4A882'} },
+    { name: 'Agent/实时', type: 'bar', data: [6,5,4,4.5,3], itemStyle: {color: '#B5838D'} }
+  ]
+});
+
+// 竞品定位散点图
+var c4 = echarts.init(document.getElementById('chart-scatter'));
+c4.setOption({
+  tooltip: { trigger: 'item', formatter: function(p){ return p.data[3] + '<br>生态闭环: ' + p.data[0] + '<br>Agent能力: ' + p.data[1]; } },
+  grid: { left: '12%', right: '15%', bottom: '15%', top: '10%' },
+  xAxis: { name: '生态闭环深度', nameLocation: 'middle', nameGap: 35, min: 0, max: 10 },
+  yAxis: { name: 'Agent/行动能力', nameLocation: 'middle', nameGap: 40, min: 0, max: 10 },
+  series: [{
+    type: 'scatter',
+    symbolSize: function(val){ return val[2] * 4; },
+    data: [
+      [8, 6, 12, 'ChatGPT'],
+      [4, 10, 10, 'Claude'],
+      [9, 5, 14, 'Gemini'],
+      [9, 6, 15, '豆包'],
+      [5, 7, 10, 'Kimi'],
+      [7, 4, 11, '文心一言'],
+      [8, 4, 12, '通义千问'],
+      [3, 3, 8, 'MiniMax'],
+      [2, 2, 6, '百川'],
+      [3, 2, 6, 'DeepSeek'],
+      [9, 3, 10, '腾讯元宝'],
+      [6, 2, 5, '灵光(当前)']
+    ],
+    label: { show: true, formatter: function(p){ return p.data[3]; }, position: 'right', fontSize: 11 },
+    itemStyle: { color: function(p){ var n=p.data[3]; if(n.indexOf('灵光')>=0) return '#B08968'; if(['ChatGPT','Claude','Gemini'].indexOf(n)>=0) return '#8FA3B0'; return '#7D9D8C'; } }
+  }]
+});
+
+// 响应式
+window.addEventListener('resize', function(){
+  c1.resize(); c2.resize(); c3.resize(); c4.resize();
+});
+</script>
+
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">05</div>
+      <div class="chapter-name">行业趋势：Agent与实时交互前沿</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>多模态市场格局</h2>
+      <p>截至2025年11月，8大主流厂商旗下大模型中，单模态仍占61.4%，多模态占36.7%，全模态仅1.9%。但趋势明确——百川、阿里、百度已进入全模态布局，字节抖音集团多模态占比高达68.4%。</p>
+
+      <div class="stats-grid stats-grid-3">
+        <div class="stat-card">
+          <div class="stat-icon blue">🤖</div>
+          <div class="stat-value">61.4%</div>
+          <div class="stat-label">单模态模型占比</div>
+          <div class="stat-trend down">持续下降</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon purple">🔮</div>
+          <div class="stat-value">36.7%</div>
+          <div class="stat-label">多模态模型占比</div>
+          <div class="stat-trend up">快速增长</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon green">🌐</div>
+          <div class="stat-value">1.9%</div>
+          <div class="stat-label">全模态模型占比</div>
+          <div class="stat-trend up">刚刚起步</div>
+        </div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">模态分布与厂商多模态占比</div>
+        <div id="chart-modality" style="width:100%;height:350px;"></div>
+      </div>
+
+      <h2>Agent能力爆发式增长</h2>
+      <div class="highlight-box red">
+        <div class="highlight-text"><strong>最关键数据：</strong>Claude Computer Use的OSWorld得分在6个月内从&lt;15%飙升至72.5%，增幅接近5倍。这不是线性进步，是非线性跃迁。</div>
+      </div>
+
+      <div class="chart-container">
+        <div class="chart-title">OSWorld基准得分对比（Computer Use能力）</div>
+        <div id="chart-osworld" style="width:100%;height:350px;"></div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>公司</th><th>Agent产品</th><th>核心能力</th><th>状态</th></tr>
+        <tr><td>Anthropic</td><td>Claude Computer Use / Cowork</td><td>打开文件/浏览器/开发工具，跨设备</td><td><span class="badge badge-medium">研究预览</span></td></tr>
+        <tr><td>OpenAI</td><td>Operator → ChatGPT Agent Mode</td><td>浏览器自动化，表单填写</td><td><span class="badge badge-a">已整合</span></td></tr>
+        <tr><td>Google</td><td>Project Mariner</td><td>浏览器Agent</td><td><span class="badge badge-medium">开发中</span></td></tr>
+        <tr><td>月之暗面</td><td>Kimi Agent集群</td><td>100个分身并行执行</td><td><span class="badge badge-a">已上线</span></td></tr>
+        <tr><td>字节跳动</td><td>豆包GUI智能体</td><td>手机端跨App操作</td><td><span class="badge badge-medium">逐步上线</span></td></tr>
+        <tr><td>MiniMax</td><td>Agent 2.0 / MaxClaw</td><td>本地工作空间，开箱即用</td><td><span class="badge badge-a">已上线</span></td></tr>
+      </table>
+
+      <h2>实时视觉交互：确定蓝海，窗口紧迫</h2>
+      <p>全球仅Gemini Search Live实现较成熟的实时摄像头交互，Grok有摄像头分析但仍较初级，<strong>国内零成熟产品</strong>。这是一个明确的蓝海机会，但蓝队指出字节有视频理解积累，竞品跟进周期约<strong>6-9个月</strong>。</p>
+
+      <div class="highlight-box yellow">
+        <div class="highlight-text"><strong>窗口期警示：</strong>如果灵光把实时视觉交互放到2026 H2才启动，可能已经晚了。建议H1立即启动预研。</div>
+      </div>
+
+      <h2>投融资信号</h2>
+      <p>2025年7-11月AIGC产业186起投融资，总额336.7亿元（+20.8%），下游应用层接近50%。资本正在从中游模型层（大厂主导）向下游应用层迁移，这意味着<strong>应用层差异化有窗口期</strong>。</p>
+
+      <div class="page-number">— 5 —</div>
+    </div>
+  </div>
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">06</div>
+      <div class="chapter-name">核心洞察与战略建议</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>三大核心洞察（Tier 1, 18-20分）</h2>
+
+      <div class="insight-card">
+        <span class="tag tag-p0">P0 核心洞察</span>
+        <h4>洞察1：双轨路线 — 感知变现 + 行动探索</h4>
+        <p><strong>现象：</strong>Agent/工作流自动化是增速最快的图片能力域（Claude 5倍增长、豆包手机秒光）</p>
+        <p><strong>含义：</strong>行业价值重心从「理解图片」向「图片触发行动」迁移</p>
+        <p><strong>但是：</strong>行动层商业化路径全球未验证，感知层已有成熟变现模型（扫描全能王/Mathpix已盈利）</p>
+        <p><strong>行动：</strong>灵光应「感知变现（OCR/文档/图表）养活团队 + 行动探索（Agent/工作流）布局未来」，资源配比70:30</p>
+        <p><strong>红队修正：</strong>原建议「优先投资行动」过于激进。怀疑派投资人指出「增速最快≠商业化最快」，修正为双轨制</p>
+      </div>
+
+      <div class="insight-card">
+        <span class="tag tag-p0">P0 核心洞察</span>
+        <h4>洞察2：垂直锚点 — 拍照看懂金融</h4>
+        <p><strong>现象：</strong>垂直深耕策略已被验证（百川医疗HealthBench全球第一，讯飞教育），通用追赶不如垂直突破</p>
+        <p><strong>定位：</strong>「金融信息翻译器」而非「金融顾问」— 帮用户看懂保险条款、拆解理财产品参数、对比收益说明书</p>
+        <p><strong>红线：</strong>产品绝不输出「推荐/建议」，只做信息整理+对比展示。监管者指出「A比B好」即构成投资建议，需持牌</p>
+        <p><strong>首个场景：</strong>理财产品对比 — 用户截图/拍照理财产品页面→AI抽取收益率、风险等级、期限、起购金额→结构化并列展示</p>
+        <p><strong>准确率警示：</strong>模型在金融文档上准确率约92-95%，剩余5-8%在金融场景是灾难级。初期必须「AI+人工确认」混合模式</p>
+      </div>
+
+      <div class="insight-card">
+        <span class="tag tag-p0">P0 核心洞察</span>
+        <h4>洞察3：独立Agent产品路线</h4>
+        <p><strong>现象：</strong>纯视觉GUI Agent正引发「OS入口之争」，豆包手机被微信/美团/阿里集体封杀说明威胁等级极高</p>
+        <p><strong>战略：</strong>灵光作为独立Agent产品自主发展，不依赖支付宝BU授权。以图片输入为核心交互入口</p>
+        <p><strong>路径：</strong>蚂蚁系能力以API形式接入而非依赖BU嵌入，绕开组织协调瓶颈</p>
+        <p><strong>天花板：</strong>独立路线受限于灵光自身DAU（295万周活），需Agent体验本身驱动增长</p>
+      </div>
+
+      <h2>四大次要洞察（Tier 2, 16-17分）</h2>
+
+      <div class="stats-grid stats-grid-2">
+        <div class="stat-card" style="text-align:left;padding:20px;">
+          <span class="tag tag-p1">Tier 2</span>
+          <h4 style="margin:8px 0;">洞察4：生态闭环路线已跑通</h4>
+          <p style="font-size:12px;">图片→生态→交易是PMF最清晰路径（豆包→字节电商、通义千问→阿里全生态）。灵光的蚂蚁金融生态是闭环基础。</p>
+        </div>
+        <div class="stat-card" style="text-align:left;padding:20px;">
+          <span class="tag tag-p1">Tier 2</span>
+          <h4 style="margin:8px 0;">洞察5：实时视觉是蓝海但窗口紧迫</h4>
+          <p style="font-size:12px;">国内零成熟产品，先到者定义品类。但竞品跟进6-9个月，H2才启动可能已经晚了。</p>
+        </div>
+        <div class="stat-card" style="text-align:left;padding:20px;">
+          <span class="tag tag-p1">Tier 2</span>
+          <h4 style="margin:8px 0;">洞察6：感知层仍有差异化空间</h4>
+          <p style="font-size:12px;">OCR/文档理解仍有显著差距（Qwen OCRBench 920+ vs 其他&lt;860），是短期变现主力。</p>
+        </div>
+        <div class="stat-card" style="text-align:left;padding:20px;">
+          <span class="tag tag-p1">Tier 2</span>
+          <h4 style="margin:8px 0;">洞察7：截图→办公文档PMF最清晰</h4>
+          <p style="font-size:12px;">Kimi已验证，灵光可快速跟进。差异化结合蚂蚁场景（截图→财务报表分析、保险合同摘要）。</p>
+        </div>
+      </div>
+
+      <h2>四大战略建议（SMART格式）</h2>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">B1</div>
+        <div>
+          <div class="strategy-title">双轨制：感知变现 + 行动探索</div>
+          <div class="strategy-desc">
+            <strong>动作：</strong>H1上线3个感知类图片功能（文档摘要/图表解读/OCR增强），同步启动Agent原型<br>
+            <strong>指标：</strong>感知功能DAU渗透率≥15%，Agent原型完成内部Demo<br>
+            <strong>时限：</strong>2026 Q3前感知上线，Q4 Agent原型内测<br>
+            <strong>资源：</strong>感知3人×3月，Agent 5人×6月预研，资源配比70:30
+          </div>
+        </div>
+      </div>
+
+      <div class="strategy-card green">
+        <div class="strategy-num">B2</div>
+        <div>
+          <div class="strategy-title">垂直锚点：拍照看懂金融</div>
+          <div class="strategy-desc">
+            <strong>动作：</strong>「理财产品对比」作为标杆场景——截图→AI抽取参数→结构化并列展示（不输出推荐）<br>
+            <strong>指标：</strong>月使用次数≥50万，NPS≥40<br>
+            <strong>时限：</strong>Q3法务合规评审，Q4上线MVP<br>
+            <strong>致命风险：</strong>金融监管→必须法务前置，措辞绝不用「推荐/建议」
+          </div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">B3</div>
+        <div>
+          <div class="strategy-title">独立Agent：灵光自主发展</div>
+          <div class="strategy-desc">
+            <strong>动作：</strong>灵光定位为独立Agent产品，图片输入为核心交互入口，蚂蚁系能力API接入<br>
+            <strong>指标：</strong>Agent模式DAU渗透率≥10%，任务完成率≥80%，7日留存≥30%<br>
+            <strong>时限：</strong>Q4上线Agent v1，2027 Q2迭代v2<br>
+            <strong>资源：</strong>5-8人Agent专项团队
+          </div>
+        </div>
+      </div>
+
+      <div class="strategy-card red">
+        <div class="strategy-num">B4</div>
+        <div>
+          <div class="strategy-title">实时视觉交互预研提前</div>
+          <div class="strategy-desc">
+            <strong>动作：</strong>将实时摄像头交互从H2提前到H1启动预研<br>
+            <strong>指标：</strong>完成技术可行性报告+1个Demo场景<br>
+            <strong>时限：</strong>2026 Q3前完成预研<br>
+            <strong>资源：</strong>2人×3月
+          </div>
+        </div>
+      </div>
+
+      <div class="page-number">— 6 —</div>
+    </div>
+  </div>
+
+<script>
+// 模态分布饼图 + 厂商多模态占比柱状图
+var cm = document.getElementById('chart-modality');
+var c5 = echarts.init(cm);
+c5.setOption({
+  tooltip: { trigger: 'item' },
+  legend: { bottom: 0 },
+  series: [
+    {
+      name: '模态分布',
+      type: 'pie',
+      radius: ['35%','55%'],
+      center: ['30%','45%'],
+      data: [
+        {value: 61.4, name: '单模态', itemStyle: {color: '#A8A8A3'} },
+        {value: 36.7, name: '多模态', itemStyle: {color: '#8FA3B0'} },
+        {value: 1.9, name: '全模态', itemStyle: {color: '#B08968'} }
+      ],
+      label: { formatter: '{b}\n{d}%' }
+    },
+    {
+      name: '多模态占比',
+      type: 'bar',
+      data: [68.4, 47.1, 45.5, 40, 36.7],
+      xAxisIndex: 1,
+      yAxisIndex: 1,
+      itemStyle: { color: new echarts.graphic.LinearGradient(0,0,0,1,[{offset:0,color:'#8FA3B0'},{offset:1,color:'#6B6B67'}]) },
+      barWidth: '50%'
+    }
+  ],
+  grid: [{ left: '60%', right: '5%', top: '10%', bottom: '20%' }],
+  xAxis: [{show:false}, { type: 'category', data: ['抖音','智谱','月之暗面','阿里','百度'], gridIndex: 0, axisLabel: {fontSize:11} }],
+  yAxis: [{show:false}, { type: 'value', gridIndex: 0, name: '多模态占比%', max: 80 }]
+});
+
+// OSWorld柱状图
+var c6 = echarts.init(document.getElementById('chart-osworld'));
+c6.setOption({
+  tooltip: { trigger: 'axis' },
+  grid: { left: '10%', right: '5%', top: '10%', bottom: '15%' },
+  xAxis: { type: 'category', data: ['Claude\n(早期 2025)','OpenAI\nOperator','Claude\n(2026.02)','Coasty\n(参考)'] },
+  yAxis: { type: 'value', name: 'OSWorld得分 (%)', max: 100 },
+  series: [{
+    type: 'bar',
+    data: [15, 32.6, 72.5, 82],
+    barWidth: '45%',
+    itemStyle: {
+      color: function(p){
+        var colors = ['#94A3B8','#C4A882','#8FA3B0','#7D9D8C'];
+        return colors[p.dataIndex];
+      },
+      borderRadius: [6,6,0,0]
+    },
+    label: { show: true, position: 'top', formatter: '{c}%', fontWeight: 'bold' }
+  }]
+});
+
+window.addEventListener('resize', function(){ c5.resize(); c6.resize(); });
+</script>
+
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">07</div>
+      <div class="chapter-name">风险评估与应对预案</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>关键变量监测清单</h2>
+      <table class="data-table">
+        <tr><th>变量</th><th>当前状态</th><th>影响力</th><th>触发条件</th><th>应对预案</th></tr>
+        <tr>
+          <td><strong>金融AI监管政策</strong></td>
+          <td>灰色地带</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>证监会/银保监出台AI金融建议专项规定</td>
+          <td>B2方向大幅收窄或转向非金融垂直</td>
+        </tr>
+        <tr>
+          <td><strong>蚂蚁内部BU配合度</strong></td>
+          <td>未知</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>花呗/蚂蚁保拒绝数据接口</td>
+          <td>灵光独立做通用图片能力</td>
+        </tr>
+        <tr>
+          <td><strong>竞品实时视觉进展</strong></td>
+          <td>国内空白</td>
+          <td><span class="badge badge-medium">4/5</span></td>
+          <td>豆包/百度上线实时摄像头交互</td>
+          <td>B4从预研加速到产品化</td>
+        </tr>
+        <tr>
+          <td><strong>多模态金融准确率</strong></td>
+          <td>~92-95%</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>提升至≥99%（金融可用门槛）</td>
+          <td>达标前只做「展示」不做「行动」</td>
+        </tr>
+        <tr>
+          <td><strong>OS级Agent监管</strong></td>
+          <td>工信部研究中</td>
+          <td><span class="badge badge-medium">4/5</span></td>
+          <td>出台AI Agent权限限制法规</td>
+          <td>B3收缩到蚂蚁系内</td>
+        </tr>
+        <tr>
+          <td><strong>灵光图片功能使用数据</strong></td>
+          <td>未拉取</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>拉取埋点后发现真实需求与假设不符</td>
+          <td>根据数据重排优先级</td>
+        </tr>
+      </table>
+
+      <h2>红队审查要点</h2>
+      <div class="highlight-box red">
+        <div class="highlight-text"><strong>致命挑战（洞察2）：</strong>监管者指出「理财对比」输出「A比B好」即构成投资建议，需持牌。产品绝不输出推荐/建议，只做信息整理+对比展示；每个金融场景上线前必过合规评审。</div>
+      </div>
+
+      <h3>核心修正记录</h3>
+      <table class="data-table">
+        <tr><th>洞察</th><th>原建议</th><th>修正后</th><th>修正原因</th></tr>
+        <tr><td>洞察1</td><td>优先投资行动而非感知</td><td>感知变现+行动探索双轨制</td><td>投资人：增速≠变现</td></tr>
+        <tr><td>洞察2</td><td>拍照→金融决策辅助</td><td>金融信息翻译器，不做推荐</td><td>监管致命挑战</td></tr>
+        <tr><td>洞察2</td><td>含商品比价功能</td><td>删除商品比价</td><td>蚂蚁无电商数据主权</td></tr>
+        <tr><td>洞察3</td><td>支付宝单一BU试点</td><td>灵光独立Agent产品</td><td>用户反馈太保守</td></tr>
+      </table>
+
+      <h2>反直觉发现</h2>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">!</div>
+        <div>
+          <div class="strategy-title">「被封杀」不等于「方向被验证」</div>
+          <div class="strategy-desc">共识认为豆包手机被巨头封杀 = GUI Agent方向正确。但被封杀也可能仅出于安全/隐私的合理顾虑（快播也被封杀了）。需要正向数据（留存、付费、效率提升）才能验证。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">!</div>
+        <div>
+          <div class="strategy-title">蚂蚁金融生态可能是「资产」也可能是「枷锁」</div>
+          <div class="strategy-desc">金融监管对蚂蚁格外敏感（2020年事件余波），同样的功能别人做可能过审，蚂蚁做可能被卡。「生态优势」和「监管包袱」是同一枚硬币的两面。B2必须按最严监管预期设计。</div>
+        </div>
+      </div>
+
+      <h2>蓝队识别的高影响盲区</h2>
+      <table class="data-table">
+        <tr><th>#</th><th>盲区</th><th>影响</th><th>处理</th></tr>
+        <tr><td>1</td><td>金融监管对AI图片能力态度未分析</td><td><span class="badge badge-high">高</span></td><td>B2前置法务评审</td></tr>
+        <tr><td>2</td><td>蚂蚁内部BU配合意愿未知</td><td><span class="badge badge-high">高</span></td><td>B3改为独立路线</td></tr>
+        <tr><td>4</td><td>实时视觉窗口期被高估</td><td><span class="badge badge-high">高</span></td><td>B4预研提前到H1</td></tr>
+        <tr><td>7</td><td>灵光自身图片功能使用数据缺失</td><td><span class="badge badge-high">高</span></td><td>优先拉取埋点数据</td></tr>
+        <tr><td>9</td><td>模型准确率92-95%在金融场景不可用</td><td><span class="badge badge-high">高</span></td><td>AI+人工确认混合模式</td></tr>
+        <tr><td>11</td><td>灵光做强后可能蚕食支付宝主App流量</td><td><span class="badge badge-high">高</span></td><td>提前设计功能分界线</td></tr>
+        <tr><td>12</td><td>用户上传敏感金融信息隐私风险</td><td><span class="badge badge-high">高</span></td><td>端侧处理优先+审计追踪</td></tr>
+      </table>
+
+      <div class="page-number">— 7 —</div>
+    </div>
+  </div>
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">08</div>
+      <div class="chapter-name">研究局限与后续方向</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>已知局限</h2>
+
+      <div class="strategy-card red">
+        <div class="strategy-num">1</div>
+        <div>
+          <div class="strategy-title">内部数据缺失</div>
+          <div class="strategy-desc">灵光自身图片功能的使用数据（渗透率、场景分布、完成率、满意度）是最关键的缺失。外部对标只是参考，自家数据才是决策基础。<strong>建议优先拉取。</strong></div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">2</div>
+        <div>
+          <div class="strategy-title">失败案例缺失</div>
+          <div class="strategy-desc">只覆盖了存活的头部产品，未分析拍立淘下线、Google Lens品类局限等失败样本。幸存者偏差可能导致对市场机会过于乐观。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">3</div>
+        <div>
+          <div class="strategy-title">用户分层缺失</div>
+          <div class="strategy-desc">295万周活的用户画像和需求差异未做分层分析。一二线用户vs下沉用户的图片需求差异可能很大。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">4</div>
+        <div>
+          <div class="strategy-title">开发者生态缺失</div>
+          <div class="strategy-desc">各家图片API开放程度和三方插件生态未覆盖。如果灵光走开放平台路线，这部分分析不可或缺。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">5</div>
+        <div>
+          <div class="strategy-title">竞品反应推演缺失</div>
+          <div class="strategy-desc">未模拟竞品看到灵光动作后的反应路径。豆包/Kimi可能做「跳转聚合」反而更灵活。</div>
+        </div>
+      </div>
+
+      <h2>建议后续研究方向</h2>
+      <table class="data-table">
+        <tr><th>优先级</th><th>方向</th><th>预期产出</th><th>建议时间</th></tr>
+        <tr>
+          <td><span class="badge badge-high">P0</span></td>
+          <td>拉取灵光图片功能埋点数据</td>
+          <td>用户真实需求图谱，验证/推翻假设</td>
+          <td>立即</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-high">P0</span></td>
+          <td>金融信息翻译法务合规评审</td>
+          <td>可行/不可行的明确结论+边界定义</td>
+          <td>2026 Q2</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-medium">P1</span></td>
+          <td>灵光OCR/文档能力竞品测评</td>
+          <td>灵光 vs Kimi/文心/通义的量化差距</td>
+          <td>2026 Q2</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-medium">P1</span></td>
+          <td>用户分层与需求差异分析</td>
+          <td>不同用户群体的图片需求优先级</td>
+          <td>2026 Q2-Q3</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-low">P2</span></td>
+          <td>竞品反应推演</td>
+          <td>博弈论视角的竞争策略调整</td>
+          <td>2026 Q3</td>
+        </tr>
+      </table>
+
+      <h2>数据源质量评估</h2>
+      <div class="stats-grid stats-grid-2">
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-value green">A/B级</div>
+          <div class="stat-label">ChatGPT / Claude / Gemini / 豆包 / Kimi / 文心一言 / MiniMax / 百川</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-value red">B/C级</div>
+          <div class="stat-label">智谱清言 / 讯飞星火 / 腾讯元宝 / DeepSeek（数据较薄）</div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <div class="highlight-text"><strong>研究方法说明：</strong>本报告基于4轮定向搜索（覆盖智谱/文心/百川/MiniMax/Benchmark/Agent前沿）+ evidence_base.md 交叉验证。核心数据均为A/B级置信度。研究采用假设驱动方法，5个核心假设经红蓝队双重审查。</div>
+      </div>
+
+      <div class="page-number">— 8 —</div>
+    </div>
+  </div>
+
+  <div class="page footer-page">
+    <div class="footer-content">
+      <div class="footer-icon">📋</div>
+      <div class="footer-title">AGI应用图片输入能力全景与战略规划</div>
+      <div class="footer-divider"></div>
+      <div class="footer-text">本报告由 Alpha Insights-BizAdvisor 生成</div>
+      <div class="footer-text">内部参考 · 请勿外传</div>
+      <div class="footer-date">2026年4月7日</div>
+    </div>
+  </div>
+
+  <div class="no-print">
+    <button class="print-btn" onclick="window.print()">打印 / 导出 PDF</button>
+  </div>
+
+</body>
+</html>

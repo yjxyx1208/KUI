@@ -1,0 +1,1245 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>AGI相机产品竞品专题简报 — Alpha Insights</title>
+<style>
+    :root {
+      --color-primary: #5E524A;
+      --color-secondary: #7D6E5E;
+      --color-accent: #9C8572;
+      --color-highlight: #A68B6E;
+      --color-success: #7A9176;
+      --color-danger: #B07872;
+      --color-warning: #B8A078;
+      --text-primary: #37332F;
+      --text-secondary: #84796E;
+      --bg-light: #F9F8F6;
+      --bg-card: #FFFFFF;
+      --border-color: #E6E3DE;
+      --page-bg: #F3F1EE;
+      --chart-bg: #F9F8F6;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    html {
+      font-size: 14px;
+      -webkit-print-color-adjust: exact !important;
+      print-color-adjust: exact !important;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, "STKaiti", "华文楷体", sans-serif;
+      line-height: 1.6;
+      color: var(--text-primary);
+      background: var(--page-bg);
+      min-height: 100vh;
+    }
+
+    /* ===== 页面容器 ===== */
+    .page {
+      max-width: 900px;
+      margin: 0 auto 20px;
+      background: var(--page-bg);
+      box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+    }
+
+    /* ===== 封面页 ===== */
+    .cover-page {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #3A3632 0%, #5E524A 50%, #7D6E5E 100%);
+      color: white;
+      position: relative;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      padding: 0;
+      overflow: hidden;
+    }
+
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image:
+        radial-gradient(ellipse at 30% 50%, rgba(156,133,114,0.08) 0%, transparent 60%),
+        radial-gradient(circle at 70% 80%, rgba(255,255,255,0.05) 0%, transparent 40%);
+      pointer-events: none;
+    }
+
+    .cover-left {
+      flex: 0 0 35%;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-number {
+      font-size: 280px;
+      font-weight: 800;
+      color: rgba(255,255,255,0.08);
+      line-height: 1;
+      letter-spacing: -10px;
+      position: absolute;
+      left: -30px;
+    }
+
+    .cover-right {
+      flex: 1;
+      padding: 60px 80px 60px 40px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .cover-badge {
+      display: inline-block;
+      background: rgba(255,255,255,0.1);
+      backdrop-filter: blur(10px);
+      padding: 10px 24px;
+      border-radius: 20px;
+      font-size: 12px;
+      letter-spacing: 2px;
+      margin-bottom: 40px;
+      border: 1px solid rgba(255,255,255,0.15);
+      text-transform: uppercase;
+    }
+
+    .cover-title {
+      font-size: 48px;
+      font-weight: 700;
+      letter-spacing: 6px;
+      margin-bottom: 20px;
+      line-height: 1.3;
+    }
+
+    .cover-subtitle {
+      font-size: 24px;
+      opacity: 0.9;
+      margin-bottom: 50px;
+      letter-spacing: 2px;
+      font-weight: 400;
+    }
+
+    .cover-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #9C8572 0%, #B8A078 100%);
+      border-radius: 2px;
+      margin-bottom: 40px;
+    }
+
+    .cover-meta {
+      font-size: 18px;
+      opacity: 0.85;
+      letter-spacing: 2px;
+    }
+
+    .cover-date {
+      font-size: 18px;
+      opacity: 0.75;
+      letter-spacing: 2px;
+      margin-top: 15px;
+    }
+
+    .cover-footer {
+      position: absolute;
+      bottom: 40px;
+      left: 80px;
+      right: 80px;
+      padding-top: 20px;
+      border-top: 1px solid rgba(255,255,255,0.15);
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      opacity: 0.6;
+      letter-spacing: 1px;
+    }
+
+    /* ===== 目录页 ===== */
+    .toc-page {
+      padding: 80px;
+      min-height: 100vh;
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--page-bg) 100%);
+    }
+
+    .toc-header {
+      margin-bottom: 50px;
+      padding-bottom: 20px;
+      border-bottom: 3px solid var(--color-primary);
+    }
+
+    .toc-title {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      letter-spacing: 8px;
+    }
+
+    .toc-item {
+      display: flex;
+      padding: 18px 0;
+      border-bottom: 1px dashed var(--border-color);
+      align-items: center;
+    }
+
+    .toc-number {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #5E524A 0%, #7D6E5E 100%);
+      color: white;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      margin-right: 25px;
+      box-shadow: 0 4px 12px rgba(94,82,74,0.2);
+    }
+
+    .toc-text {
+      flex: 1;
+      font-size: 16px;
+      font-weight: 500;
+    }
+
+    .toc-page-num {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .toc-conclusion {
+      background: linear-gradient(135deg, #F9F7F5 0%, #FFF 100%);
+      border-left: 4px solid var(--color-highlight);
+      padding: 25px 30px;
+      border-radius: 0 8px 8px 0;
+      margin-top: 40px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .toc-conclusion-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--color-highlight);
+      margin-bottom: 12px;
+    }
+
+    /* ===== 章节页 ===== */
+    .chapter-section { background: var(--page-bg); }
+
+    .chapter-header {
+      background: linear-gradient(135deg, #5E524A 0%, #7D6E5E 100%);
+      color: white;
+      padding: 40px 50px;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .chapter-header::after {
+      content: '';
+      position: absolute;
+      right: 0; top: 0; bottom: 0;
+      width: 200px;
+      background: linear-gradient(90deg, transparent 0%, rgba(255,255,255,0.05) 100%);
+    }
+
+    .chapter-num {
+      font-size: 60px;
+      font-weight: 700;
+      opacity: 0.3;
+      margin-right: 25px;
+    }
+
+    .chapter-name {
+      font-size: 26px;
+      font-weight: 600;
+      letter-spacing: 2px;
+    }
+
+    .chapter-body {
+      padding: 40px 50px;
+      background: linear-gradient(180deg, #FFFFFF 0%, var(--page-bg) 100%);
+    }
+
+    /* ===== 正文排版 ===== */
+    h2 {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--color-primary);
+      margin: 30px 0 15px;
+      padding-left: 15px;
+      border-left: 4px solid var(--color-accent);
+    }
+
+    h3 {
+      font-size: 15px;
+      font-weight: 600;
+      margin: 20px 0 12px;
+      color: var(--text-primary);
+    }
+
+    h4 {
+      font-size: 14px;
+      font-weight: 600;
+      margin: 16px 0 8px;
+      color: var(--text-primary);
+    }
+
+    p {
+      margin-bottom: 12px;
+      color: var(--text-secondary);
+      text-align: justify;
+    }
+
+    ul, ol {
+      margin: 12px 0 12px 24px;
+    }
+
+    li {
+      margin-bottom: 6px;
+      color: var(--text-secondary);
+    }
+
+    strong { color: var(--text-primary); }
+
+    /* ===== 高亮框 ===== */
+    .highlight-box {
+      background: linear-gradient(135deg, #F7F5F2 0%, #FEFEFE 100%);
+      border-left: 4px solid var(--color-accent);
+      padding: 20px 25px;
+      border-radius: 0 8px 8px 0;
+      margin: 20px 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .highlight-box.yellow {
+      background: linear-gradient(135deg, #FFFBEB 0%, #FFF 100%);
+      border-left-color: #F59E0B;
+    }
+
+    .highlight-box.red {
+      background: linear-gradient(135deg, #FEF2F2 0%, #FFF 100%);
+      border-left-color: var(--color-highlight);
+    }
+
+    .highlight-box.green {
+      background: linear-gradient(135deg, #F0FDF4 0%, #FFF 100%);
+      border-left-color: var(--color-success);
+    }
+
+    .highlight-text {
+      font-size: 14px;
+      color: var(--text-primary);
+    }
+
+    /* ===== 数据卡片网格 ===== */
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin: 25px 0;
+    }
+
+    .stats-grid-3 { grid-template-columns: repeat(3, 1fr); }
+    .stats-grid-2 { grid-template-columns: repeat(2, 1fr); }
+
+    .stat-card {
+      background: linear-gradient(180deg, #FFFFFF 0%, #FAFBFC 100%);
+      border-radius: 12px;
+      padding: 24px 16px;
+      text-align: center;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.04);
+      border: 1px solid var(--border-color);
+      transition: transform 0.2s, box-shadow 0.2s;
+    }
+
+    .stat-card:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.1);
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 12px;
+      font-size: 24px;
+    }
+
+    .stat-icon.red { background: linear-gradient(135deg, #FEE2E2 0%, #FECACA 100%); }
+    .stat-icon.green { background: linear-gradient(135deg, #D1FAE5 0%, #A7F3D0 100%); }
+    .stat-icon.purple { background: linear-gradient(135deg, #E0E7FF 0%, #C7D2FE 100%); }
+    .stat-icon.blue { background: linear-gradient(135deg, #EFECE8 0%, #E3DED8 100%); }
+
+    .stat-value {
+      font-size: 28px;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: 4px;
+    }
+
+    .stat-value.red { color: var(--color-highlight); }
+    .stat-value.green { color: var(--color-success); }
+    .stat-value.purple { color: var(--color-accent); }
+
+    .stat-label {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .stat-trend {
+      font-size: 11px;
+      margin-top: 8px;
+      padding: 3px 8px;
+      border-radius: 12px;
+      display: inline-block;
+    }
+
+    .stat-trend.up { background: #D1FAE5; color: #059669; }
+    .stat-trend.down { background: #FEE2E2; color: #DC2626; }
+
+    /* ===== 可视化图表 ===== */
+    .chart-container {
+      background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.05);
+      border: 1px solid var(--border-color);
+    }
+
+    .chart-title {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 20px;
+      padding-bottom: 12px;
+      border-bottom: 2px solid #E2E8F0;
+    }
+
+    /* 图表样式统一使用 ECharts，CSS 图表已移除 */
+
+    /* ===== 表格 ===== */
+    .data-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 20px 0;
+      font-size: 13px;
+      border-radius: 8px;
+      overflow: hidden;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+
+    .data-table th {
+      background: linear-gradient(180deg, #5E524A 0%, #7D6E5E 100%);
+      color: white;
+      padding: 14px 16px;
+      text-align: left;
+      font-weight: 600;
+    }
+
+    .data-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid var(--border-color);
+      color: var(--text-secondary);
+      background: white;
+    }
+
+    .data-table tr:nth-child(even) td { background: var(--bg-light); }
+    .data-table tr:last-child td { border-bottom: none; }
+
+    /* ===== 策略卡片 ===== */
+    .strategy-card {
+      display: flex;
+      padding: 22px;
+      border-radius: 12px;
+      margin-bottom: 16px;
+      align-items: flex-start;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+
+    .strategy-card.blue { background: linear-gradient(135deg, #F7F5F2 0%, #EFECE8 100%); }
+    .strategy-card.green { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); }
+    .strategy-card.yellow { background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); }
+    .strategy-card.red { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); }
+
+    .strategy-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 18px;
+      margin-right: 20px;
+      color: white;
+      flex-shrink: 0;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    }
+
+    .strategy-card.blue .strategy-num { background: linear-gradient(135deg, #7D6E5E 0%, #5E524A 100%); }
+    .strategy-card.green .strategy-num { background: linear-gradient(135deg, #10B981 0%, #059669 100%); }
+    .strategy-card.yellow .strategy-num { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); }
+    .strategy-card.red .strategy-num { background: linear-gradient(135deg, #EF4444 0%, #DC2626 100%); }
+
+    .strategy-title {
+      font-size: 16px;
+      font-weight: 600;
+      margin-bottom: 6px;
+    }
+
+    .strategy-card.blue .strategy-title { color: var(--color-secondary); }
+    .strategy-card.green .strategy-title { color: #059669; }
+    .strategy-card.yellow .strategy-title { color: #D97706; }
+    .strategy-card.red .strategy-title { color: #DC2626; }
+
+    .strategy-desc {
+      font-size: 13px;
+      color: var(--text-secondary);
+      line-height: 1.6;
+    }
+
+    /* ===== 洞察卡片 ===== */
+    .insight-card {
+      background: var(--bg-card);
+      border-radius: 12px;
+      padding: 24px;
+      margin: 20px 0;
+      border: 1px solid var(--border-color);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+    }
+
+    .insight-card h4 {
+      margin-top: 0;
+      color: var(--color-primary);
+      font-size: 16px;
+      margin-bottom: 12px;
+    }
+
+    .insight-card p {
+      margin-bottom: 8px;
+    }
+
+    /* ===== 标签/Badge ===== */
+    .tag {
+      display: inline-block;
+      padding: 5px 12px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-bottom: 10px;
+    }
+
+    .tag-p0 { background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%); color: var(--color-highlight); border: 1px solid #FECACA; }
+    .tag-p1 { background: linear-gradient(135deg, #F7F5F2 0%, #EFECE8 100%); color: var(--color-secondary); border: 1px solid #E3DED8; }
+    .tag-p2 { background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); color: #059669; border: 1px solid #A7F3D0; }
+
+    .badge {
+      display: inline-block;
+      padding: 2px 8px;
+      border-radius: 4px;
+      font-size: 11px;
+      font-weight: 600;
+      margin-right: 6px;
+      vertical-align: middle;
+    }
+
+    .badge-high { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .badge-medium { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+    .badge-low { background: #F0FDF4; color: #059669; border: 1px solid #A7F3D0; }
+    .badge-a { background: #D1FAE5; color: #059669; border: 1px solid #A7F3D0; }
+    .badge-b { background: #EFECE8; color: #7D6E5E; border: 1px solid #E3DED8; }
+    .badge-c { background: #FFFBEB; color: #D97706; border: 1px solid #FDE68A; }
+
+    /* ===== 引用 ===== */
+    blockquote {
+      margin: 20px 0;
+      padding: 16px 24px;
+      background: linear-gradient(135deg, #F7F5F2 0%, #FEFEFE 100%);
+      border-left: 4px solid var(--color-accent);
+      border-radius: 0 8px 8px 0;
+      color: var(--text-secondary);
+      font-style: italic;
+    }
+
+    /* ===== 页码 ===== */
+    .page-number {
+      text-align: center;
+      font-size: 11px;
+      color: var(--text-secondary);
+      padding-top: 20px;
+      margin-top: 30px;
+      border-top: 1px solid var(--border-color);
+    }
+
+    .text-highlight {
+      color: var(--color-highlight);
+      font-weight: 600;
+    }
+
+    /* ===== 尾页 ===== */
+    .footer-page {
+      background: linear-gradient(135deg, #3A3632 0%, #5E524A 50%, #7D6E5E 100%);
+      min-height: 50vh;
+      color: white;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 60px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .footer-page::before {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background-image: radial-gradient(ellipse at 50% 30%, rgba(156,133,114,0.10) 0%, transparent 50%);
+      pointer-events: none;
+    }
+
+    .footer-content { position: relative; z-index: 1; }
+    .footer-icon { font-size: 48px; margin-bottom: 30px; opacity: 0.9; }
+
+    .footer-title {
+      font-size: 28px;
+      font-weight: 600;
+      margin-bottom: 25px;
+      letter-spacing: 8px;
+    }
+
+    .footer-divider {
+      width: 60px;
+      height: 3px;
+      background: linear-gradient(90deg, #9C8572 0%, #B8A078 100%);
+      border-radius: 2px;
+      margin: 0 auto 30px;
+    }
+
+    .footer-text {
+      font-size: 15px;
+      opacity: 0.85;
+      margin-bottom: 10px;
+      letter-spacing: 1px;
+    }
+
+    .footer-date {
+      font-size: 13px;
+      opacity: 0.6;
+      margin-top: 25px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== 打印按钮 ===== */
+    .no-print {
+      position: fixed;
+      bottom: 30px;
+      right: 30px;
+      z-index: 1000;
+    }
+
+    .print-btn {
+      background: linear-gradient(135deg, #5E524A 0%, #7D6E5E 100%);
+      color: white;
+      border: none;
+      padding: 14px 35px;
+      border-radius: 50px;
+      font-size: 14px;
+      font-weight: 600;
+      cursor: pointer;
+      box-shadow: 0 6px 20px rgba(94,82,74,0.3);
+      transition: all 0.3s;
+    }
+
+    .print-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 25px rgba(94,82,74,0.35);
+    }
+
+    /* ===== 响应式 ===== */
+    @media (max-width: 768px) {
+      .cover-page { flex-direction: column; }
+      .cover-left { display: none; }
+      .cover-right { padding: 40px 24px; }
+      .cover-title { font-size: 32px; letter-spacing: 2px; }
+      .toc-page { padding: 40px 24px; }
+      .chapter-body { padding: 24px; }
+      .chapter-header { padding: 24px; }
+      .stats-grid, .stats-grid-3 { grid-template-columns: repeat(2, 1fr); }
+      .donut-chart { flex-direction: column; }
+    }
+
+    /* ===== 打印样式 ===== */
+    @media print {
+      @page { margin: 1.5cm; size: A4; }
+      body { background: white; }
+      .page { box-shadow: none; margin: 0; }
+      .no-print { display: none !important; }
+      .cover-page { min-height: auto; page-break-after: always; }
+      .toc-page { page-break-after: always; }
+      .chapter-section { page-break-before: always; }
+      .stat-card:hover { transform: none; box-shadow: none; }
+      h2, h3, h4 { page-break-after: avoid; }
+      .data-table, .chart-container, .highlight-box { page-break-inside: avoid; }
+    }
+  </style>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+</head>
+<body>
+
+<!-- 封面页 -->
+<div class="page cover-page">
+  <div class="cover-left">
+    <div class="cover-number">AI</div>
+  </div>
+  <div class="cover-right">
+    <div class="cover-badge">Alpha Insights - BizAdvisor</div>
+    <h1 class="cover-title">AGI相机<br>竞品专题简报</h1>
+    <p class="cover-subtitle">聚焦蚂蚁灵光「AGI相机」及国内外直接竞品</p>
+    <div class="cover-divider"></div>
+    <p class="cover-meta">Alpha Insights</p>
+    <p class="cover-date">2026年4月 · Tier 2 专题简报</p>
+  </div>
+  <div class="cover-footer">
+    <span>内部参考</span>
+    <span>V2.0</span>
+  </div>
+</div>
+
+<!-- 目录页 -->
+<div class="page toc-page">
+  <div class="toc-header">
+    <div class="toc-title">目 录</div>
+  </div>
+  <div class="toc-item"><div class="toc-number">1</div><span class="toc-text">Executive Summary</span></div>
+  <div class="toc-item"><div class="toc-number">2</div><span class="toc-text">竞品全景与市场格局</span></div>
+  <div class="toc-item"><div class="toc-number">3</div><span class="toc-text">三条竞争路径与交互体验对比</span></div>
+  <div class="toc-item"><div class="toc-number">4</div><span class="toc-text">核心洞察</span></div>
+  <div class="toc-item"><div class="toc-number">5</div><span class="toc-text">关键变量与行动建议</span></div>
+  <div class="toc-item"><div class="toc-number">6</div><span class="toc-text">数据来源与置信度</span></div>
+  <div class="toc-conclusion">
+    <div class="toc-conclusion-title">核心结论</div>
+    <div class="toc-conclusion-text">「AGI相机」是灵光的品牌化命名，底层视觉识别能力已高度同质化。灵光的真正差异化资产是闪应用（1200万+生态），但目前与开眼（AGI相机）是独立模块，尚未打通。2026年行业正从「识别型」向「执行型」（Agentic AI）演进，开眼×闪应用的串联是最具价值的潜在机会方向。</div>
+  </div>
+</div>
+
+<!-- Chapter 1: Executive Summary -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">01</div>
+    <div class="chapter-name">Executive Summary</div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="highlight-box red">
+      <div class="highlight-text"><strong>核心判断：</strong>灵光开眼（AGI相机）的视觉识别能力与豆包、元宝、ChatGPT高度同质化，品牌命名是短期优势而非长期壁垒。灵光的差异化产品是闪应用（30秒生成小应用，已有1200万+生态），但闪应用与开眼目前是两条独立体验线，尚未打通。行业正从「看见→告诉你」转向「看见→帮你做」，开眼×闪应用的串联是最具想象力的机会方向，但目前未实现。</div>
+    </div>
+
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon blue">📱</div>
+        <div class="stat-value">14亿</div>
+        <div class="stat-label">国内AI月活总规模</div>
+        <div class="stat-trend up">QuestMobile 2025.12</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon red">🔥</div>
+        <div class="stat-value red">6亿</div>
+        <div class="stat-label">豆包MAU（领跑）</div>
+        <div class="stat-trend up">月狐 2026.3</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon green">📷</div>
+        <div class="stat-value green">1000亿+</div>
+        <div class="stat-label">Google Lens累计搜索</div>
+        <div class="stat-trend up">年增65%</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-icon purple">⚡</div>
+        <div class="stat-value purple">1200万+</div>
+        <div class="stat-label">灵光闪应用数量</div>
+        <div class="stat-trend up">上线1月</div>
+      </div>
+    </div>
+
+    <h2>五大核心发现</h2>
+    <ol>
+      <li><strong>视觉识别已高度同质化</strong>：「AGI相机」是品牌概念而非功能壁垒，拍照/视频流识别+问答讲解已成AI助手标配</li>
+      <li><strong>三大功能各自独立</strong>：灵光对话/闪应用/开眼是三个独立模块，开眼识别后仅提供问答讲解，不触发闪应用生成——这是最大的战略缺口</li>
+      <li><strong>行业转向Agentic</strong>：Samsung S26+Gemini 3已实现「看见→后台自动执行」，2026是Agentic分水岭</li>
+      <li><strong>App vs 系统级博弈</strong>：系统级AI（Apple/Samsung/Google）拥有入口优势，但App级产品在「出口」（深度后续动作）上有更大空间</li>
+      <li><strong>留存是共同难题</strong>：AI应用年度留存率仅21.1%，但视觉识别类是变现最强的细分赛道</li>
+    </ol>
+
+    <div class="page-number">— 1 —</div>
+  </div>
+</div>
+
+<!-- Chapter 2: 竞品全景 -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">02</div>
+    <div class="chapter-name">竞品全景与市场格局</div>
+  </div>
+  <div class="chapter-body">
+
+    <h2>竞品全景图</h2>
+    <table class="data-table">
+      <tr>
+        <th>产品</th><th>厂商</th><th>相机/视觉功能</th><th>MAU 量级</th><th>核心差异</th>
+      </tr>
+      <tr>
+        <td><strong>灵光（开眼）</strong></td><td>蚂蚁集团</td>
+        <td>实时视频流解析，拍照识别+AR提示气泡</td><td>千万级</td>
+        <td>闪应用生成、全模态输出</td>
+      </tr>
+      <tr>
+        <td><strong>豆包</strong></td><td>字节跳动</td>
+        <td>拍照识图、视频理解、四层思考模式</td><td>6亿</td>
+        <td>P图修图、抖音闭环、OS级助手</td>
+      </tr>
+      <tr>
+        <td><strong>元宝</strong></td><td>腾讯</td>
+        <td>图片上传AI理解</td><td>3300万</td>
+        <td>微信生态、元宝派社交</td>
+      </tr>
+      <tr>
+        <td><strong>ChatGPT</strong></td><td>OpenAI</td>
+        <td>GPT-5多模态视觉，完整对话历史</td><td>7亿周活</td>
+        <td>最强通用理解力、60%市占率</td>
+      </tr>
+      <tr>
+        <td><strong>Google Lens</strong></td><td>Google</td>
+        <td>Circle to Search、Search Live实时AI</td><td>系统级(5.8亿设备)</td>
+        <td>千亿搜索量、Agentic执行</td>
+      </tr>
+      <tr>
+        <td><strong>Visual Intelligence</strong></td><td>Apple</td>
+        <td>全系统屏幕视觉智能、相机按钮触发</td><td>系统级</td>
+        <td>隐私优先、端侧处理</td>
+      </tr>
+      <tr>
+        <td><strong>Galaxy S26</strong></td><td>Samsung+Google</td>
+        <td>三AI引擎、Agentic后台执行、Now Nudge</td><td>系统级</td>
+        <td>首款Agentic AI手机</td>
+      </tr>
+      <tr>
+        <td><strong>千问</strong></td><td>阿里</td>
+        <td>拍照识别理解</td><td>2亿+</td>
+        <td>办事能力、爆发增长(+553%)</td>
+      </tr>
+    </table>
+
+    <h2>国内AI App月活对比</h2>
+    <div class="chart-container">
+      <div id="chart-mau" style="width:100%;height:380px;"></div>
+    </div>
+
+    <h2>全球AI Chatbot市场份额</h2>
+    <div class="chart-container">
+      <div id="chart-global" style="width:100%;height:380px;"></div>
+    </div>
+
+    <div class="page-number">— 2 —</div>
+  </div>
+</div>
+
+<!-- Chapter 3: 三条路径 -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">03</div>
+    <div class="chapter-name">三条竞争路径与交互体验对比</div>
+  </div>
+  <div class="chapter-body">
+
+    <h2>三条竞争路径</h2>
+    <table class="data-table">
+      <tr><th>路径</th><th>代表</th><th>入口优势</th><th>体验特点</th><th>后续动作</th></tr>
+      <tr>
+        <td><strong>AI App 内相机功能</strong></td>
+        <td>灵光、豆包、元宝、ChatGPT</td>
+        <td>⭐⭐ 需主动打开App</td>
+        <td>功能丰富、可深度对话</td>
+        <td>深度（对话/生成/闪应用）</td>
+      </tr>
+      <tr>
+        <td><strong>系统级视觉 AI</strong></td>
+        <td>Apple、Samsung+Gemini</td>
+        <td>⭐⭐⭐⭐ 硬件按钮/手势直达</td>
+        <td>无缝、零摩擦、Agentic执行</td>
+        <td>浅层（搜索/快捷操作）</td>
+      </tr>
+      <tr>
+        <td><strong>搜索引擎视觉化</strong></td>
+        <td>Google Lens</td>
+        <td>⭐⭐⭐ 搜索场景天然入口</td>
+        <td>搜索+识别融合、信息广度</td>
+        <td>中层（购物/信息获取）</td>
+      </tr>
+    </table>
+
+    <div class="highlight-box">
+      <div class="highlight-text"><strong>关键判断：</strong>灵光走的是第一条路径（App内相机功能）。在「入口」维度上，系统级和搜索级竞争对手拥有天然优势。但在「出口」维度——识别后能做什么——App路径反而有更大的体验空间。灵光不应与系统级拼入口，应拼出口。</div>
+    </div>
+
+    <h2>交互体验对比矩阵</h2>
+    <table class="data-table">
+      <tr><th>维度</th><th>灵光开眼</th><th>豆包</th><th>ChatGPT</th><th>Google Lens</th></tr>
+      <tr><td><strong>触发方式</strong></td><td>App内相机</td><td>App内拍照</td><td>App内上传</td><td>系统级圈选/相机</td></tr>
+      <tr><td><strong>实时视频流</strong></td><td>✅</td><td>✅</td><td>❌</td><td>✅ Search Live</td></tr>
+      <tr><td><strong>响应速度</strong></td><td>≤500ms</td><td>未公开</td><td>较慢</td><td><300ms</td></tr>
+      <tr><td><strong>交互特色</strong></td><td>AR提示气泡</td><td>四层思考</td><td>完整对话历史</td><td>多物体同时搜索</td></tr>
+      <tr><td><strong>后续动作</strong></td><td>问答讲解</td><td>联网搜索/P图</td><td>深度对话</td><td>购物/Agentic执行</td></tr>
+      <tr><td><strong>历史记录</strong></td><td>❌</td><td>✅</td><td>✅</td><td>✅</td></tr>
+      <tr><td><strong>Agentic能力</strong></td><td>❌</td><td>❌(2.0起步)</td><td>❌</td><td>✅</td></tr>
+    </table>
+
+    <h2>AI应用留存与变现</h2>
+    <div class="chart-container">
+      <div id="chart-retention" style="width:100%;height:350px;"></div>
+    </div>
+
+    <div class="page-number">— 3 —</div>
+  </div>
+</div>
+
+<!-- Chapter 4: 核心洞察 -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">04</div>
+    <div class="chapter-name">核心洞察</div>
+  </div>
+  <div class="chapter-body">
+
+    <div class="insight-card">
+      <span class="tag tag-p0">P1 核心洞察 · 20分</span>
+      <h4>洞察1：灵光三大功能各自独立，「开眼×闪应用」未打通是最大战略缺口</h4>
+      <p><strong>发现：</strong>灵光对话/闪应用/开眼是三个独立模块。开眼识别后仅提供问答讲解，不触发闪应用生成。灵光的真正差异化产品是闪应用（30秒生应用，上线1月创建1200万+），但这与开眼目前是两条独立体验线。</p>
+      <p><strong>含义：</strong>Samsung S26+Gemini 3已实现"看见→后台自动执行"（Agentic）路径。灵光如果能打通开眼×闪应用（看到问题→自动生成解决方案App），可形成国内独特的Agentic视觉路径，且闪应用的1200万生态是竞品没有的资产。但目前未实现。</p>
+      <p><strong>行动方向：</strong>将"开眼→闪应用"串联作为核心产品目标，从高频场景切入（识别食材→菜谱App、识别题目→解题工具）</p>
+      <p><strong>置信度：</strong><span class="badge badge-a">A级</span> 基于官方产品架构+国际媒体实测</p>
+    </div>
+
+    <div class="insight-card">
+      <span class="tag tag-p0">P1 核心洞察 · 18分</span>
+      <h4>洞察2：视觉识别已高度同质化，「AGI相机」是品牌概念而非功能壁垒</h4>
+      <p><strong>发现：</strong>拍照/视频流识别+问答讲解在2024-2025年已成AI助手标配。灵光开眼的能力边界与豆包拍照识图、ChatGPT Vision、Google Search Live无本质差异。SuperCLUE中文视觉评测中，国产模型间差距在缩小。</p>
+      <p><strong>含义：</strong>品牌化命名可带来短期传播优势（上线4天破百万下载），但无法构成长期护城河。随着竞品迭代（豆包OS级助手、Google Search Live全球上线），品牌优势会被稀释。</p>
+      <p><strong>行动方向：</strong>必须在品牌窗口期内建立功能层面的差异化壁垒，而非依赖命名优势</p>
+      <p><strong>置信度：</strong><span class="badge badge-a">A级</span> 多源交叉验证</p>
+    </div>
+
+    <div class="insight-card">
+      <span class="tag tag-p1">P2 核心洞察 · 17分</span>
+      <h4>洞察3：2026是Agentic分水岭——从「告诉你」到「帮你做」</h4>
+      <p><strong>发现：</strong>Samsung S26+Gemini 3实现后台自主操作第三方App（DoorDash/Uber/Instacart），Circle to Search覆盖5.8亿设备。Gartner预测2026年底40%企业应用将嵌入Agent（8倍增长），但同时警告40%+项目将被取消。</p>
+      <p><strong>含义：</strong>Agentic AI的窗口期真实存在但风险同样真实。灵光开眼目前停留在「识别+讲解」阶段。McKinsey估计AI Agent每年可为全球经济解锁4.4万亿美元。</p>
+      <p><strong>行动方向：</strong>选择1-2个高频视觉场景做深Agentic试点，验证「看见→执行」的用户价值，而非全面铺开</p>
+      <p><strong>置信度：</strong><span class="badge badge-a">A级</span> Gartner/McKinsey/Google官方数据</p>
+    </div>
+
+    <div class="insight-card">
+      <span class="tag tag-p1">P2 核心洞察 · 16分</span>
+      <h4>洞察4：AI应用留存是行业共同难题，视觉识别类是变现最强的细分赛道</h4>
+      <p><strong>发现：</strong>RevenueCat 2026报告：AI应用年度留存率中位数仅21.1%（非AI 30.7%），但试用转化率8.5%（高于非AI 52%）——"来得快去得更快"。物体识别类App变现能力最强（PictureThis月收入533万美元排第一）。</p>
+      <p><strong>含义：</strong>通用识别留存差，但垂直场景识别工具有更强留存和变现。灵光开眼需从"什么都能识别"转向"在几个场景识别得特别好且有后续动作"。</p>
+      <p><strong>行动方向：</strong>用场景深度换留存，而非追求识别广度</p>
+      <p><strong>置信度：</strong><span class="badge badge-a">A级</span> RevenueCat权威行业报告</p>
+    </div>
+
+    <h2>Agentic AI 市场规模预测</h2>
+    <div class="chart-container">
+      <div id="chart-agentic" style="width:100%;height:350px;"></div>
+    </div>
+
+    <div class="page-number">— 4 —</div>
+  </div>
+</div>
+
+<!-- Chapter 5: 建议 -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">05</div>
+    <div class="chapter-name">关键变量与行动建议</div>
+  </div>
+  <div class="chapter-body">
+
+    <h2>关键变量监测清单</h2>
+    <table class="data-table">
+      <tr><th>变量</th><th>影响力</th><th>不确定性</th><th>当前状态</th><th>触发条件</th></tr>
+      <tr>
+        <td><strong>开眼×闪应用打通</strong></td><td><span class="badge badge-high">5</span></td><td><span class="badge badge-high">4</span></td>
+        <td>未打通，独立模块</td><td>如Q3前完成串联→产品差异化质变</td>
+      </tr>
+      <tr>
+        <td><strong>系统级AI截流速度</strong></td><td><span class="badge badge-high">5</span></td><td><span class="badge badge-medium">3</span></td>
+        <td>Apple推迟Siri升级；Samsung S26已上市</td><td>如Apple 2026秋季补齐→App级产品空间收窄</td>
+      </tr>
+      <tr>
+        <td><strong>Agentic AI落地成熟度</strong></td><td><span class="badge badge-medium">4</span></td><td><span class="badge badge-high">4</span></td>
+        <td>Samsung已落地but体验待验证</td><td>如用户反馈正面→全行业加速跟进</td>
+      </tr>
+    </table>
+
+    <h2>行动建议</h2>
+
+    <div class="strategy-card green">
+      <div class="strategy-num">1</div>
+      <div>
+        <div class="strategy-title">Q3前完成「开眼→闪应用」最小可用链路</div>
+        <div class="strategy-desc">
+          选择3个高频场景切入：识别食材→菜谱App、识别题目→解题工具、识别商品→比价App。<br>
+          <strong>衡量标准：</strong>场景触发率≥30%；闪应用7日留存≥15%<br>
+          <strong>资源需求：</strong>产品+前端2-3人，基于现有闪应用API能力<br>
+          <strong>风险提示：</strong>用户可能不需要"生成App"而只需答案 → 提供"快速回答+深度闪应用"两级体验
+        </div>
+      </div>
+    </div>
+
+    <div class="strategy-card blue">
+      <div class="strategy-num">2</div>
+      <div>
+        <div class="strategy-title">Q2建立「识别后动作」差异化矩阵</div>
+        <div class="strategy-desc">
+          梳理Top 20视觉识别场景，对每个场景对比灵光vs豆包vs ChatGPT vs Google Lens的"识别后能做什么"。<br>
+          <strong>衡量标准：</strong>产出≥5个灵光独占或领先的"识别后动作"场景<br>
+          <strong>目的：</strong>明确灵光的"出口优势"定位，指导后续产品迭代方向
+        </div>
+      </div>
+    </div>
+
+    <div class="strategy-card yellow">
+      <div class="strategy-num">3</div>
+      <div>
+        <div class="strategy-title">补齐AGI相机历史记录功能</div>
+        <div class="strategy-desc">
+          当前开眼会话不保存历史记录（Business Insider实测短板），竞品ChatGPT/Google Lens均支持。<br>
+          <strong>优先级：</strong>低成本高体验收益的快速修复项<br>
+          <strong>风险：</strong>无重大风险，纯体验优化
+        </div>
+      </div>
+    </div>
+
+    <div class="highlight-box green">
+      <div class="highlight-text"><strong>核心机会：</strong>灵光的闪应用生态（1200万+）是国内独一无二的资产。如果开眼能与闪应用打通，将形成"看到问题→自动生成解决方案App"的独特Agentic路径，这是豆包、元宝、ChatGPT都做不到的差异化方向。</div>
+    </div>
+
+    <div class="page-number">— 5 —</div>
+  </div>
+</div>
+
+<!-- Chapter 6: 数据来源 -->
+<div class="page chapter-section">
+  <div class="chapter-header">
+    <div class="chapter-num">06</div>
+    <div class="chapter-name">数据来源与置信度</div>
+  </div>
+  <div class="chapter-body">
+
+    <h2>数据分级</h2>
+    <table class="data-table">
+      <tr><th>级别</th><th>来源类型</th><th>示例</th></tr>
+      <tr><td><span class="badge badge-a">A级</span></td><td>官方发布 + 权威第三方数据机构</td><td>QuestMobile、Gartner、McKinsey、Google官方、Samsung Newsroom、RevenueCat、Sensor Tower、Apple Newsroom</td></tr>
+      <tr><td><span class="badge badge-b">B级</span></td><td>行业分析师报告、证券研究</td><td>SuperCLUE评测、国元证券、Grand View Research、月狐数据</td></tr>
+      <tr><td><span class="badge badge-c">C级</span></td><td>媒体报道、实测评价</td><td>Business Insider、36氪、雷峰网、9to5Mac、TechRadar</td></tr>
+    </table>
+
+    <h2>核心数据三角验证</h2>
+    <table class="data-table">
+      <tr><th>数据点</th><th>来源1</th><th>来源2</th><th>一致性</th></tr>
+      <tr><td>灵光上线4天破百万下载</td><td>21财经</td><td>中国日报/Business Insider</td><td>✅ 一致</td></tr>
+      <tr><td>豆包2025.12 WAU 1.55亿</td><td>Quest Mobile</td><td>Caixin Global</td><td>✅ 一致</td></tr>
+      <tr><td>Circle to Search 5.8亿设备</td><td>Google Blog</td><td>9to5Google/ALM Corp</td><td>✅ 一致</td></tr>
+      <tr><td>AI应用年度留存率21.1%</td><td>RevenueCat</td><td>TechCrunch</td><td>✅ 一致</td></tr>
+      <tr><td>Agentic AI市场CAGR 40-44%</td><td>Fortune Business Insights</td><td>MarketsandMarkets/Deloitte</td><td>✅ 基本一致</td></tr>
+    </table>
+
+    <p style="font-size:12px;color:#999;margin-top:24px;">本报告由 Alpha Insights 生成 · 数据截止 2026年4月 · Tier 2 专题简报<br>
+    📊 事实数据均标注来源和置信度 · 💡 分析判断标注为洞察</p>
+
+    <div class="page-number">— 6 —</div>
+  </div>
+</div>
+
+<!-- 尾页 -->
+<div class="page footer-page">
+  <div class="footer-content">
+    <div class="footer-icon">📋</div>
+    <div class="footer-title">AGI相机竞品专题简报</div>
+    <div class="footer-divider"></div>
+    <div class="footer-text">本报告由 Alpha Insights-BizAdvisor 生成</div>
+    <div class="footer-text">内部参考 · 请勿外传</div>
+    <div class="footer-date">2026年4月</div>
+  </div>
+</div>
+
+<!-- 打印按钮 -->
+<div class="no-print">
+  <button class="print-btn" onclick="window.print()">打印 / 导出 PDF</button>
+</div>
+
+<script>
+// ===== Chart 1: 国内AI App MAU对比 =====
+var c1 = echarts.init(document.getElementById('chart-mau'));
+c1.setOption({
+  title: { text: '国内主要AI App月活对比', textStyle: { fontSize: 14, color: '#37332F' }, subtext: '数据来源：QuestMobile/月狐/AICPB · 2025.12-2026.3', subtextStyle: { fontSize: 11 } },
+  tooltip: { trigger: 'axis' },
+  xAxis: {
+    type: 'category',
+    data: ['豆包', 'DeepSeek', '千问', '元宝', '灵光', 'Kimi'],
+    axisLabel: { fontSize: 12 }
+  },
+  yAxis: {
+    type: 'value',
+    name: '万',
+    axisLabel: { formatter: '{value}' }
+  },
+  series: [{
+    type: 'bar',
+    data: [60000, 13500, 20269, 3286, 1200, 800],
+    itemStyle: {
+      color: function(params) {
+        var colors = ['#C4907A', '#8AA4B8', '#C08080', '#9590B0', '#8C7B6B', '#7DA496'];
+        return colors[params.dataIndex];
+      },
+      borderRadius: [6, 6, 0, 0]
+    },
+    label: {
+      show: true,
+      position: 'top',
+      formatter: function(params) {
+        if (params.value >= 10000) return (params.value/10000).toFixed(1) + '亿';
+        return params.value + '万';
+      },
+      fontSize: 11
+    }
+  }],
+  grid: { left: 60, right: 20, bottom: 40, top: 80 }
+});
+
+// ===== Chart 2: 全球AI Chatbot市场份额 =====
+var c2 = echarts.init(document.getElementById('chart-global'));
+c2.setOption({
+  title: { text: '全球AI Chatbot市场份额（2026.3）', textStyle: { fontSize: 14, color: '#37332F' }, subtext: '数据来源：First Page Sage', subtextStyle: { fontSize: 11 } },
+  tooltip: { trigger: 'item', formatter: '{b}: {d}%' },
+  series: [{
+    type: 'pie',
+    radius: ['40%', '70%'],
+    center: ['50%', '55%'],
+    data: [
+      { value: 60.4, name: 'ChatGPT' },
+      { value: 15.2, name: 'Gemini' },
+      { value: 12.9, name: 'Copilot' },
+      { value: 5.8, name: 'Perplexity' },
+      { value: 4.5, name: 'Claude' },
+      { value: 1.2, name: '其他' }
+    ],
+    emphasis: { itemStyle: { shadowBlur: 10, shadowOffsetX: 0, shadowColor: 'rgba(0,0,0,0.5)' } },
+    label: { formatter: '{b}\n{d}%', fontSize: 12 },
+    itemStyle: {
+      color: function(params) {
+        var colors = ['#10B981', '#4285F4', '#7C3AED', '#F59E0B', '#EF4444', '#94A3B8'];
+        return colors[params.dataIndex];
+      }
+    }
+  }]
+});
+
+// ===== Chart 3: AI应用留存对比 =====
+var c3 = echarts.init(document.getElementById('chart-retention'));
+c3.setOption({
+  title: { text: 'AI应用 vs 非AI应用留存率对比', textStyle: { fontSize: 14, color: '#37332F' }, subtext: '数据来源：RevenueCat 2026报告', subtextStyle: { fontSize: 11 } },
+  tooltip: { trigger: 'axis' },
+  legend: { data: ['AI应用', '非AI应用'], top: 50 },
+  xAxis: {
+    type: 'category',
+    data: ['月度留存', '年度留存', '试用转化率'],
+    axisLabel: { fontSize: 12 }
+  },
+  yAxis: {
+    type: 'value',
+    name: '%',
+    max: 35,
+    axisLabel: { formatter: '{value}%' }
+  },
+  series: [
+    {
+      name: 'AI应用',
+      type: 'bar',
+      data: [6.1, 21.1, 8.5],
+      itemStyle: { color: '#8C7B6B', borderRadius: [6, 6, 0, 0] },
+      label: { show: true, position: 'top', formatter: '{c}%', fontSize: 11 }
+    },
+    {
+      name: '非AI应用',
+      type: 'bar',
+      data: [9.5, 30.7, 5.6],
+      itemStyle: { color: '#B0A494', borderRadius: [6, 6, 0, 0] },
+      label: { show: true, position: 'top', formatter: '{c}%', fontSize: 11 }
+    }
+  ],
+  grid: { left: 60, right: 20, bottom: 40, top: 80 }
+});
+
+// ===== Chart 4: Agentic AI市场规模预测 =====
+var c4 = echarts.init(document.getElementById('chart-agentic'));
+c4.setOption({
+  title: { text: 'Agentic AI市场规模预测（亿美元）', textStyle: { fontSize: 14, color: '#37332F' }, subtext: '数据来源：Fortune Business Insights / MarketsandMarkets', subtextStyle: { fontSize: 11 } },
+  tooltip: { trigger: 'axis' },
+  xAxis: {
+    type: 'category',
+    data: ['2025', '2026E', '2027E', '2028E', '2029E', '2030E'],
+    axisLabel: { fontSize: 12 }
+  },
+  yAxis: {
+    type: 'value',
+    name: '亿美元',
+    axisLabel: { formatter: '{value}' }
+  },
+  series: [{
+    type: 'line',
+    data: [75, 110, 165, 250, 350, 465],
+    smooth: true,
+    areaStyle: {
+      color: {
+        type: 'linear',
+        x: 0, y: 0, x2: 0, y2: 1,
+        colorStops: [
+          { offset: 0, color: 'rgba(140,123,107,0.25)' },
+          { offset: 1, color: 'rgba(140,123,107,0.03)' }
+        ]
+      }
+    },
+    lineStyle: { color: '#8C7B6B', width: 3 },
+    itemStyle: { color: '#8C7B6B' },
+    symbol: 'circle',
+    symbolSize: 8,
+    label: {
+      show: true,
+      position: 'top',
+      formatter: '{c}',
+      fontSize: 11
+    }
+  }],
+  grid: { left: 70, right: 20, bottom: 40, top: 80 }
+});
+
+window.addEventListener('resize', function() {
+  c1.resize(); c2.resize(); c3.resize(); c4.resize();
+});
+</script>
+</body>
+</html>

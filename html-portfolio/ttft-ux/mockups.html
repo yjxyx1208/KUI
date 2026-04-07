@@ -1,0 +1,741 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵光App 等待体验 UI 示意图</title>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --accent: #C17B2E;
+    --accent-light: #F5E6D0;
+    --text: #2D2D2D;
+    --text-s: #6B6B6B;
+    --border: #E8E4DF;
+    --chat-bg: #F7F7F5;
+    --user-bubble: #C17B2E;
+    --ai-bubble: #FFFFFF;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'PingFang SC', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.6;
+  }
+  .page { max-width: 960px; margin: 0 auto; padding: 40px 24px; }
+
+  .hero {
+    background: linear-gradient(135deg, #1a1a2e 0%, #0f3460 100%);
+    color: white;
+    padding: 60px 40px;
+    border-radius: 20px;
+    margin-bottom: 48px;
+  }
+  .hero h1 { font-size: 2em; margin-bottom: 8px; }
+  .hero p { opacity: 0.7; font-size: 0.95em; }
+
+  .mockup-section {
+    margin-bottom: 56px;
+  }
+  .mockup-section h2 {
+    font-size: 1.3em;
+    margin-bottom: 8px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mockup-section h2 .badge {
+    font-size: 0.65em;
+    padding: 3px 10px;
+    border-radius: 6px;
+    color: white;
+    font-weight: 600;
+  }
+  .badge-p0 { background: #E74C3C; }
+  .badge-p1 { background: #C17B2E; }
+  .badge-p2 { background: #3498DB; }
+  .mockup-desc {
+    color: var(--text-s);
+    font-size: 0.9em;
+    margin-bottom: 20px;
+  }
+
+  /* Phone Frame */
+  .phone-frame {
+    width: 375px;
+    max-width: 100%;
+    margin: 0 auto;
+    background: var(--chat-bg);
+    border-radius: 32px;
+    border: 3px solid #E0E0E0;
+    overflow: hidden;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.12);
+  }
+  .phone-statusbar {
+    background: #FAFAFA;
+    padding: 8px 20px;
+    font-size: 0.7em;
+    color: #999;
+    text-align: center;
+    border-bottom: 1px solid #EEE;
+  }
+  .phone-header {
+    background: white;
+    padding: 12px 20px;
+    font-weight: 600;
+    font-size: 0.95em;
+    border-bottom: 1px solid #EEE;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .phone-header .model-tag {
+    font-size: 0.7em;
+    padding: 2px 8px;
+    border-radius: 10px;
+    background: var(--accent-light);
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .chat-area {
+    padding: 16px;
+    min-height: 380px;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  .msg {
+    max-width: 80%;
+    padding: 10px 14px;
+    border-radius: 16px;
+    font-size: 0.88em;
+    line-height: 1.5;
+  }
+  .msg-user {
+    background: var(--user-bubble);
+    color: white;
+    align-self: flex-end;
+    border-bottom-right-radius: 4px;
+  }
+  .msg-ai {
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    align-self: flex-start;
+    border-bottom-left-radius: 4px;
+  }
+
+  /* Typing cursor */
+  .cursor {
+    display: inline-block;
+    width: 2px;
+    height: 1em;
+    background: var(--accent);
+    margin-left: 2px;
+    vertical-align: text-bottom;
+    animation: blink 0.6s ease-in-out infinite;
+  }
+  @keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+  }
+
+  /* Streaming text animation */
+  .streaming-text {
+    overflow: hidden;
+  }
+  .streaming-text span {
+    opacity: 0;
+    animation: fadeInChar 0.05s forwards;
+  }
+
+  /* Stage Indicator */
+  .stage-indicator {
+    background: #FFF9F0;
+    border: 1px solid #F0DFC0;
+    border-radius: 12px;
+    padding: 12px 16px;
+    align-self: flex-start;
+    max-width: 85%;
+    font-size: 0.84em;
+  }
+  .stage-step {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 4px 0;
+    color: var(--text-s);
+  }
+  .stage-step.active {
+    color: var(--accent);
+    font-weight: 500;
+  }
+  .stage-step.done {
+    color: #2ECC71;
+  }
+  .stage-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #DDD;
+    flex-shrink: 0;
+  }
+  .stage-step.active .stage-dot {
+    background: var(--accent);
+    animation: pulse 1.2s infinite;
+  }
+  .stage-step.done .stage-dot {
+    background: #2ECC71;
+  }
+  @keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.4); opacity: 0.6; }
+  }
+
+  /* Thinking block */
+  .thinking-block {
+    background: #F8F6F3;
+    border: 1px solid #E8E4DF;
+    border-radius: 12px;
+    padding: 0;
+    align-self: flex-start;
+    max-width: 90%;
+    font-size: 0.84em;
+    overflow: hidden;
+  }
+  .thinking-header {
+    padding: 10px 14px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    user-select: none;
+    background: #F3F0EC;
+  }
+  .thinking-header:hover { background: #EDE9E4; }
+  .thinking-label {
+    color: var(--accent);
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .thinking-toggle {
+    font-size: 0.8em;
+    color: #AAA;
+    transition: transform 0.2s;
+  }
+  .thinking-body {
+    padding: 0 14px;
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.3s ease, padding 0.3s ease;
+    color: var(--text-s);
+    font-size: 0.92em;
+    line-height: 1.6;
+  }
+  .thinking-block.open .thinking-body {
+    max-height: 300px;
+    padding: 12px 14px;
+  }
+  .thinking-block.open .thinking-toggle {
+    transform: rotate(180deg);
+  }
+
+  /* Semantic skeleton */
+  .skeleton-preview {
+    background: #FEFCF9;
+    border: 1px dashed #D4C5B0;
+    border-radius: 12px;
+    padding: 14px 16px;
+    align-self: flex-start;
+    max-width: 85%;
+    font-size: 0.82em;
+  }
+  .skeleton-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 3px 0;
+    color: var(--text-s);
+  }
+  .skeleton-bar {
+    height: 6px;
+    border-radius: 3px;
+    background: linear-gradient(90deg, #E8E4DF 0%, #F5E6D0 50%, #E8E4DF 100%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+    flex: 1;
+  }
+  @keyframes shimmer {
+    0% { background-position: 200% 0; }
+    100% { background-position: -200% 0; }
+  }
+
+  /* Interrupt controls */
+  .interrupt-bar {
+    display: flex;
+    gap: 8px;
+    align-self: flex-start;
+    margin-top: 4px;
+  }
+  .interrupt-btn {
+    font-size: 0.75em;
+    padding: 5px 12px;
+    border-radius: 16px;
+    border: 1px solid var(--border);
+    background: white;
+    color: var(--text-s);
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .interrupt-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: #FFF9F0;
+  }
+  .interrupt-btn.stop {
+    border-color: #E74C3C;
+    color: #E74C3C;
+  }
+  .interrupt-btn.stop:hover {
+    background: #FDF0F0;
+  }
+
+  /* Model tier cards */
+  .tier-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 20px;
+    margin-top: 16px;
+  }
+  @media (max-width: 700px) {
+    .tier-grid { grid-template-columns: 1fr; }
+  }
+  .tier-phone {
+    width: 100%;
+  }
+  .tier-phone .phone-frame {
+    width: 100%;
+  }
+  .tier-label {
+    text-align: center;
+    font-size: 0.85em;
+    color: var(--text-s);
+    margin-top: 10px;
+  }
+
+  /* Input bar */
+  .input-bar {
+    background: white;
+    padding: 10px 16px;
+    border-top: 1px solid #EEE;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .input-field {
+    flex: 1;
+    padding: 8px 14px;
+    border-radius: 20px;
+    border: 1px solid #E0E0E0;
+    background: #F8F8F8;
+    font-size: 0.85em;
+    color: #BBB;
+  }
+  .send-btn {
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    background: var(--accent);
+    border: none;
+    color: white;
+    font-size: 0.9em;
+    cursor: pointer;
+  }
+
+  /* Annotation callout */
+  .annotation {
+    background: #FFFDE7;
+    border-left: 3px solid #F9A825;
+    padding: 12px 16px;
+    margin: 12px 0 0;
+    border-radius: 0 8px 8px 0;
+    font-size: 0.82em;
+    color: #5D4037;
+    max-width: 375px;
+    margin-left: auto;
+    margin-right: auto;
+  }
+  .annotation strong { color: #E65100; }
+
+  .design-note {
+    background: var(--accent-light);
+    border-radius: 12px;
+    padding: 16px 20px;
+    margin-top: 16px;
+    font-size: 0.88em;
+  }
+  .design-note h4 { color: var(--accent); margin-bottom: 6px; }
+  .design-note ul { padding-left: 20px; color: var(--text-s); }
+  .design-note li { margin-bottom: 4px; }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <div class="hero">
+    <h1>灵光App 等待体验 UI 示意图</h1>
+    <p>基于 TTFT 竞品研究洞察，P0-P2 落地建议的交互原型</p>
+  </div>
+
+  <!-- ===== P0: Streaming + Cursor ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p0">P0</span> 流式输出 + 光标动画</h2>
+    <p class="mockup-desc">基础体验保障。逐 token 渲染，光标动画暗示「正在输出」，消除「卡住了？」焦虑。</p>
+
+    <div class="phone-frame">
+      <div class="phone-statusbar">灵光</div>
+      <div class="phone-header">
+        <span>灵光助手</span>
+        <span class="model-tag">闪电模式</span>
+      </div>
+      <div class="chat-area">
+        <div class="msg msg-user">帮我写一封周报邮件</div>
+        <div class="msg msg-ai">
+          <span class="streaming-text" id="stream1"></span><span class="cursor"></span>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-field">输入消息...</div>
+        <button class="send-btn">&#x2191;</button>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>设计要点：</strong>光标在最后一个字符后闪烁，用户视线自然跟随文字增长。流式输出让等待从「干等结果」变成「围观创作」。
+    </div>
+
+    <div class="design-note">
+      <h4>实现建议</h4>
+      <ul>
+        <li>SSE (Server-Sent Events) 或 WebSocket 传输</li>
+        <li>光标宽度 2px，闪烁周期 500-600ms，颜色跟随品牌色</li>
+        <li>token 到达间隔不均匀时做 buffer 平滑，避免视觉卡顿</li>
+        <li>首个 token 到达前展示光标 + 轻微 shimmer，暗示「准备中」</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== P0: Stage Indicators ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p0">P0</span> 阶段指示器</h2>
+    <p class="mockup-desc">推理/搜索类任务必须。用「状态」替代空白，让用户知道 AI 在做什么，而非只是「在转圈」。</p>
+
+    <div class="phone-frame">
+      <div class="phone-statusbar">灵光</div>
+      <div class="phone-header">
+        <span>灵光助手</span>
+        <span class="model-tag">深度搜索</span>
+      </div>
+      <div class="chat-area">
+        <div class="msg msg-user">2026 年 AI 行业有哪些重要融资事件？</div>
+        <div class="stage-indicator">
+          <div class="stage-step done">
+            <span class="stage-dot"></span>
+            <span>&#x2713; 理解问题</span>
+          </div>
+          <div class="stage-step done">
+            <span class="stage-dot"></span>
+            <span>&#x2713; 搜索 3 个来源</span>
+          </div>
+          <div class="stage-step active">
+            <span class="stage-dot"></span>
+            <span>正在分析数据...</span>
+          </div>
+          <div class="stage-step">
+            <span class="stage-dot"></span>
+            <span>生成回答</span>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-field">输入消息...</div>
+        <button class="send-btn">&#x2191;</button>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>设计要点：</strong>阶段从上到下推进，已完成的步骤变绿打勾，当前步骤琥珀色脉冲动画。不用展示具体耗时，状态本身就在消解焦虑。
+    </div>
+
+    <div class="design-note">
+      <h4>实现建议</h4>
+      <ul>
+        <li>阶段数量控制在 3-5 个，太多反而增加认知负担</li>
+        <li>阶段文案用具体动词：「搜索 3 个来源」比「加载中」有价值</li>
+        <li>后端需要在每个阶段转换时推送状态事件</li>
+        <li>最后一个阶段完成后无缝切换到流式输出</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== P1: Thinking Process ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p1">P1</span> 思考过程展示（可折叠）</h2>
+    <p class="mockup-desc">深度推理任务的差异化手段。默认收起（不打扰），好奇的用户可展开看 AI 在想什么。</p>
+
+    <div class="phone-frame">
+      <div class="phone-statusbar">灵光</div>
+      <div class="phone-header">
+        <span>灵光助手</span>
+        <span class="model-tag">深度推理</span>
+      </div>
+      <div class="chat-area">
+        <div class="msg msg-user">分析一下特斯拉 2026 年 Q1 财报的关键信号</div>
+        <div class="thinking-block open" onclick="this.classList.toggle('open')">
+          <div class="thinking-header">
+            <span class="thinking-label">&#x1F9E0; 思考中 &middot; 12s</span>
+            <span class="thinking-toggle">&#x25BC;</span>
+          </div>
+          <div class="thinking-body">
+            用户问的是财报分析，我需要关注几个关键维度：<br>
+            1. 营收和交付量 vs 市场预期<br>
+            2. 毛利率趋势（FSD 和能源业务占比变化）<br>
+            3. 自由现金流和资本开支方向<br>
+            4. 管理层指引中的新信号...<br>
+            <span style="color:var(--accent);">正在组织分析框架...</span>
+          </div>
+        </div>
+        <div class="msg msg-ai" style="margin-top:8px;">
+          <strong>特斯拉 2026 Q1 关键信号：</strong><br><br>
+          <strong>1. 交付量</strong><br>
+          Q1 交付 XX 万辆...<span class="cursor"></span>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-field">输入消息...</div>
+        <button class="send-btn">&#x2191;</button>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>点击「思考中」区域</strong>可折叠/展开。默认展开（推理模式下用户期待看到思考过程），输出开始后自动收起。
+    </div>
+
+    <div class="design-note">
+      <h4>实现建议</h4>
+      <ul>
+        <li>思考过程用浅色背景区分正式回答，视觉层级低于最终输出</li>
+        <li>展示思考耗时（如「12s」），让等待有量化感知</li>
+        <li>正式回答开始后思考块自动折叠，避免占据太多视口</li>
+        <li>仅在深度推理模型/模式下展示，快速问答不需要</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== P1: Model Tier UI ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p1">P1</span> 模型分层等待 UI</h2>
+    <p class="mockup-desc">快模型用简洁等待，慢模型用丰富等待。避免「同一个 APP 有时快有时慢」的体感割裂。</p>
+
+    <div class="tier-grid">
+      <div class="tier-phone">
+        <div class="phone-frame">
+          <div class="phone-statusbar">灵光</div>
+          <div class="phone-header">
+            <span>灵光助手</span>
+            <span class="model-tag" style="background:#E8F8F0;color:#1A9B5C;">&#x26A1; 闪电</span>
+          </div>
+          <div class="chat-area" style="min-height:200px;">
+            <div class="msg msg-user">今天天气怎么样</div>
+            <div class="msg msg-ai">
+              北京今天晴，25°C...<span class="cursor"></span>
+            </div>
+          </div>
+        </div>
+        <div class="tier-label">闪电模式（&lt;1s）<br>极简光标，直接出内容</div>
+      </div>
+
+      <div class="tier-phone">
+        <div class="phone-frame">
+          <div class="phone-statusbar">灵光</div>
+          <div class="phone-header">
+            <span>灵光助手</span>
+            <span class="model-tag" style="background:#F0EBFF;color:#6C3FD1;">&#x1F9E0; 深度</span>
+          </div>
+          <div class="chat-area" style="min-height:200px;">
+            <div class="msg msg-user">帮我做竞品分析</div>
+            <div class="stage-indicator">
+              <div class="stage-step done">
+                <span class="stage-dot"></span>
+                <span>&#x2713; 理解需求</span>
+              </div>
+              <div class="stage-step active">
+                <span class="stage-dot"></span>
+                <span>深度思考中...</span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="tier-label">深度模式（5-30s）<br>阶段指示 + 思考过程</div>
+      </div>
+    </div>
+
+    <div class="design-note" style="margin-top:20px;">
+      <h4>实现建议</h4>
+      <ul>
+        <li>Header 区域用颜色标签区分当前模型/模式（绿色=快，紫色=深度）</li>
+        <li>快模型：只用光标动画，不展示阶段，不展示思考过程</li>
+        <li>慢模型：阶段指示器 + 可折叠思考过程 + 耗时显示</li>
+        <li>自动切换模型时需要 UI 过渡提示：「切换到深度模式以获得更好的结果」</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== P2: Semantic Skeleton ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p2">P2</span> 语义骨架 / 任务预告</h2>
+    <p class="mockup-desc">不是灰色占位块，而是预告「这次回答将包含什么」。用内容预期替代时间焦虑。</p>
+
+    <div class="phone-frame">
+      <div class="phone-statusbar">灵光</div>
+      <div class="phone-header">
+        <span>灵光助手</span>
+        <span class="model-tag">深度搜索</span>
+      </div>
+      <div class="chat-area">
+        <div class="msg msg-user">对比分析 React 和 Vue 的技术选型</div>
+        <div class="skeleton-preview">
+          <div style="color:var(--accent);font-weight:500;margin-bottom:8px;">&#x1F4CB; 正在准备回答，预计包含：</div>
+          <div class="skeleton-item">
+            <span>&#x2460;</span>
+            <span>核心架构对比</span>
+            <span class="skeleton-bar" style="width:60px;"></span>
+          </div>
+          <div class="skeleton-item">
+            <span>&#x2461;</span>
+            <span>性能基准数据</span>
+            <span class="skeleton-bar" style="width:80px;"></span>
+          </div>
+          <div class="skeleton-item">
+            <span>&#x2462;</span>
+            <span>生态与社区</span>
+            <span class="skeleton-bar" style="width:50px;"></span>
+          </div>
+          <div class="skeleton-item">
+            <span>&#x2463;</span>
+            <span>选型建议</span>
+            <span class="skeleton-bar" style="width:70px;"></span>
+          </div>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-field">输入消息...</div>
+        <button class="send-btn">&#x2191;</button>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>设计要点：</strong>在正式内容到达前，先展示回答的「目录」。shimmer 动画表示正在加载，各项逐步替换为实际内容。
+    </div>
+
+    <div class="design-note">
+      <h4>实现建议</h4>
+      <ul>
+        <li>需要后端在生成前快速预估回答结构（可用轻量模型预跑）</li>
+        <li>预告项逐一被实际内容替换，产生「填充」的满足感</li>
+        <li>仅在复杂/长文本任务触发，简单问答不需要</li>
+        <li>如果预估不准确，宁可少展示，不要展示后删除</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- ===== P2: Interrupt Controls ===== -->
+  <div class="mockup-section">
+    <h2><span class="badge badge-p2">P2</span> 细粒度中断控制</h2>
+    <p class="mockup-desc">超越简单的「Stop」。让用户在生成过程中有更多控制权：到此为止、换个方向、更简洁。</p>
+
+    <div class="phone-frame">
+      <div class="phone-statusbar">灵光</div>
+      <div class="phone-header">
+        <span>灵光助手</span>
+        <span class="model-tag">深度推理</span>
+      </div>
+      <div class="chat-area">
+        <div class="msg msg-user">写一篇关于量子计算商业化前景的深度分析</div>
+        <div class="msg msg-ai" style="padding-bottom:6px;">
+          <strong>量子计算商业化前景分析</strong><br><br>
+          <strong>一、技术成熟度现状</strong><br>
+          量子计算经过近四十年的发展，正从实验室走向工程化阶段。2025-2026 年，IBM、Google、IonQ 等公司相继突破了...<br><br>
+          <strong>二、商业化路径</strong><br>
+          目前主要有三条路径：量子即服务（QaaS）、混合量子-经典计算、以及垂直行业解决方案...<span class="cursor"></span>
+        </div>
+        <div class="interrupt-bar">
+          <button class="interrupt-btn stop">&#x25A0; 停止</button>
+          <button class="interrupt-btn">&#x2714; 到这里就好</button>
+          <button class="interrupt-btn">&#x21BB; 换个角度</button>
+          <button class="interrupt-btn">&#x2193; 更简洁</button>
+        </div>
+      </div>
+      <div class="input-bar">
+        <div class="input-field">输入消息...</div>
+        <button class="send-btn">&#x2191;</button>
+      </div>
+    </div>
+
+    <div class="annotation">
+      <strong>设计要点：</strong>按钮在生成过程中出现，结束后消失。「到这里就好」保留已生成内容；「换个角度」保留内容但切换论述方向；「更简洁」让 AI 压缩后续输出。
+    </div>
+
+    <div class="design-note">
+      <h4>实现建议</h4>
+      <ul>
+        <li>按钮组在首段生成完成后出现（太早出现会干扰阅读）</li>
+        <li>「到这里就好」= 保留已输出 + 追加简短收尾</li>
+        <li>「换个角度」= 停止当前 + 发送 system 指令 + 续写</li>
+        <li>「更简洁」= 修改 generation 参数（降低 max_tokens、提高 temperature）</li>
+        <li>按钮不超过 4 个，多了就是选择负担</li>
+      </ul>
+    </div>
+  </div>
+
+  <div style="text-align:center;padding:40px 0;color:var(--text-s);font-size:0.85em;border-top:1px solid var(--border);margin-top:20px;">
+    <p>灵光App 等待体验 UI 示意图 | Alpha Insights</p>
+    <p>基于 TTFT 与等待体验设计专题研究 | 2026-04-01</p>
+  </div>
+
+</div>
+
+<script>
+// Streaming text simulation
+(function() {
+  var text = "好的，我来帮你起草一封周报邮件。||主题：本周工作总结（3.24-3.28）||各位领导好，||本周主要完成了以下工作：|1. 完成了用户增长数据分析，DAU 环比增长 12%...";
+  var el = document.getElementById('stream1');
+  var i = 0;
+  function type() {
+    if (i < text.length) {
+      if (text[i] === '|') {
+        el.innerHTML += '<br>';
+        i++;
+      } else {
+        el.innerHTML += text[i];
+        i++;
+      }
+      setTimeout(type, 30 + Math.random() * 40);
+    }
+  }
+  setTimeout(type, 800);
+})();
+
+// Thinking block toggle
+document.querySelectorAll('.thinking-block').forEach(function(block) {
+  block.addEventListener('click', function() {
+    this.classList.toggle('open');
+  });
+});
+</script>
+
+</body>
+</html>

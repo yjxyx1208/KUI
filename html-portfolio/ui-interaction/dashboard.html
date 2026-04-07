@@ -1,0 +1,397 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵光 · 金价深度探索</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700&family=Noto+Sans+SC:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        cream: '#FAFAF7',
+        amber: '#C4742B',
+        amberLight: '#E8A75C',
+        amberDark: '#8B4513',
+        warmGray: '#6B6560',
+      },
+      fontFamily: {
+        serif: ['Noto Serif SC', 'serif'],
+        sans: ['Noto Sans SC', 'sans-serif'],
+      }
+    }
+  }
+}
+</script>
+<style>
+  body { background: #FAFAF7; }
+  .card { transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
+  .card-expand { max-height: 0; overflow: hidden; transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.4s ease; opacity: 0; }
+  .card-expand.open { max-height: 300px; opacity: 1; }
+  .tab-pill { transition: all 0.3s ease; }
+  .tab-pill.active { background: #C4742B; color: white; box-shadow: 0 4px 12px rgba(196,116,43,0.35); }
+  .pulse-glow { animation: pulse 2.5s ease-in-out infinite; }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.7; }
+  }
+  .fade-in { animation: fadeIn 0.5s ease forwards; }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .chart-container { position: relative; transition: opacity 0.3s ease; }
+  .time-btn { transition: all 0.2s ease; }
+  .time-btn.active { background: #C4742B; color: white; }
+  ::-webkit-scrollbar { width: 0; }
+</style>
+</head>
+<body class="font-sans text-warmGray min-h-screen flex justify-center">
+<div class="w-full max-w-[480px] mx-auto px-4 py-6 pb-20">
+
+  <!-- Header -->
+  <header class="text-center mb-6">
+    <h1 class="font-serif text-2xl font-bold text-amberDark tracking-wider">灵光 · 金价深度探索</h1>
+    <p class="text-xs text-warmGray/60 mt-1 font-sans">Interactive Gold Analysis Dashboard</p>
+  </header>
+
+  <!-- Live Metrics Bar -->
+  <div class="bg-white rounded-2xl shadow-sm border border-amber/10 p-4 mb-5">
+    <div class="flex items-center justify-between">
+      <div>
+        <p class="text-xs text-warmGray/50 font-sans">AU9999 实时金价</p>
+        <div class="flex items-baseline gap-2 mt-1">
+          <span class="font-serif text-3xl font-bold text-amberDark pulse-glow" id="priceDisplay">1,502.00</span>
+          <span class="text-sm font-sans font-semibold text-amber">元/克</span>
+        </div>
+      </div>
+      <div class="text-right">
+        <div class="inline-flex items-center gap-1 bg-red-50 text-red-600 px-3 py-1.5 rounded-full">
+          <svg class="w-3 h-3" fill="currentColor" viewBox="0 0 20 20"><path d="M5.293 9.707a1 1 0 010-1.414l4-4a1 1 0 011.414 0l4 4a1 1 0 01-1.414 1.414L10 6.414l-3.293 3.293a1 1 0 01-1.414 0z"/></svg>
+          <span class="text-sm font-bold">+80%</span>
+        </div>
+        <p class="text-[10px] text-warmGray/40 mt-1">过去一年涨幅</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Tab Switcher -->
+  <div class="flex gap-2 mb-5 overflow-x-auto pb-1" id="tabBar">
+    <button class="tab-pill active flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-warmGray/5" data-tab="0">央行购金</button>
+    <button class="tab-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-warmGray/5 text-warmGray" data-tab="1">利率预期</button>
+    <button class="tab-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-warmGray/5 text-warmGray" data-tab="2">地缘风险</button>
+    <button class="tab-pill flex-shrink-0 px-4 py-2 rounded-full text-sm font-medium bg-warmGray/5 text-warmGray" data-tab="3">资金流向</button>
+  </div>
+
+  <!-- Time Range Selector -->
+  <div class="flex gap-2 mb-4" id="timeRange">
+    <button class="time-btn px-3 py-1 rounded-lg text-xs font-medium bg-warmGray/5 text-warmGray" data-range="1M">1M</button>
+    <button class="time-btn px-3 py-1 rounded-lg text-xs font-medium bg-warmGray/5 text-warmGray" data-range="3M">3M</button>
+    <button class="time-btn px-3 py-1 rounded-lg text-xs font-medium bg-warmGray/5 text-warmGray active" data-range="6M">6M</button>
+    <button class="time-btn px-3 py-1 rounded-lg text-xs font-medium bg-warmGray/5 text-warmGray" data-range="1Y">1Y</button>
+  </div>
+
+  <!-- Chart Area -->
+  <div class="bg-white rounded-2xl shadow-sm border border-amber/10 p-4 mb-5 chart-container">
+    <h3 class="font-serif text-sm font-semibold text-amberDark mb-3" id="chartTitle">全球央行季度购金量（吨）</h3>
+    <div style="height: 260px;">
+      <canvas id="mainChart"></canvas>
+    </div>
+  </div>
+
+  <!-- Detail Cards -->
+  <div id="detailCards" class="space-y-3 mb-6"></div>
+
+  <!-- Forecast Table -->
+  <div class="bg-white rounded-2xl shadow-sm border border-amber/10 p-5 mb-6">
+    <h3 class="font-serif text-base font-bold text-amberDark mb-4">机构预测一览</h3>
+    <div class="space-y-3">
+      <div class="flex justify-between items-center py-2 border-b border-warmGray/10">
+        <span class="text-sm font-medium">摩根大通</span>
+        <span class="font-serif font-bold text-amber">$2,800</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-warmGray/10">
+        <span class="text-sm font-medium">高盛</span>
+        <span class="font-serif font-bold text-amber">$2,700</span>
+      </div>
+      <div class="flex justify-between items-center py-2 border-b border-warmGray/10">
+        <span class="text-sm font-medium">瑞银</span>
+        <span class="font-serif font-bold text-amber">$2,600</span>
+      </div>
+      <div class="flex justify-between items-center py-2">
+        <span class="text-sm font-medium">花旗</span>
+        <span class="font-serif font-bold text-amber">$2,500</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Closing Quote -->
+  <div class="text-center py-8">
+    <div class="w-8 h-px bg-amber/40 mx-auto mb-4"></div>
+    <p class="font-serif text-sm text-warmGray/70 leading-relaxed italic">
+      "金价的每一次新高，<br>都是对旧秩序的一次叩问。"
+    </p>
+    <div class="w-8 h-px bg-amber/40 mx-auto mt-4"></div>
+  </div>
+
+</div>
+
+<script>
+(function() {
+  var tabData = [
+    {
+      title: '全球央行季度购金量（吨）',
+      type: 'bar',
+      labels: ["23Q1", "23Q2", "23Q3", "23Q4", "24Q1", "24Q2", "24Q3"],
+      data: [28, 35, 42, 38, 52, 61, 78],
+      bgColor: ['rgba(196,116,43,0.5)', 'rgba(196,116,43,0.55)', 'rgba(196,116,43,0.6)', 'rgba(196,116,43,0.55)', 'rgba(196,116,43,0.7)', 'rgba(196,116,43,0.8)', 'rgba(196,116,43,1)'],
+      borderColor: '#C4742B',
+      cards: [
+        { title: '需求创新高', summary: '2024年Q3全球央行购金量达78吨，同比增长86%', detail: '这一数据刷新了自2010年以来的单季度购金记录。央行购金从被动储备管理转向主动战略配置，背后是对美元体系信心的结构性转变。购金节奏的加快意味着各国正在用脚投票。' },
+        { title: '主力国家', summary: '中国、印度、土耳其三国占全球央行购金量的65%', detail: '中国央行已连续18个月增持黄金，印度央行在2024年购金量翻倍，土耳其则在通胀压力下将黄金储备比例提升至30%。新兴市场国家正在重塑全球黄金需求格局。' },
+        { title: '战略意义：去美元化', summary: '黄金在全球外汇储备中占比升至15.3%', detail: '自2022年俄乌冲突以来，多国加速外汇储备多元化。冻结俄罗斯资产的举措让各国意识到：持有美债等于持有地缘政治风险。黄金作为无对手方风险资产的价值被重新定价。' }
+      ]
+    },
+    {
+      title: '美联储利率预期路径（%）',
+      type: 'line',
+      labels: ['24Q1', '24Q2', '24Q3', '24Q4', '25Q1', '25Q2', '25Q3', '25Q4'],
+      data: [5.25, 5.25, 5.00, 4.75, 4.25, 4.00, 3.75, 3.50],
+      bgColor: 'rgba(196,116,43,0.1)',
+      borderColor: '#C4742B',
+      cards: [
+        { title: '降息时间表', summary: '市场定价2025年底前累计降息175bp', detail: '期货市场显示，交易员预期美联储将在2025年进行6-7次降息，每次25bp。历史规律表明，降息周期启动后6个月内黄金平均涨幅达18%。当前市场可能低估了降息的速度和幅度。' },
+        { title: '实际利率转负', summary: '10年期TIPS收益率逼近0%，实际利率下行趋势明确', detail: '黄金与实际利率呈强负相关（相关系数-0.82）。当实际利率为负时，持有黄金的机会成本变为机会收益。目前实际利率正从2%的高位快速回落，为黄金提供强劲上行动力。' },
+        { title: '机会成本分析', summary: '持有黄金vs持有美债的收益差正在收窄', detail: '过去两年，5%的美债收益率是黄金的最大竞争对手。随着降息启动，这一优势迅速消失。更关键的是：黄金不仅有降息带来的价格上涨预期，还有央行购金和避险需求的额外支撑。多因子共振正在形成。' }
+      ]
+    },
+    {
+      title: '全球地缘风险热度（多维度）',
+      type: 'polarArea',
+      labels: ['中东冲突', '欧洲局势', '大国博弈', '债务风险', '贸易摩擦'],
+      data: [92, 75, 88, 70, 65],
+      bgColor: [
+        'rgba(196,116,43,0.85)',
+        'rgba(232,167,92,0.75)',
+        'rgba(139,69,19,0.75)',
+        'rgba(196,116,43,0.55)',
+        'rgba(232,167,92,0.55)'
+      ],
+      borderColor: 'rgba(255,255,255,0.5)',
+      cards: [
+        { title: '军费连增8年', summary: '全球军费支出达2.44万亿美元，创历史新高', detail: '北约成员国军费占GDP比重从1.4%提升至2.1%，亚太地区军费增速更是达到7.2%。军费的持续增长既是地缘紧张的结果，也在反向强化冲突预期。这种自我实现的循环为黄金提供了长期支撑。' },
+        { title: '冲突长期化', summary: '当前全球同时存在4个高烈度冲突区域', detail: '中东、东欧、红海航运、南海摩擦——这不是短期事件，而是结构性地缘重组。与冷战不同，当今的多极化格局意味着冲突更分散、更难预测、更难化解。黄金的避险溢价将长期存在。' },
+        { title: '避险需求激增', summary: 'COMEX黄金期货未平仓合约创3年新高', detail: '机构投资者正在系统性地增加黄金对冲头寸。不仅是传统的恐慌买入，更是资产配置框架的根本性调整——从黄金是另类资产到黄金是核心配置的认知跃迁。' }
+      ]
+    },
+    {
+      title: '黄金资金流向分布',
+      type: 'doughnut',
+      labels: ['机构配置', 'ETF持仓', '央行储备', '散户投资', '珠宝消费', '工业需求'],
+      data: [3.8, 12, 25, 18, 35, 6.2],
+      bgColor: [
+        'rgba(196,116,43,1)',
+        'rgba(232,167,92,0.9)',
+        'rgba(139,69,19,0.85)',
+        'rgba(196,116,43,0.6)',
+        'rgba(232,167,92,0.5)',
+        'rgba(196,116,43,0.35)'
+      ],
+      borderColor: 'rgba(255,255,255,0.8)',
+      cards: [
+        { title: 'ETF持仓新高', summary: '全球黄金ETF持仓达3,450吨，年增长12%', detail: 'SPDR Gold Trust（GLD）单周流入超20亿美元，创2020年以来最大单周流入。更值得关注的是亚洲市场：中国黄金ETF规模在过去一年翻了3倍，华安黄金ETF成为全球增速最快的黄金基金。' },
+        { title: '养老基金增配', summary: '全球前20大养老基金平均黄金配置比例从1.2%升至3.8%', detail: '挪威主权财富基金、日本GPIF、加拿大CPPIB等巨头纷纷提高黄金配置。这些聪明钱的动向往往领先市场6-12个月。当养老基金开始买入，意味着黄金正在从交易品种升级为战略资产。' },
+        { title: '从投机到配置', summary: '黄金在全球资产管理规模中的占比从0.5%升至1.8%', detail: '过去黄金被视为恐慌时才买的资产，现在正在被重新定位为必须持有的资产。桥水基金达利欧的全天候策略将黄金权重提升至15%，这一信号具有标志性意义：黄金的叙事正在从周期性转向结构性。' }
+      ]
+    }
+  ];
+
+  var timeRangeMultipliers = { '1M': 0.7, '3M': 0.85, '6M': 1.0, '1Y': 1.15 };
+  var currentTab = 0;
+  var currentRange = '6M';
+  var mainChart = null;
+
+  function createChart(tabIndex) {
+    var tab = tabData[tabIndex];
+    var ctx = document.getElementById('mainChart').getContext('2d');
+    var multiplier = timeRangeMultipliers[currentRange];
+    var adjustedData = tab.data.map(function(v) { return Math.round(v * multiplier * 100) / 100; });
+
+    if (mainChart) {
+      mainChart.destroy();
+    }
+
+    var scalesConfig = {};
+    if (tab.type !== 'doughnut' && tab.type !== 'polarArea') {
+      scalesConfig = {
+        x: {
+          grid: { display: false },
+          ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#6B6560' }
+        },
+        y: {
+          grid: { color: 'rgba(107,101,96,0.08)' },
+          ticks: { font: { family: 'Noto Sans SC', size: 11 }, color: '#6B6560' },
+          beginAtZero: tab.type === 'bar'
+        }
+      };
+    }
+
+    var config = {
+      type: tab.type,
+      data: {
+        labels: tab.labels,
+        datasets: [{
+          data: adjustedData,
+          backgroundColor: tab.bgColor,
+          borderColor: tab.borderColor,
+          borderWidth: 2,
+          borderRadius: tab.type === 'bar' ? 6 : 0,
+          tension: 0.4,
+          fill: tab.type === 'line',
+          pointBackgroundColor: tab.type === 'line' ? '#C4742B' : undefined,
+          pointRadius: tab.type === 'line' ? 4 : undefined,
+          pointHoverRadius: tab.type === 'line' ? 7 : undefined
+        }]
+      },
+      options: {
+        responsive: true,
+        maintainAspectRatio: false,
+        animation: {
+          duration: 800,
+          easing: 'easeInOutQuart'
+        },
+        plugins: {
+          legend: {
+            display: tab.type === 'doughnut' || tab.type === 'polarArea',
+            position: 'bottom',
+            labels: {
+              font: { family: 'Noto Sans SC', size: 11 },
+              padding: 12,
+              usePointStyle: true,
+              pointStyleWidth: 8,
+              color: '#6B6560'
+            }
+          },
+          tooltip: {
+            backgroundColor: 'rgba(139,69,19,0.9)',
+            titleFont: { family: 'Noto Sans SC', size: 12 },
+            bodyFont: { family: 'Noto Sans SC', size: 11 },
+            cornerRadius: 8,
+            padding: 10
+          }
+        },
+        scales: scalesConfig
+      }
+    };
+
+    mainChart = new Chart(ctx, config);
+  }
+
+  function renderCards(tabIndex) {
+    var container = document.getElementById('detailCards');
+    var tab = tabData[tabIndex];
+    var html = '';
+    tab.cards.forEach(function(card, i) {
+      html += '<div class="card bg-white rounded-2xl shadow-sm border border-amber/10 p-4 cursor-pointer fade-in" style="animation-delay: ' + (i * 0.1) + 's" onclick="toggleCard(this)">' +
+        '<div class="flex justify-between items-start">' +
+          '<div class="flex-1">' +
+            '<h4 class="font-serif text-sm font-bold text-amberDark">' + card.title + '</h4>' +
+            '<p class="text-xs text-warmGray/70 mt-1 leading-relaxed">' + card.summary + '</p>' +
+          '</div>' +
+          '<div class="ml-3 mt-1 text-amber/40 transition-transform duration-300 card-arrow">' +
+            '<svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>' +
+          '</div>' +
+        '</div>' +
+        '<div class="card-expand">' +
+          '<div class="pt-3 mt-3 border-t border-warmGray/10">' +
+            '<p class="text-xs text-warmGray/80 leading-relaxed">' + card.detail + '</p>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    container.innerHTML = html;
+  }
+
+  window.toggleCard = function(el) {
+    var expandEl = el.querySelector('.card-expand');
+    var arrowEl = el.querySelector('.card-arrow');
+    var isOpen = expandEl.classList.contains('open');
+    document.querySelectorAll('.card-expand.open').forEach(function(other) {
+      if (other !== expandEl) {
+        other.classList.remove('open');
+        other.closest('.card').querySelector('.card-arrow').style.transform = 'rotate(0deg)';
+      }
+    });
+    if (isOpen) {
+      expandEl.classList.remove('open');
+      arrowEl.style.transform = 'rotate(0deg)';
+    } else {
+      expandEl.classList.add('open');
+      arrowEl.style.transform = 'rotate(180deg)';
+    }
+  };
+
+  function switchTab(index) {
+    currentTab = index;
+    document.querySelectorAll('.tab-pill').forEach(function(btn, i) {
+      if (i === index) {
+        btn.classList.add('active');
+      } else {
+        btn.classList.remove('active');
+      }
+    });
+    document.getElementById('chartTitle').textContent = tabData[index].title;
+    var chartContainer = document.querySelector('.chart-container');
+    chartContainer.style.opacity = '0';
+    setTimeout(function() {
+      createChart(index);
+      chartContainer.style.opacity = '1';
+    }, 200);
+    renderCards(index);
+  }
+
+  document.querySelectorAll('.tab-pill').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      var tabIndex = parseInt(this.getAttribute('data-tab'));
+      switchTab(tabIndex);
+    });
+  });
+
+  document.querySelectorAll('.time-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+      document.querySelectorAll('.time-btn').forEach(function(b) { b.classList.remove('active'); });
+      this.classList.add('active');
+      currentRange = this.getAttribute('data-range');
+      createChart(currentTab);
+    });
+  });
+
+  function animatePrice() {
+    var el = document.getElementById('priceDisplay');
+    var target = 1502.00;
+    var start = 1380.00;
+    var duration = 1500;
+    var startTime = null;
+    function step(timestamp) {
+      if (startTime === null) startTime = timestamp;
+      var progress = Math.min((timestamp - startTime) / duration, 1);
+      var eased = 1 - Math.pow(1 - progress, 3);
+      var current = start + (target - start) * eased;
+      el.textContent = current.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      if (progress < 1) {
+        requestAnimationFrame(step);
+      }
+    }
+    requestAnimationFrame(step);
+  }
+
+  createChart(0);
+  renderCards(0);
+  animatePrice();
+})();
+</script>
+</body>
+</html>

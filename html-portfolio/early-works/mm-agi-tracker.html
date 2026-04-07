@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>多模态大模型与 AGI 相机 · 信息追踪</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+    <link rel="stylesheet" href="css/style.css" />
+  </head>
+  <body>
+    <div class="page">
+      <header>
+        <h1>多模态大模型与 AGI 相机 · 信息追踪</h1>
+        <p>海内外模型与产品信息 · 持续更新</p>
+        <div class="last-updated" id="last-updated">
+          <span class="dot"></span>
+          数据加载中…
+        </div>
+      </header>
+
+      <div class="tabs">
+        <button type="button" class="active" data-tab="models">模型信息</button>
+        <button type="button" data-tab="products">产品信息</button>
+      </div>
+
+      <div class="filters">
+        <span>
+          <label for="filter-region">地区</label>
+          <select id="filter-region">
+            <option value="">全部</option>
+            <option value="国内">国内</option>
+            <option value="海外">海外</option>
+          </select>
+        </span>
+        <span>
+          <label for="filter-status">状态</label>
+          <select id="filter-status">
+            <option value="">全部</option>
+            <option value="已发布">已发布</option>
+            <option value="规划中">规划中</option>
+          </select>
+        </span>
+        <button type="button" class="refresh-btn" id="refresh-btn">刷新数据</button>
+      </div>
+
+      <section class="panel active" id="models-panel">
+        <h2 class="section-title">多模态大模型</h2>
+        <div class="grid" id="models-grid"></div>
+      </section>
+
+      <section class="panel" id="products-panel">
+        <h2 class="section-title">AGI 相机与多模态产品</h2>
+        <div class="grid" id="products-grid"></div>
+      </section>
+
+      <footer>
+        <p>数据来自公开资料与官方信息，仅供参考。更新数据请编辑 <code>data/models.json</code> 与 <code>data/products.json</code>，或使用联网更新脚本。</p>
+      </footer>
+    </div>
+    <script src="js/app.js"></script>
+  </body>
+</html>

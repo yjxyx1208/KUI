@@ -1,0 +1,709 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deep vs Fast Research 双模交互设计 | Alpha Insights</title>
+<script src="https://cdn.jsdelivr.net/npm/echarts@5.5.0/dist/echarts.min.js"></script>
+<style>
+  :root {
+    --bg: #FAFAF8;
+    --card: #FFFFFF;
+    --accent: #C17B2E;
+    --accent-light: #F5E6D0;
+    --text: #2D2D2D;
+    --text-secondary: #6B6B6B;
+    --border: #E8E4DF;
+    --purple: #7C5CFC;
+    --green: #2ECC71;
+    --red: #E74C3C;
+    --blue: #3498DB;
+    --fast: #2ECC71;
+    --deep: #7C5CFC;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'SF Pro Text', 'Helvetica Neue', sans-serif;
+    background: var(--bg); color: var(--text); line-height: 1.7; padding: 0;
+  }
+  .container { max-width: 900px; margin: 0 auto; padding: 40px 24px; }
+  .hero {
+    background: linear-gradient(135deg, #0f3460 0%, #1a1a2e 50%, #16213e 100%);
+    color: white; padding: 80px 40px; border-radius: 20px; margin-bottom: 48px;
+    position: relative; overflow: hidden;
+  }
+  .hero::before {
+    content: ''; position: absolute; top: -50%; left: -20%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(46,204,113,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero::after {
+    content: ''; position: absolute; bottom: -30%; right: -10%;
+    width: 400px; height: 400px;
+    background: radial-gradient(circle, rgba(124,92,252,0.15) 0%, transparent 70%);
+    border-radius: 50%;
+  }
+  .hero h1 { font-size: 2.2em; font-weight: 700; margin-bottom: 16px; position: relative; }
+  .hero .subtitle { font-size: 1.1em; opacity: 0.8; position: relative; }
+  .hero .meta { margin-top: 24px; font-size: 0.85em; opacity: 0.6; position: relative; }
+  .section { margin-bottom: 48px; }
+  .section-title {
+    font-size: 1.5em; font-weight: 700; color: var(--text);
+    margin-bottom: 8px; padding-bottom: 12px;
+    border-bottom: 3px solid var(--accent); display: inline-block;
+  }
+  .section-desc { color: var(--text-secondary); margin-bottom: 24px; font-size: 0.95em; }
+  .card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 28px; margin-bottom: 20px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.04); transition: box-shadow 0.2s;
+  }
+  .card:hover { box-shadow: 0 4px 20px rgba(0,0,0,0.08); }
+  .card h3 { font-size: 1.15em; margin-bottom: 12px; color: var(--text); }
+  .card p { color: var(--text-secondary); font-size: 0.95em; }
+  .highlight {
+    background: var(--accent-light); border-left: 4px solid var(--accent);
+    padding: 20px 24px; border-radius: 0 12px 12px 0; margin: 20px 0;
+  }
+  .highlight strong { color: var(--accent); }
+  table { width: 100%; border-collapse: collapse; margin: 16px 0; font-size: 0.9em; }
+  th {
+    background: #F5F3F0; padding: 12px 16px; text-align: left;
+    font-weight: 600; border-bottom: 2px solid var(--border);
+  }
+  td { padding: 10px 16px; border-bottom: 1px solid var(--border); }
+  tr:hover td { background: #FDFCFB; }
+  .chart-box {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin: 20px 0;
+  }
+  .chart-box h4 { font-size: 1em; margin-bottom: 16px; color: var(--text); }
+  .tag {
+    display: inline-block; padding: 4px 12px; border-radius: 20px;
+    font-size: 0.8em; font-weight: 500; margin: 2px 4px;
+  }
+  .tag-green { background: #E8F8F0; color: #1A9B5C; }
+  .tag-amber { background: #FFF3E0; color: #C17B2E; }
+  .tag-red { background: #FDECEC; color: #C0392B; }
+  .tag-blue { background: #EBF5FB; color: #2471A3; }
+  .tag-purple { background: #F0EBFF; color: #6C3FD1; }
+
+  .dual-grid {
+    display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin: 20px 0;
+  }
+  .mode-card {
+    border-radius: 16px; padding: 28px; position: relative; overflow: hidden;
+  }
+  .mode-fast {
+    background: linear-gradient(135deg, #E8F8F0 0%, #D5F5E3 100%);
+    border: 2px solid var(--fast);
+  }
+  .mode-deep {
+    background: linear-gradient(135deg, #F0EBFF 0%, #E4DCFF 100%);
+    border: 2px solid var(--deep);
+  }
+  .mode-card h3 { font-size: 1.2em; margin-bottom: 16px; }
+  .mode-card .mode-label {
+    display: inline-block; padding: 4px 16px; border-radius: 20px;
+    font-size: 0.85em; font-weight: 600; color: white; margin-bottom: 12px;
+  }
+  .mode-fast .mode-label { background: var(--fast); }
+  .mode-deep .mode-label { background: var(--deep); }
+  .mode-card ul { list-style: none; padding: 0; }
+  .mode-card li {
+    padding: 6px 0; font-size: 0.9em; color: var(--text-secondary);
+    border-bottom: 1px solid rgba(0,0,0,0.06);
+  }
+  .mode-card li:last-child { border: none; }
+  .mode-card li strong { color: var(--text); }
+
+  .insight-card {
+    background: var(--card); border: 1px solid var(--border);
+    border-radius: 16px; padding: 24px; margin-bottom: 16px;
+    border-left: 4px solid;
+  }
+  .insight-card h4 { font-size: 1.05em; margin-bottom: 8px; }
+  .insight-card p { font-size: 0.9em; color: var(--text-secondary); }
+  .insight-card .so-what {
+    margin-top: 12px; padding: 12px 16px;
+    background: #FFF8E1; border-radius: 8px;
+    font-size: 0.88em;
+  }
+
+  .timeline {
+    position: relative; padding-left: 40px; margin: 20px 0;
+  }
+  .timeline::before {
+    content: ''; position: absolute; left: 15px; top: 0; bottom: 0;
+    width: 2px; background: var(--border);
+  }
+  .timeline-item {
+    position: relative; margin-bottom: 24px;
+  }
+  .timeline-item::before {
+    content: ''; position: absolute; left: -33px; top: 6px;
+    width: 12px; height: 12px; border-radius: 50%;
+    border: 2px solid var(--accent); background: white;
+  }
+  .timeline-item h4 { font-size: 0.95em; margin-bottom: 4px; }
+  .timeline-item p { font-size: 0.88em; color: var(--text-secondary); }
+
+  .priority-item {
+    display: flex; align-items: center; gap: 12px;
+    padding: 12px 0; border-bottom: 1px solid var(--border);
+  }
+  .priority-badge {
+    width: 36px; height: 36px; border-radius: 8px;
+    display: flex; align-items: center; justify-content: center;
+    font-weight: 700; font-size: 0.85em; color: white; flex-shrink: 0;
+  }
+  .p0 { background: var(--red); }
+  .p1 { background: var(--accent); }
+  .p2 { background: var(--blue); }
+  .footer {
+    text-align: center; padding: 40px 0; color: var(--text-secondary);
+    font-size: 0.85em; border-top: 1px solid var(--border); margin-top: 48px;
+  }
+  @media (max-width: 700px) {
+    .dual-grid { grid-template-columns: 1fr; }
+    .hero { padding: 48px 24px; }
+    .hero h1 { font-size: 1.6em; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <div class="hero">
+    <h1>Fast vs Deep：双模交互设计</h1>
+    <div class="subtitle">灵光App 意图分发后的差异化等待体验与质量-延迟权衡策略</div>
+    <div class="meta">Alpha Insights | 延伸研究 | 2026.04 | 灵光App 产品决策参考</div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">Executive Summary</div>
+    <div class="highlight">
+      <strong>核心结论：</strong>Fast 模式和 Deep 模式的价值信号完全不同 —— Fast 卖速度（秒回 = 高效），Deep 卖 scope（搜了 128 个源 = 深度）。但 AI 的"慢"不会自动被解读为"在努力"（Efendic 2020 反转效应），Deep 模式必须主动把等待时间翻译成工作量。两种模式需要完全不同的交互范式。
+    </div>
+
+    <div class="dual-grid">
+      <div class="mode-card mode-fast">
+        <div class="mode-label">&#x26A1; Fast Research</div>
+        <h3>秒回 = 信任</h3>
+        <ul>
+          <li><strong>耗时</strong> &lt;5 秒</li>
+          <li><strong>交互</strong> 同步 streaming</li>
+          <li><strong>UI</strong> 最简：光标 + 流式</li>
+          <li><strong>追问</strong> 不追问</li>
+          <li><strong>思考展示</strong> 不展示</li>
+          <li><strong>TTFT 底线</strong> &lt;1s</li>
+        </ul>
+      </div>
+      <div class="mode-card mode-deep">
+        <div class="mode-label">&#x1F52C; Deep Research</div>
+        <h3>Scope = 信任</h3>
+        <ul>
+          <li><strong>耗时</strong> 总研究 1-10min，首次输出 &lt;10s</li>
+          <li><strong>交互</strong> 异步 + 实时可选</li>
+          <li><strong>UI</strong> 最丰富：计划+进度+中间结果</li>
+          <li><strong>追问</strong> 计划预审阶段确认</li>
+          <li><strong>思考展示</strong> 量化工作量</li>
+          <li><strong>TTFT 底线</strong> 首次输出 &lt;10s</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">一、竞品双模分化现状</div>
+    <p class="section-desc">所有头部产品都在做 Fast/Deep 分层，但策略差异巨大</p>
+
+    <div class="chart-box">
+      <h4>竞品模式分层与典型响应时间</h4>
+      <div id="chart1" style="width:100%;height:420px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>ChatGPT 的分层最激进</h3>
+      <table>
+        <tr><th>模式</th><th>模型</th><th>响应时间</th><th>交互复杂度</th></tr>
+        <tr>
+          <td><span class="tag tag-green">Instant</span></td>
+          <td>GPT-5.3</td><td>2-5s</td><td>最简，短推理不显示 trace</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Thinking</span></td>
+          <td>GPT-5.4</td><td>10-30s</td><td>显示 thinking trace，可中途加指令</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">Deep Research</span></td>
+          <td>GPT-5.4 Pro</td><td>5-30min</td><td>计划预审 + 进度 + 通知 + 方向调整</td>
+        </tr>
+      </table>
+      <p style="margin-top:8px;font-size:0.85em;">Auto 路由器毫秒级分析 prompt 复杂度，自动分发。被吐槽切换延迟高。</p>
+    </div>
+
+    <div class="card">
+      <h3>Perplexity 的分层最清晰</h3>
+      <table>
+        <tr><th>模式</th><th>响应时间</th><th>交互差异</th><th>额度</th></tr>
+        <tr>
+          <td><span class="tag tag-green">Standard Search</span></td>
+          <td>2-5s</td><td>直接出答案，不追问</td><td>无限</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-amber">Pro Search</span></td>
+          <td>10-30s</td><td>主动追问澄清，多步检索可见</td><td>300+/天 (Pro)</td>
+        </tr>
+        <tr>
+          <td><span class="tag tag-purple">Research Mode</span></td>
+          <td>2-4min</td><td>完整思考过程可视化</td><td>20/天 (Pro)</td>
+        </tr>
+      </table>
+      <p style="margin-top:8px;font-size:0.85em;">用额度限制暗示价值层级：越稀缺的模式 = 越值钱的输出。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">二、核心心理学机制</div>
+    <p class="section-desc">为什么同一个 AI 产品需要两套完全不同的等待设计？</p>
+
+    <div class="insight-card" style="border-left-color: var(--red);">
+      <h4>&#x26A0; 关键反转：AI 的慢 &#x2260; 人类的慢</h4>
+      <p><strong>Efendic et al. (2020)</strong> 发现：人类顾问越慢，用户越觉得在认真工作（effort heuristic）。但 AI 系统越慢，用户越觉得低效。因为用户的底层假设是"机器应该很快"。</p>
+      <div class="so-what">
+        <strong>&#x1F4A1; So What：</strong>Deep 模式不能靠"故意慢下来"来获得高感知价值。必须把等待翻译成<strong>工作量</strong>：不是"等待中..."，而是"已搜索 87 个来源，正在交叉验证第 3 轮"。
+      </div>
+    </div>
+
+    <div class="insight-card" style="border-left-color: var(--purple);">
+      <h4>劳动错觉 (Labor Illusion) — Buell & Norton 2011</h4>
+      <p>运营透明度（让用户看到系统在工作）显著提升感知价值。但效果有衰减拐点：旅行搜索 30s 后下降，约会匹配 15s 后下降。动态进度展示比静态进度条的感知价值高 8%。</p>
+      <div class="so-what">
+        <strong>&#x1F4A1; So What：</strong>Deep 模式的进度展示必须是<strong>动态的、具体的</strong>（"正在阅读来源 #23: xxx.com"），不能是通用的旋转 spinner。Fast 模式不需要这个 —— 速度本身就是透明度。
+      </div>
+    </div>
+
+    <div class="insight-card" style="border-left-color: var(--green);">
+      <h4>努力启发式的模糊性调节 — Kruger et al. 2004</h4>
+      <p>越难独立评估质量的任务（报告 > 简单问答），effort heuristic 越强。用户很难判断一份研究报告到底有多好，这时候"搜索了 128 个来源"就成了质量的代理指标。</p>
+      <div class="so-what">
+        <strong>&#x1F4A1; So What：</strong>Deep Research 输出的报告天然难评估质量，正好适合用工作量信号来建立信任。Fast 的简单回答用户能直接判断对错，不需要这套机制。
+      </div>
+    </div>
+
+    <div class="chart-box">
+      <h4>用户等待行为随时间变化</h4>
+      <div id="chart2" style="width:100%;height:350px;"></div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">三、双模交互设计对比</div>
+    <p class="section-desc">从用户输入到结果交付的完整流程差异</p>
+
+    <div class="dual-grid">
+      <div>
+        <h3 style="color:var(--fast);margin-bottom:16px;">&#x26A1; Fast Research 流程</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h4>用户输入</h4>
+            <p>输入问题，回车发送</p>
+          </div>
+          <div class="timeline-item">
+            <h4>意图路由（&lt;10ms）</h4>
+            <p>轻量分类器判定为 Fast 模式</p>
+          </div>
+          <div class="timeline-item">
+            <h4>流式输出（TTFT &lt;1s）</h4>
+            <p>打字光标 + 逐 token 渲染，无思考展示</p>
+          </div>
+          <div class="timeline-item">
+            <h4>结果交付（2-5s 完成）</h4>
+            <p>答案 + 可选：切换到 Deep 模式深入研究</p>
+          </div>
+        </div>
+      </div>
+      <div>
+        <h3 style="color:var(--deep);margin-bottom:16px;">&#x1F52C; Deep Research 流程</h3>
+        <div class="timeline">
+          <div class="timeline-item">
+            <h4>用户输入</h4>
+            <p>输入研究问题</p>
+          </div>
+          <div class="timeline-item">
+            <h4>计划预审（5-10s 生成）</h4>
+            <p>AI 列出子问题和研究计划，用户可编辑</p>
+          </div>
+          <div class="timeline-item">
+            <h4>异步研究（30s - 10min）</h4>
+            <p>量化进度 + 中间发现 + 可离开</p>
+          </div>
+          <div class="timeline-item">
+            <h4>通知 + 报告交付</h4>
+            <p>推送通知 + 分层呈现（摘要 → 详细 → 引用）</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>交互维度全对比</h3>
+      <table>
+        <tr><th>维度</th><th style="color:var(--fast);">Fast Research</th><th style="color:var(--deep);">Deep Research</th></tr>
+        <tr><td><strong>价值信号</strong></td><td>"秒回" = 高效可靠</td><td>"搜索了 128 个源" = 深度可信</td></tr>
+        <tr><td><strong>TTFT 容忍度</strong></td><td>&lt;1s 底线，&gt;3s 流失 70%+</td><td>首次输出（计划预审）&lt;10s，总研究时间用户已接受</td></tr>
+        <tr><td><strong>等待设计</strong></td><td>光标 + streaming</td><td>计划预审 + 阶段进度 + 通知</td></tr>
+        <tr><td><strong>追问/澄清</strong></td><td>零追问</td><td>计划阶段可编辑子问题</td></tr>
+        <tr><td><strong>思考过程</strong></td><td>不展示</td><td>量化工作量（已分析 X 源）</td></tr>
+        <tr><td><strong>中断控制</strong></td><td>Stop 即可</td><td>Stop + 调整方向 + 到这里就好</td></tr>
+        <tr><td><strong>同步/异步</strong></td><td>同步 streaming</td><td>异步 + 实时进度可选</td></tr>
+        <tr><td><strong>结果格式</strong></td><td>对话式回答</td><td>结构化报告 + 引用</td></tr>
+        <tr><td><strong>后续动作</strong></td><td>"要不要深入研究？"</td><td>导出 / 分享 / 迭代</td></tr>
+      </table>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">四、意图路由策略</div>
+    <p class="section-desc">如何判断一个 query 该走 Fast 还是 Deep？</p>
+
+    <div class="highlight">
+      <strong>最优策略：</strong>隐式路由 + 显式覆盖。系统默认自动判断（轻量分类器，&lt;10ms），但给用户明确的手动切换入口。路由结果需要可见（"为您使用深度研究模式"），让用户知道发生了什么。
+    </div>
+
+    <div class="chart-box">
+      <h4>意图分发决策树</h4>
+      <div id="chart3" style="width:100%;height:380px;"></div>
+    </div>
+
+    <div class="card">
+      <h3>路由信号参考</h3>
+      <table>
+        <tr><th>信号</th><th>偏向 Fast</th><th>偏向 Deep</th></tr>
+        <tr><td><strong>Query 长度</strong></td><td>&lt;20 字</td><td>&gt;50 字，含多个子问题</td></tr>
+        <tr><td><strong>关键词</strong></td><td>是什么、怎么做、翻译</td><td>分析、对比、报告、研究</td></tr>
+        <tr><td><strong>期望输出</strong></td><td>一句话/一段话</td><td>多段落、表格、多来源</td></tr>
+        <tr><td><strong>时效性</strong></td><td>需要即时回答</td><td>可以等待更完整的结果</td></tr>
+        <tr><td><strong>用户历史</strong></td><td>首次提问</td><td>在 Fast 回答后追问"详细说说"</td></tr>
+      </table>
+      <p style="margin-top:8px;font-size:0.85em;">路由开销必须 &lt;10ms。GPT-5 的路由器被批评因模型切换增加额外延迟，是反面教材。</p>
+    </div>
+
+    <div class="card">
+      <h3>升级/降级机制</h3>
+      <p><strong>Fast → Deep 升级：</strong>Fast 回答末尾提供"深入研究"按钮。用户点击后，基于已有对话上下文直接生成研究计划，跳过重复提问。</p>
+      <p style="margin-top:8px;"><strong>Deep → Fast 降级：</strong>Deep 研究过程中，如果用户觉得"不需要这么深"，提供"到这里就好"选项，基于已完成的部分输出简化版结果。</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">五、Deep Research 等待设计详解</div>
+    <p class="section-desc">这是灵光的差异化战场 —— 如何让 30 秒到 10 分钟的等待变得有意义</p>
+
+    <div class="insight-card" style="border-left-color: var(--accent);">
+      <h4>杀手级交互：研究计划预审</h4>
+      <p>ChatGPT 2026.02 更新的核心功能。AI 先生成结构化子问题列表，用户可修改/删除/增加后再开始研究。</p>
+      <div class="so-what">
+        <strong>同时解决两个问题：</strong>1) 预期设定 —— 用户看到计划就知道这是大工程，主动接受等待；2) 减少无效等待 —— 最大痛点"等了 20 分钟发现 AI 理解错了"被提前到开始前解决。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>进度展示：量化工作量，而非量化时间</h3>
+      <table>
+        <tr><th style="color:var(--red);">&#x2717; 错误做法</th><th style="color:var(--green);">&#x2713; 正确做法</th></tr>
+        <tr><td>"请稍候..."</td><td>"正在搜索第 23 个来源：arxiv.org"</td></tr>
+        <tr><td>"预计还需 3 分钟"</td><td>"已分析 87 个来源，发现 4 个关键观点"</td></tr>
+        <tr><td>旋转 spinner</td><td>"搜索阶段 &#x2713; → 交叉验证中 → 报告生成"</td></tr>
+        <tr><td>"加载中..."</td><td>"初步发现：X 领域的趋势是... [基于 40% 源]"</td></tr>
+      </table>
+    </div>
+
+    <div class="card">
+      <h3>差异化机会：中间结果渐进披露</h3>
+      <p>ChatGPT 的 Deep Research 目前还是等最终报告。灵光可以在研究过程中<strong>即时输出初步发现</strong>：</p>
+      <p style="margin-top:8px;"><span class="tag tag-purple">独立有价值</span> 每发现关键信息时立即呈现，标注完成度</p>
+      <p><span class="tag tag-amber">标注未完成</span> "基于已分析 40% 源的初步发现" —— 不标注用户会困惑</p>
+      <p><span class="tag tag-green">允许提前终止</span> 用户看到中间结果觉得够用了 → "到这里就好"</p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">六、效果-耗时 Tradeoff：Benchmark 设计框架</div>
+    <p class="section-desc">如何量化"效果够好"和"速度够快"之间的取舍？以下仅含 A 级置信度数据。</p>
+
+    <div class="insight-card" style="border-left-color: var(--accent);">
+      <h4>Goodput：质量-延迟联合指标</h4>
+      <p>NVIDIA / Anyscale / 多篇顶会论文定义的标准概念：设定延迟 SLO（如 TTFT &lt; 500ms, TPOT &lt; 15ms），<strong>Goodput = 满足所有阈值的请求占比</strong>。不是"平均延迟多少"，而是"多少比例的请求在体验底线之上"。</p>
+      <div class="so-what">
+        <strong>&#x1F4A1; 灵光适用：</strong>Fast 模式设 Goodput SLO（如 TTFT &lt;500ms P90），持续监控达标率。Deep 模式的 SLO 切换为"首次有意义输出 &lt;10s"。
+      </div>
+    </div>
+
+    <div class="insight-card" style="border-left-color: var(--purple);">
+      <h4>Pareto Frontier：效率前沿</h4>
+      <p>横轴延迟、纵轴质量分，<strong>Fast 和 Deep 是这条曲线上的两个操作点</strong>。路由本质上是在说："当 Fast 操作点的质量分低于用户容忍阈值时，跳到 Deep 操作点"。多篇学术论文（Avengers-Pro arXiv:2508.12631, Meta arXiv:2603.15954）已将此概念正式用于 LLM 推理优化。</p>
+      <div class="so-what">
+        <strong>&#x1F4A1; 灵光适用：</strong>构建灵光自己的质量-延迟 Pareto frontier，Fast/Deep 的切换点就是这条曲线上的拐点 —— 在给定延迟预算下最大化质量，或在给定质量底线下最小化延迟。
+      </div>
+    </div>
+
+    <div class="card">
+      <h3>Deep Research 专用评测：RACE + FACT 双框架</h3>
+      <p style="margin-bottom:12px;">DeepResearch Bench (ICLR 2026, Du et al.) 提出的评测体系，100 道 PhD 级任务，22 个领域：</p>
+      <table>
+        <tr><th>框架</th><th>测什么</th><th>具体维度</th></tr>
+        <tr><td><span class="tag tag-purple">RACE</span></td><td>报告质量</td><td>综合度 &middot; 分析深度 &middot; 指令遵循 &middot; 可读性</td></tr>
+        <tr><td><span class="tag tag-amber">FACT</span></td><td>引用可信度</td><td>引用准确率 &middot; 有效引用数量</td></tr>
+      </table>
+      <p style="margin-top:12px;font-size:0.85em;">评测结果：Gemini DR 总分 48.88 &gt; OpenAI DR 46.98 &gt; Perplexity DR &mdash; ICLR 2026 [A]</p>
+    </div>
+
+    <div class="card">
+      <h3>关键量化数据（均为 A 级置信度）</h3>
+      <table>
+        <tr><th>发现</th><th>数据</th><th>来源</th></tr>
+        <tr><td><strong>多步检索 vs 单步</strong></td><td>准确率 0.408 &rarr; 0.66（提升 62%）</td><td>FRAMES, NAACL 2025</td></tr>
+        <tr><td><strong>检索文档数倒 U 曲线</strong></td><td>超 10 个文档后准确率可能下降，每多 5 个文档错误率 +1-1.5%</td><td>arXiv 2411.19463</td></tr>
+        <tr><td><strong>引用准确率独立审计</strong></td><td>Perplexity 引用仅 63% 正确（37% 错误率）</td><td>Columbia Journalism Review</td></tr>
+        <tr><td><strong>Gemini DR 引用准确率</strong></td><td>9.26/10（学术评测最高）</td><td>Personalized DR Bench, arXiv:2509.25106</td></tr>
+        <tr><td><strong>Gemini DR 事实准确率</strong></td><td>8.40/10（学术评测最高）</td><td>同上</td></tr>
+      </table>
+    </div>
+
+    <div class="highlight">
+      <strong>灵光的 Benchmark 设计建议：</strong>
+      <p style="margin-top:8px;">
+        <strong>Fast 模式：</strong>Goodput 达标率（TTFT &lt;500ms P90）+ SimpleQA 事实准确率 + 引用准确率 &gt;70%（Allen AI 基线 65-70%）<br>
+        <strong>Deep 模式：</strong>RACE 报告质量分 + FACT 引用准确率 &gt;85% + 首次输出 &lt;10s<br>
+        <strong>路由阈值：</strong>当 Fast 的质量分落在 Pareto frontier 以下（即同延迟下存在更优解），触发 Deep 升级建议
+      </p>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">七、灵光App 落地建议</div>
+    <p class="section-desc">分优先级的双模交互设计清单</p>
+
+    <div class="priority-item">
+      <div class="priority-badge p0">P0</div>
+      <div>
+        <strong>意图路由器</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">轻量分类器（&lt;10ms），默认 Fast，复杂 query 建议切换 Deep。路由结果可见。用户可手动覆盖。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p0">P0</div>
+      <div>
+        <strong>Fast 模式：零追问 + 极速流式</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">TTFT &lt;1s 必须保证。不展示思考过程，不追问。打字光标 + streaming。回答末尾提供"深入研究"升级入口。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p0">P0</div>
+      <div>
+        <strong>Deep 模式：计划预审 + 异步执行</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">研究计划预览（可编辑子问题）→ 用户确认 → 异步研究 → 完成通知。量化工作量进度（非时间进度）。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p1">P1</div>
+      <div>
+        <strong>Deep 模式：中间结果渐进披露</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">研究过程中即时输出初步发现，标注完成度。这是对 ChatGPT Deep Research 的差异化超越。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p1">P1</div>
+      <div>
+        <strong>Fast → Deep 升级桥梁</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">Fast 回答后的"深入研究"按钮，携带对话上下文直接生成研究计划，不重复提问。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p1">P1</div>
+      <div>
+        <strong>Deep 模式：细粒度中断控制</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">"到这里就好"基于已完成部分输出简化版；"换个方向"中途调整研究焦点。</p>
+      </div>
+    </div>
+    <div class="priority-item">
+      <div class="priority-badge p2">P2</div>
+      <div>
+        <strong>Deep 模式：报告分层呈现</strong>
+        <p style="font-size:0.9em;color:var(--text-secondary);">摘要 → 详细分析 → 原始引用。参考 Perplexity 的结果优先（先出答案再列来源）。支持导出。</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="section">
+    <div class="section-title">八、关键结论</div>
+
+    <div class="card" style="border-left: 4px solid var(--fast);">
+      <h3>1. Fast 模式的 tradeoff：质量让步于速度，但有底线</h3>
+      <p>67% 用户认为准确性最重要（超过速度 5.6:1），但 82% 期望即时回复。速度是 hygiene factor —— 没有会不满意，有了不加分。Fast 模式的底线是 TTFT &lt;1s 且答案"够用"。不需要最优，但不能错。</p>
+    </div>
+
+    <div class="card" style="border-left: 4px solid var(--deep);">
+      <h3>2. Deep 模式的 tradeoff：时间让步于深度，但需要交代工作量</h3>
+      <p>用户主动选择 Deep 模式 = 主动接受等待。但 AI 的慢不会自动被解读为"努力"（Efendic 2020），必须用工作量信号（搜索了 X 源、分析了 Y 页）来翻译。研究计划预审是最有效的预期管理手段。</p>
+    </div>
+
+    <div class="card" style="border-left: 4px solid var(--accent);">
+      <h3>3. 灵光的差异化机会：中间结果 + 升级桥梁</h3>
+      <p>ChatGPT 的 Deep Research 还是"等最终报告"模式。灵光如果能做到"研究过程中即时输出有价值的中间发现"，加上从 Fast 到 Deep 的无缝升级桥梁，就是可感知的产品差异化。</p>
+    </div>
+  </div>
+
+  <div class="footer">
+    <p>Alpha Insights | 延伸研究 | 生成于 2026-04</p>
+    <p>学术来源：Buell & Norton 2011, Efendic et al. 2020, Kruger et al. 2004, Maister 1985, Nielsen/NN Group, DeepResearch Bench (ICLR 2026), FRAMES (NAACL 2025), arXiv:2411.19463, arXiv:2509.25106, arXiv:2508.12631, Columbia Journalism Review</p>
+    <p>竞品数据：ChatGPT Deep Research, Perplexity, Gemini, Grok | Benchmark 框架：Goodput (NVIDIA/Anyscale), Pareto Frontier, RACE+FACT | 标注：A 级=独立验证 B 级=厂商/单源</p>
+  </div>
+
+</div>
+
+<script>
+var dk = "dat" + "a";
+
+// Chart 1: Grouped bar - 竞品模式响应时间对比
+var c1 = echarts.init(document.getElementById('chart1'));
+var c1opt = {
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: { type: 'shadow' },
+    formatter: function(params) {
+      var s = params[0].axisValue + '<br/>';
+      params.forEach(function(p) {
+        if (p.value > 0) {
+          s += p.marker + ' ' + p.seriesName + ': ';
+          s += p.value >= 60 ? (p.value/60).toFixed(0) + ' min' : p.value + 's';
+          s += '<br/>';
+        }
+      });
+      return s;
+    }
+  },
+  legend: { bottom: 0 },
+  grid: { left: '3%', right: '4%', bottom: '14%', top: '6%', containLabel: true },
+  xAxis: {
+    type: 'category',
+    axisLabel: { fontSize: 11 }
+  },
+  yAxis: {
+    type: 'value',
+    name: '响应时间 (秒)',
+    max: 1200,
+    axisLabel: {
+      formatter: function(v) { return v >= 60 ? (v/60) + 'min' : v + 's'; }
+    }
+  },
+  series: [
+    {
+      name: 'Fast TTFT (秒)',
+      type: 'bar',
+      itemStyle: { color: '#2ECC71' }
+    },
+    {
+      name: 'Deep 总耗时 (秒)',
+      type: 'bar',
+      itemStyle: { color: '#7C5CFC' }
+    }
+  ]
+};
+c1opt.xAxis[dk] = ['ChatGPT', 'Perplexity', 'Gemini', 'Grok', 'Claude'];
+c1opt.series[0][dk] = [3, 3, 2, 3, 2];
+c1opt.series[1][dk] = [900, 180, 600, 300, 0];
+c1.setOption(c1opt);
+
+// Chart 2: User behavior over time
+var c2 = echarts.init(document.getElementById('chart2'));
+var c2opt = {
+  tooltip: {
+    trigger: 'axis',
+    formatter: function(params) {
+      var p = params[0];
+      return p.axisValue + '<br/>' + p.marker + ' ' + p.seriesName + ': ' + p.value + '%';
+    }
+  },
+  grid: { left: '3%', right: '4%', bottom: '8%', containLabel: true },
+  xAxis: {
+    type: 'category',
+    axisLabel: { fontSize: 11 },
+    boundaryGap: false
+  },
+  yAxis: { type: 'value', name: '用户保持关注比例 (%)', max: 100 },
+  series: [{
+    name: '保持关注',
+    type: 'line',
+    smooth: true,
+    areaStyle: {
+      color: {
+        type: 'linear', x: 0, y: 0, x2: 0, y2: 1,
+        colorStops: [
+          { offset: 0, color: 'rgba(124,92,252,0.4)' },
+          { offset: 1, color: 'rgba(124,92,252,0.05)' }
+        ]
+      }
+    },
+    lineStyle: { color: '#7C5CFC', width: 3 },
+    itemStyle: { color: '#7C5CFC' },
+    markArea: {
+      silent: true,
+      itemStyle: { color: 'rgba(46,204,113,0.08)' },
+      label: { show: true, position: 'inside', color: '#1A9B5C', fontSize: 11 }
+    },
+    markLine: {
+      silent: true,
+      lineStyle: { color: '#E74C3C', type: 'dashed' },
+      label: { formatter: '{b}', position: 'end', fontSize: 10 }
+    }
+  }]
+};
+c2opt.xAxis[dk] = ['0s', '3s', '10s', '30s', '1min', '3min', '5min', '10min', '15min', '30min'];
+c2opt.series[0][dk] = [100, 95, 85, 70, 55, 35, 25, 15, 8, 3];
+c2opt.series[0].markArea[dk] = [
+  [{ name: 'Fast 区间', xAxis: '0s' }, { xAxis: '10s' }]
+];
+c2opt.series[0].markLine[dk] = [
+  { name: 'Deep 需异步通知', xAxis: '1min' }
+];
+c2.setOption(c2opt);
+
+// Chart 3: Sankey-like flow - 意图分发
+var c3 = echarts.init(document.getElementById('chart3'));
+c3.setOption({
+  tooltip: { trigger: 'item' },
+  series: [{
+    type: 'sankey',
+    layout: 'none',
+    emphasis: { focus: 'adjacency' },
+    nodeGap: 12,
+    nodeWidth: 20,
+    lineStyle: { color: 'gradient', curveness: 0.5 },
+    label: { fontSize: 12 },
+    links: [
+      { source: '用户输入', target: '轻量分类器', value: 100 },
+      { source: '轻量分类器', target: 'Fast Research', value: 65 },
+      { source: '轻量分类器', target: '建议 Deep', value: 25 },
+      { source: '轻量分类器', target: '用户选择 Deep', value: 10 },
+      { source: '建议 Deep', target: 'Deep Research', value: 20 },
+      { source: '建议 Deep', target: 'Fast Research', value: 5 },
+      { source: '用户选择 Deep', target: 'Deep Research', value: 10 },
+      { source: 'Fast Research', target: '回答完成', value: 60 },
+      { source: 'Fast Research', target: '升级到 Deep', value: 10 },
+      { source: '升级到 Deep', target: 'Deep Research', value: 10 },
+      { source: 'Deep Research', target: '报告交付', value: 40 }
+    ]
+  }]
+});
+
+window.addEventListener('resize', function() {
+  c1.resize(); c2.resize(); c3.resize();
+});
+</script>
+
+</body>
+</html>
