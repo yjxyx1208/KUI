@@ -1,0 +1,266 @@
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">03</div>
+      <div class="chapter-name">图片输入八大能力域全景</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>能力域价值阶梯</h2>
+      <p>图片作为输入模态所触发的能力，可以沿价值阶梯从基础感知逐步攀升至Agent行动。当前行业竞争的主战场正在从L1-L4（感知/分析/搜索/知识）向L5-L8（决策/工作流/Agent/实时）迁移。</p>
+
+      <div class="chart-container">
+        <div class="chart-title">图片输入能力域价值阶梯</div>
+        <div id="chart-value-ladder" style="width:100%;height:400px;"></div>
+      </div>
+
+      <h2>L1-L2：感知与分析层 — 基础但仍有差异</h2>
+      <div class="highlight-box yellow">
+        <div class="highlight-text"><strong>反直觉发现：</strong>「感知能力趋同」可能是错的。ERNIE 5.0/Qwen在OCR/文档/图表上仍有15-20%的性能差距（OCRBench v1: Qwen 920 vs 其他模型&lt;860），基础层并非完全趋同。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>成熟度</th></tr>
+        <tr><td>OCR文字识别</td><td>Gemini, ERNIE 5.0</td><td>文心一言, 通义千问</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>物体识别</td><td>GPT-4o, Gemini</td><td>豆包, 通义千问</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>场景理解</td><td>GPT-4o, Claude</td><td>豆包（地点识别）</td><td><span class="badge badge-a">成熟</span></td></tr>
+        <tr><td>图表解读</td><td>ERNIE 5.0（ChartQA领先）</td><td>文心一言</td><td><span class="badge badge-b">较成熟</span></td></tr>
+        <tr><td>文档理解</td><td>ERNIE 5.0（DocVQA领先）</td><td>文心一言, Kimi</td><td><span class="badge badge-b">较成熟</span></td></tr>
+        <tr><td>医疗影像</td><td>GPT-5</td><td>百川M3（HealthBench全球第一 65.1分）</td><td><span class="badge badge-medium">发展中</span></td></tr>
+      </table>
+
+      <h2>L3-L4：搜索与知识层 — 生态决定上限</h2>
+      <p>视觉搜索和知识增强的竞争力取决于背后的数据生态。Google凭借Google Lens+知识图谱在全球遥遥领先，国内豆包依托字节生态在以图搜图和购物场景领先。</p>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>关键壁垒</th></tr>
+        <tr><td>以图搜图</td><td>Google Lens/Gemini</td><td>豆包</td><td>图片索引库规模</td></tr>
+        <tr><td>同款识别</td><td>Gemini（购物集成）</td><td>豆包（AI穿搭助手）</td><td>电商数据接入</td></tr>
+        <tr><td>拍照问答</td><td>GPT-4o, Gemini</td><td>豆包, 通义千问</td><td>通用知识覆盖</td></tr>
+        <tr><td>题目解析</td><td>GPT-4o</td><td>讯飞星火, 豆包</td><td>教育内容库</td></tr>
+      </table>
+
+      <h2>L5-L6：决策与工作流层 — PMF最清晰的战场</h2>
+      <div class="highlight-box green">
+        <div class="highlight-text"><strong>关键发现：</strong>「截图→办公文档」是当前工作流场景中PMF最清晰的方向，Kimi已验证。灵光可快速跟进，但需结合蚂蚁场景做差异化（截图→财务报表分析、保险合同摘要生成）。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>商业化进度</th></tr>
+        <tr><td>商品比价</td><td>Gemini（购物集成）</td><td>豆包（购买推荐）</td><td><span class="badge badge-a">已变现</span></td></tr>
+        <tr><td>截图→代码</td><td>Claude（最强）</td><td>Kimi K2.5</td><td><span class="badge badge-b">免费功能</span></td></tr>
+        <tr><td>图片→PPT/文档</td><td>—</td><td>Kimi Office Agent</td><td><span class="badge badge-b">免费功能</span></td></tr>
+        <tr><td>健康评估</td><td>—</td><td>百川（AI医生）</td><td><span class="badge badge-medium">探索中</span></td></tr>
+      </table>
+
+      <h2>L7-L8：Agent与实时层 — 增速最快的前沿</h2>
+      <div class="highlight-box red">
+        <div class="highlight-text"><strong>重要趋势：</strong>纯视觉GUI Agent正在引发「OS入口之争」。Claude Computer Use从&lt;15%飙升至72.5%（6个月5倍增长），豆包手机3万台秒光后被微信/美团/阿里集体封杀——威胁等级极高。</div>
+      </div>
+
+      <table class="data-table">
+        <tr><th>能力</th><th>全球领先</th><th>国内领先</th><th>成熟度</th></tr>
+        <tr><td>UI操控（Computer Use）</td><td>Claude（72.5%）</td><td>手机厂商GUI智能体</td><td><span class="badge badge-medium">预览阶段</span></td></tr>
+        <tr><td>跨应用执行</td><td>Claude Cowork/Dispatch</td><td>MiniMax Agent 2.0</td><td><span class="badge badge-medium">预览阶段</span></td></tr>
+        <tr><td>实时摄像头交互</td><td>Gemini Search Live</td><td>国内空白</td><td><span class="badge badge-high">早期</span></td></tr>
+        <tr><td>Agent集群并行</td><td>—</td><td>Kimi K2.5 Agent Swarm</td><td><span class="badge badge-medium">已上线</span></td></tr>
+      </table>
+
+      <div class="page-number">— 3 —</div>
+    </div>
+  </div>
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">04</div>
+      <div class="chapter-name">国内外竞品能力矩阵</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>全球竞品能力雷达图</h2>
+      <p>以下雷达图从八大能力域维度对比全球Top 5应用的综合能力（评分基于公开Benchmark + 产品功能覆盖度，10分制）：</p>
+
+      <div class="chart-container">
+        <div class="chart-title">全球Top 5应用八大能力域雷达图</div>
+        <div id="chart-radar" style="width:100%;height:450px;"></div>
+      </div>
+
+      <h2>国外应用详解</h2>
+
+      <h3>ChatGPT (OpenAI) — 六边形战士</h3>
+      <div class="insight-card">
+        <h4>GPT-4o / GPT-5</h4>
+        <p><strong>核心能力：</strong>OCR、图表解读、UI分析、截图→代码、文档解析，支持上传最多20个文件</p>
+        <p><strong>Agent能力：</strong>Operator/CUA整合进ChatGPT核心体验，OSWorld 32.6%</p>
+        <p><strong>差异化：</strong>综合最均衡，生态最完善（插件/GPTs/API），搜索+视觉联合能力强</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Claude (Anthropic) — Computer Use王者</h3>
+      <div class="insight-card">
+        <h4>Claude 4.x / Sonnet 4.6</h4>
+        <p><strong>核心能力：</strong>截图→代码、UI逆向工程、白板转录、竞品分析截图，API最多600张图片</p>
+        <p><strong>Agent能力：</strong>Computer Use OSWorld <strong>72.5%</strong>（全行业最高），Cowork跨设备协作，14.5小时任务跨度</p>
+        <p><strong>差异化：</strong>Computer Use遥遥领先（72.5% vs OpenAI 32.6%），代码生成质量业界公认最强</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Gemini (Google) — 搜索+视觉之王</h3>
+      <div class="insight-card">
+        <h4>Gemini 2.5 Pro / 3.x</h4>
+        <p><strong>核心能力：</strong>Google Lens深度集成、1M token上下文、Search Live实时摄像头、物体检测（bounding box）、AI Mode购物集成</p>
+        <p><strong>差异化：</strong>最强搜索+视觉联合（Google生态），实时摄像头交互最成熟，购物→购买闭环</p>
+        <p><strong>Benchmark：</strong>LMArena Rank 1（1452分），MMMU ~84.6%</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h2>国内应用详解</h2>
+
+      <h3>国内竞品能力分组对比</h3>
+      <div class="chart-container">
+        <div class="chart-title">国内Top 5应用核心能力对比</div>
+        <div id="chart-domestic" style="width:100%;height:400px;"></div>
+      </div>
+
+      <h3>豆包 (字节跳动) — C端陪伴之王</h3>
+      <div class="insight-card">
+        <h4>Seed系列</h4>
+        <p><strong>核心能力：</strong>深度思考+图片输入、以图搜图/搜文/搜图、地点识别、物体识别+购买推荐、AI穿搭助手</p>
+        <p><strong>Agent能力：</strong>手机端GUI智能体（字节系App串联），豆包手机3万台秒光</p>
+        <p><strong>差异化：</strong>日活最高的国产AI，视觉→购物闭环最成熟（字节电商生态）</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>Kimi (月之暗面) — 工作流效率王</h3>
+      <div class="insight-card">
+        <h4>K2 / K2.5</h4>
+        <p><strong>核心能力：</strong>截图→代码/视频→代码、Office Agent图片→PPT/Word/Excel、Agent集群并行、可视化编程区域编辑</p>
+        <p><strong>差异化：</strong>截图→办公文档最强，长文本+多图联合理解，Agent集群并行执行</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>文心一言 (百度) — 文档理解之王</h3>
+      <div class="insight-card">
+        <h4>ERNIE 5.0</h4>
+        <p><strong>核心能力：</strong>2.4万亿参数原生全模态、OCRBench/DocVQA/ChartQA三项领先、深度搜索、视频理解→代码</p>
+        <p><strong>差异化：</strong>原生全模态技术路线（非后融合），文档/图表理解企业场景最强</p>
+        <p><strong>Benchmark：</strong>LMArena视觉理解榜中国第一（1226分），文本榜1460分中国第一</p>
+        <p><strong>置信度：</strong><span class="badge badge-a">A级</span></p>
+      </div>
+
+      <h3>其他国内应用速览</h3>
+      <table class="data-table">
+        <tr><th>应用</th><th>核心定位</th><th>图片能力特色</th><th>置信度</th></tr>
+        <tr><td>通义千问</td><td>阿里生态全能</td><td>视频理解、自动点餐、阿里生态闭环</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>百川智能</td><td>医疗AI All-in</td><td>HealthBench全球第一(65.1)，4K分辨率医疗图片</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>MiniMax</td><td>Agent+全球化</td><td>Agent 2.0本地工作空间，M2.5编程能力突出</td><td><span class="badge badge-a">A级</span></td></tr>
+        <tr><td>智谱清言</td><td>数据分析</td><td>工具调用出图表，GLM-OCR OmniDocBench登顶</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>讯飞星火</td><td>教育垂直</td><td>题目解析、作业批改、语音+视觉</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>腾讯元宝</td><td>社交场景</td><td>微信/QQ全场景集成</td><td><span class="badge badge-b">B级</span></td></tr>
+        <tr><td>DeepSeek</td><td>开源/推理</td><td>图片理解非重点，编程最强</td><td><span class="badge badge-b">B级</span></td></tr>
+      </table>
+
+      <h2>竞争定位：生态深度 vs Agent能力</h2>
+      <div class="chart-container">
+        <div class="chart-title">竞品定位散点图：生态闭环深度 × Agent/行动能力</div>
+        <div id="chart-scatter" style="width:100%;height:400px;"></div>
+      </div>
+
+      <div class="page-number">— 4 —</div>
+    </div>
+  </div>
+
+<script>
+// 能力域价值阶梯图
+var c1 = echarts.init(document.getElementById('chart-value-ladder'));
+c1.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  grid: { left: '15%', right: '10%', top: '8%', bottom: '10%' },
+  xAxis: { type: 'value', name: '行业竞争激烈度', nameLocation: 'middle', nameGap: 30 },
+  yAxis: { type: 'category', data: ['L1 感知提取','L2 分析推理','L3 视觉搜索','L4 知识增强','L5 决策辅助','L6 工作流自动化','L7 Agent行动','L8 实时交互'], axisLabel: { fontSize: 12 } },
+  series: [
+    { name: '成熟度', type: 'bar', data: [90,75,70,72,55,50,30,15], itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#667EEA'},{offset:1,color:'#2D5B8C'}]) } },
+    { name: '增长潜力', type: 'bar', data: [20,40,35,30,65,70,90,95], itemStyle: { color: new echarts.graphic.LinearGradient(0,0,1,0,[{offset:0,color:'#F6AD55'},{offset:1,color:'#DD6B20'}]) } }
+  ]
+});
+
+// 全球Top5雷达图
+var c2 = echarts.init(document.getElementById('chart-radar'));
+c2.setOption({
+  tooltip: {},
+  legend: { data: ['ChatGPT','Claude','Gemini','豆包','Kimi'], bottom: 0 },
+  radar: {
+    indicator: [
+      {name: '感知提取', max: 10},
+      {name: '分析推理', max: 10},
+      {name: '视觉搜索', max: 10},
+      {name: '知识增强', max: 10},
+      {name: '决策辅助', max: 10},
+      {name: '工作流', max: 10},
+      {name: 'Agent行动', max: 10},
+      {name: '实时交互', max: 10}
+    ],
+    radius: '60%'
+  },
+  series: [{
+    type: 'radar',
+    data: [
+      { value: [9,9,8,9,7,8,6,5], name: 'ChatGPT', lineStyle: {color: '#10B981'} },
+      { value: [8,9,5,7,5,9,10,4], name: 'Claude', lineStyle: {color: '#667EEA'} },
+      { value: [9,8,10,9,8,6,5,9], name: 'Gemini', lineStyle: {color: '#F59E0B'} },
+      { value: [8,7,8,8,7,5,6,6], name: '豆包', lineStyle: {color: '#EF4444'} },
+      { value: [7,8,5,7,5,9,7,3], name: 'Kimi', lineStyle: {color: '#8B5CF6'} }
+    ]
+  }]
+});
+
+// 国内Top5分组柱状图
+var c3 = echarts.init(document.getElementById('chart-domestic'));
+c3.setOption({
+  tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
+  legend: { data: ['感知/分析','搜索/知识','决策/工作流','Agent/实时'], bottom: 0 },
+  grid: { left: '8%', right: '5%', bottom: '15%', top: '8%' },
+  xAxis: { type: 'category', data: ['豆包','Kimi','文心一言','通义千问','百川'] },
+  yAxis: { type: 'value', max: 10 },
+  series: [
+    { name: '感知/分析', type: 'bar', data: [7.5,7.5,9,8,7], itemStyle: {color: '#667EEA'} },
+    { name: '搜索/知识', type: 'bar', data: [8,6,6.5,7.5,4], itemStyle: {color: '#10B981'} },
+    { name: '决策/工作流', type: 'bar', data: [6,9,5.5,6,5], itemStyle: {color: '#F59E0B'} },
+    { name: 'Agent/实时', type: 'bar', data: [6,5,4,4.5,3], itemStyle: {color: '#EF4444'} }
+  ]
+});
+
+// 竞品定位散点图
+var c4 = echarts.init(document.getElementById('chart-scatter'));
+c4.setOption({
+  tooltip: { trigger: 'item', formatter: function(p){ return p.data[3] + '<br>生态闭环: ' + p.data[0] + '<br>Agent能力: ' + p.data[1]; } },
+  grid: { left: '12%', right: '15%', bottom: '15%', top: '10%' },
+  xAxis: { name: '生态闭环深度', nameLocation: 'middle', nameGap: 35, min: 0, max: 10 },
+  yAxis: { name: 'Agent/行动能力', nameLocation: 'middle', nameGap: 40, min: 0, max: 10 },
+  series: [{
+    type: 'scatter',
+    symbolSize: function(val){ return val[2] * 4; },
+    data: [
+      [8, 6, 12, 'ChatGPT'],
+      [4, 10, 10, 'Claude'],
+      [9, 5, 14, 'Gemini'],
+      [9, 6, 15, '豆包'],
+      [5, 7, 10, 'Kimi'],
+      [7, 4, 11, '文心一言'],
+      [8, 4, 12, '通义千问'],
+      [3, 3, 8, 'MiniMax'],
+      [2, 2, 6, '百川'],
+      [3, 2, 6, 'DeepSeek'],
+      [9, 3, 10, '腾讯元宝'],
+      [6, 2, 5, '灵光(当前)']
+    ],
+    label: { show: true, formatter: function(p){ return p.data[3]; }, position: 'right', fontSize: 11 },
+    itemStyle: { color: function(p){ var n=p.data[3]; if(n.indexOf('灵光')>=0) return '#DD6B20'; if(['ChatGPT','Claude','Gemini'].indexOf(n)>=0) return '#667EEA'; return '#10B981'; } }
+  }]
+});
+
+// 响应式
+window.addEventListener('resize', function(){
+  c1.resize(); c2.resize(); c3.resize(); c4.resize();
+});
+</script>

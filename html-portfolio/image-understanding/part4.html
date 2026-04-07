@@ -1,0 +1,226 @@
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">07</div>
+      <div class="chapter-name">风险评估与应对预案</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>关键变量监测清单</h2>
+      <table class="data-table">
+        <tr><th>变量</th><th>当前状态</th><th>影响力</th><th>触发条件</th><th>应对预案</th></tr>
+        <tr>
+          <td><strong>金融AI监管政策</strong></td>
+          <td>灰色地带</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>证监会/银保监出台AI金融建议专项规定</td>
+          <td>B2方向大幅收窄或转向非金融垂直</td>
+        </tr>
+        <tr>
+          <td><strong>蚂蚁内部BU配合度</strong></td>
+          <td>未知</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>花呗/蚂蚁保拒绝数据接口</td>
+          <td>灵光独立做通用图片能力</td>
+        </tr>
+        <tr>
+          <td><strong>竞品实时视觉进展</strong></td>
+          <td>国内空白</td>
+          <td><span class="badge badge-medium">4/5</span></td>
+          <td>豆包/百度上线实时摄像头交互</td>
+          <td>B4从预研加速到产品化</td>
+        </tr>
+        <tr>
+          <td><strong>多模态金融准确率</strong></td>
+          <td>~92-95%</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>提升至≥99%（金融可用门槛）</td>
+          <td>达标前只做「展示」不做「行动」</td>
+        </tr>
+        <tr>
+          <td><strong>OS级Agent监管</strong></td>
+          <td>工信部研究中</td>
+          <td><span class="badge badge-medium">4/5</span></td>
+          <td>出台AI Agent权限限制法规</td>
+          <td>B3收缩到蚂蚁系内</td>
+        </tr>
+        <tr>
+          <td><strong>灵光图片功能使用数据</strong></td>
+          <td>未拉取</td>
+          <td><span class="badge badge-high">5/5</span></td>
+          <td>拉取埋点后发现真实需求与假设不符</td>
+          <td>根据数据重排优先级</td>
+        </tr>
+      </table>
+
+      <h2>红队审查要点</h2>
+      <div class="highlight-box red">
+        <div class="highlight-text"><strong>致命挑战（洞察2）：</strong>监管者指出「理财对比」输出「A比B好」即构成投资建议，需持牌。产品绝不输出推荐/建议，只做信息整理+对比展示；每个金融场景上线前必过合规评审。</div>
+      </div>
+
+      <h3>核心修正记录</h3>
+      <table class="data-table">
+        <tr><th>洞察</th><th>原建议</th><th>修正后</th><th>修正原因</th></tr>
+        <tr><td>洞察1</td><td>优先投资行动而非感知</td><td>感知变现+行动探索双轨制</td><td>投资人：增速≠变现</td></tr>
+        <tr><td>洞察2</td><td>拍照→金融决策辅助</td><td>金融信息翻译器，不做推荐</td><td>监管致命挑战</td></tr>
+        <tr><td>洞察2</td><td>含商品比价功能</td><td>删除商品比价</td><td>蚂蚁无电商数据主权</td></tr>
+        <tr><td>洞察3</td><td>支付宝单一BU试点</td><td>灵光独立Agent产品</td><td>用户反馈太保守</td></tr>
+      </table>
+
+      <h2>反直觉发现</h2>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">!</div>
+        <div>
+          <div class="strategy-title">「被封杀」不等于「方向被验证」</div>
+          <div class="strategy-desc">共识认为豆包手机被巨头封杀 = GUI Agent方向正确。但被封杀也可能仅出于安全/隐私的合理顾虑（快播也被封杀了）。需要正向数据（留存、付费、效率提升）才能验证。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">!</div>
+        <div>
+          <div class="strategy-title">蚂蚁金融生态可能是「资产」也可能是「枷锁」</div>
+          <div class="strategy-desc">金融监管对蚂蚁格外敏感（2020年事件余波），同样的功能别人做可能过审，蚂蚁做可能被卡。「生态优势」和「监管包袱」是同一枚硬币的两面。B2必须按最严监管预期设计。</div>
+        </div>
+      </div>
+
+      <h2>蓝队识别的高影响盲区</h2>
+      <table class="data-table">
+        <tr><th>#</th><th>盲区</th><th>影响</th><th>处理</th></tr>
+        <tr><td>1</td><td>金融监管对AI图片能力态度未分析</td><td><span class="badge badge-high">高</span></td><td>B2前置法务评审</td></tr>
+        <tr><td>2</td><td>蚂蚁内部BU配合意愿未知</td><td><span class="badge badge-high">高</span></td><td>B3改为独立路线</td></tr>
+        <tr><td>4</td><td>实时视觉窗口期被高估</td><td><span class="badge badge-high">高</span></td><td>B4预研提前到H1</td></tr>
+        <tr><td>7</td><td>灵光自身图片功能使用数据缺失</td><td><span class="badge badge-high">高</span></td><td>优先拉取埋点数据</td></tr>
+        <tr><td>9</td><td>模型准确率92-95%在金融场景不可用</td><td><span class="badge badge-high">高</span></td><td>AI+人工确认混合模式</td></tr>
+        <tr><td>11</td><td>灵光做强后可能蚕食支付宝主App流量</td><td><span class="badge badge-high">高</span></td><td>提前设计功能分界线</td></tr>
+        <tr><td>12</td><td>用户上传敏感金融信息隐私风险</td><td><span class="badge badge-high">高</span></td><td>端侧处理优先+审计追踪</td></tr>
+      </table>
+
+      <div class="page-number">— 7 —</div>
+    </div>
+  </div>
+
+  <div class="page chapter-section">
+    <div class="chapter-header">
+      <div class="chapter-num">08</div>
+      <div class="chapter-name">研究局限与后续方向</div>
+    </div>
+    <div class="chapter-body">
+
+      <h2>已知局限</h2>
+
+      <div class="strategy-card red">
+        <div class="strategy-num">1</div>
+        <div>
+          <div class="strategy-title">内部数据缺失</div>
+          <div class="strategy-desc">灵光自身图片功能的使用数据（渗透率、场景分布、完成率、满意度）是最关键的缺失。外部对标只是参考，自家数据才是决策基础。<strong>建议优先拉取。</strong></div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">2</div>
+        <div>
+          <div class="strategy-title">失败案例缺失</div>
+          <div class="strategy-desc">只覆盖了存活的头部产品，未分析拍立淘下线、Google Lens品类局限等失败样本。幸存者偏差可能导致对市场机会过于乐观。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card yellow">
+        <div class="strategy-num">3</div>
+        <div>
+          <div class="strategy-title">用户分层缺失</div>
+          <div class="strategy-desc">295万周活的用户画像和需求差异未做分层分析。一二线用户vs下沉用户的图片需求差异可能很大。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">4</div>
+        <div>
+          <div class="strategy-title">开发者生态缺失</div>
+          <div class="strategy-desc">各家图片API开放程度和三方插件生态未覆盖。如果灵光走开放平台路线，这部分分析不可或缺。</div>
+        </div>
+      </div>
+
+      <div class="strategy-card blue">
+        <div class="strategy-num">5</div>
+        <div>
+          <div class="strategy-title">竞品反应推演缺失</div>
+          <div class="strategy-desc">未模拟竞品看到灵光动作后的反应路径。豆包/Kimi可能做「跳转聚合」反而更灵活。</div>
+        </div>
+      </div>
+
+      <h2>建议后续研究方向</h2>
+      <table class="data-table">
+        <tr><th>优先级</th><th>方向</th><th>预期产出</th><th>建议时间</th></tr>
+        <tr>
+          <td><span class="badge badge-high">P0</span></td>
+          <td>拉取灵光图片功能埋点数据</td>
+          <td>用户真实需求图谱，验证/推翻假设</td>
+          <td>立即</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-high">P0</span></td>
+          <td>金融信息翻译法务合规评审</td>
+          <td>可行/不可行的明确结论+边界定义</td>
+          <td>2026 Q2</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-medium">P1</span></td>
+          <td>灵光OCR/文档能力竞品测评</td>
+          <td>灵光 vs Kimi/文心/通义的量化差距</td>
+          <td>2026 Q2</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-medium">P1</span></td>
+          <td>用户分层与需求差异分析</td>
+          <td>不同用户群体的图片需求优先级</td>
+          <td>2026 Q2-Q3</td>
+        </tr>
+        <tr>
+          <td><span class="badge badge-low">P2</span></td>
+          <td>竞品反应推演</td>
+          <td>博弈论视角的竞争策略调整</td>
+          <td>2026 Q3</td>
+        </tr>
+      </table>
+
+      <h2>数据源质量评估</h2>
+      <div class="stats-grid stats-grid-2">
+        <div class="stat-card">
+          <div class="stat-icon green">✅</div>
+          <div class="stat-value green">A/B级</div>
+          <div class="stat-label">ChatGPT / Claude / Gemini / 豆包 / Kimi / 文心一言 / MiniMax / 百川</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-icon red">⚠️</div>
+          <div class="stat-value red">B/C级</div>
+          <div class="stat-label">智谱清言 / 讯飞星火 / 腾讯元宝 / DeepSeek（数据较薄）</div>
+        </div>
+      </div>
+
+      <div class="highlight-box">
+        <div class="highlight-text"><strong>研究方法说明：</strong>本报告基于4轮定向搜索（覆盖智谱/文心/百川/MiniMax/Benchmark/Agent前沿）+ evidence_base.md 交叉验证。核心数据均为A/B级置信度。研究采用假设驱动方法，5个核心假设经红蓝队双重审查。</div>
+      </div>
+
+      <div class="page-number">— 8 —</div>
+    </div>
+  </div>
+
+  <div class="page footer-page">
+    <div class="footer-content">
+      <div class="footer-icon">📋</div>
+      <div class="footer-title">AGI应用图片输入能力全景与战略规划</div>
+      <div class="footer-divider"></div>
+      <div class="footer-text">本报告由 Alpha Insights-BizAdvisor 生成</div>
+      <div class="footer-text">内部参考 · 请勿外传</div>
+      <div class="footer-date">2026年4月7日</div>
+    </div>
+  </div>
+
+  <div class="no-print">
+    <button class="print-btn" onclick="window.print()">打印 / 导出 PDF</button>
+  </div>
+
+</body>
+</html>
