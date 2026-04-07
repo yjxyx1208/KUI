@@ -1,0 +1,587 @@
+
+<!DOCTYPE html>
+<html lang="zh-CN" data-artifact-code-theme="light" data-prefers-theme="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="Content-Security-Policy" content="
+        script-src 'self' 'unsafe-inline' 'unsafe-eval'  blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        frame-src 'self'  blob: *.alipay.com *.alipayobjects.com *.amap.com *.lingguang.com *.lingguangcontent.com;
+        connect-src 'self' data: blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        child-src 'self'  blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        object-src 'self'  blob: *.alipay.com *.alipayobjects.com  *.amap.com *.lingguang.com *.lingguangcontent.com;
+        base-uri 'self' *.alipay.com *.alipayobjects.com *.amap.com *.lingguang.com *.lingguangcontent.com;
+        form-action 'none';
+        upgrade-insecure-requests;"/>
+    <link href="https://gw.alipayobjects.com/os/lib/tailwindcss/2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://gw.alipayobjects.com/os/lib/katex/0.16.22/dist/katex.min.css">
+    
+    <script>
+        (function () {
+            var timer = null;
+            var PAGE_WIDTH = 686;
+            var PAGE_FONT_SIZE = 30;
+
+            function onResize() {
+              var e = PAGE_FONT_SIZE * document.documentElement.clientWidth / PAGE_WIDTH;
+              e = parseFloat(e.toFixed(3));
+              document.documentElement.style.fontSize = e + 'px';
+              var realitySize = parseFloat(window.getComputedStyle(document.documentElement).fontSize);
+              if (e !== realitySize) {
+                e = e * e / realitySize;
+                document.documentElement.style.fontSize = e + 'px';
+              }
+            }
+            window.addEventListener('resize', function () {
+              if (timer) clearTimeout(timer);
+              timer = setTimeout(onResize, 100);
+            });
+            onResize();
+          })();
+      </script>
+
+    <style>
+
+    @font-face {
+      font-family: 'AlipayFont';
+      src: url('https://mdn.alipayobjects.com/design_poster/afts/file/A*y7i8ToVqte8AAAAAAAAAAAAAAUV1AQ') format('woff2');
+      font-weight: normal;
+      font-style: normal;
+      font-display: swap;
+    }
+
+    html[data-prefers-theme='dark'],html{
+      --bg1-color: #191a1c;
+      --bg2-color: #202123;
+      --bg3-color: rgb(255, 255, 255, 0);
+      --bg4-color: #1C1C1E;
+      --theme-gray: #888FB5;
+      --theme-glacier-cyan: #88ABB5;
+      --theme-premium-brown: #AD927A;
+      --theme-mystic-purple: #AE88B5;
+      --theme-cloud-blue: #889AB5;
+      --theme-health-green: #8FB588;
+      --theme-calm-blue: #88B5AE;
+      --theme-warm-red: #B5888F;
+      --theme-mountain-cyan: #749FAE;
+      --theme-clear-cyan: #88B59F;
+      --theme-vibrant-orange: #C7937D;
+      --theme-champagne-gold: #B5AE88;
+      --theme-soft-purple: #D9CBF7;
+      --theme-osmanthus-yellow: #EEE2BC;
+      --theme-active-green: #9EB588;
+      --bg-gray: rgba(142, 142, 147, 0.2);
+      --bg-glacier-cyan: rgba(107, 137, 145, 0.2);
+      --bg-premium-brown: rgba(156, 124, 110, 0.2);
+      --bg-mystic-purple: rgba(139, 126, 153, 0.2);
+      --bg-cloud-blue: rgba(119, 136, 153, 0.2);
+      --bg-health-green: rgba(124, 138, 114, 0.2);
+      --bg-calm-blue: rgba(108, 122, 137, 0.2);
+      --bg-warm-red: rgba(166, 114, 114, 0.2);
+      --bg-mountain-cyan: rgba(95, 126, 124, 0.2);
+      --bg-clear-cyan: rgba(102, 145, 145, 0.2);
+      --bg-vibrant-orange: rgba(176, 129, 100, 0.2);
+      --bg-champagne-gold: rgba(161, 145, 113, 0.2);
+      --bg-soft-purple: rgba(153, 118, 142, 0.2);
+      --bg-osmanthus-yellow: rgba(171, 154, 101, 0.2);
+      --bg-active-green: rgba(103, 130, 103, 0.2);
+      --semantic-success-color: #52C41A;
+      --semantic-warning-color: #FAAD14;
+      --semantic-error-color: #EA6668;
+      --semantic-down-color: #52C41A;
+      --semantic-up-color: #EA6668;
+      --text-level1-color: rgba(255, 255, 255, 0.9);
+      --text-level2-color: rgba(255, 255, 255, 0.8);
+      --text-level3-color: rgba(255, 255, 255, 0.6);
+      --text-level4-color: rgba(255, 255, 255, 0.4);
+      --text-level5-color: rgba(255, 255, 255, 0.3);
+      --border-level1-color: rgba(255, 255, 255, 0.1);
+      --border-size: 0.0333rem;
+      --space-xs: 0.2667rem;
+      --space-md: 0.5333rem;
+      --space-lg: 0.8rem;
+      --space-xl: 1.0667rem;
+      --space-xxl: 2.6666rem;
+      --text-weight-regular: 400;
+      --text-weight-medium: 500;
+      --text-weight-semibold: 600;
+      --text-size-s: 0.866rem;
+      --text-size-md: 1rem;
+      --text-size-lg: 1.3333rem;
+      --text-size-xl: 1.6rem;
+      --text-size-xll: 1.6rem;
+      --line-height-xs: calc(var(--text-size-s)+0.6667rem);
+      --line-height-md: calc(var(--text-size-md)+0.6667rem);
+      --line-height-lg: calc(var(--text-size-lg)+0.6667rem);
+      --line-height-xl: calc(var(--text-size-xl)+0.6667rem);
+      --line-height-xll: calc(var(--text-size-xll)+0.6667rem);
+      --border-radius: 0.5333rem;
+      --border-radius-semi: 0.2666rem;
+      --size-4x3-width: 46.875rem;
+      --size-4x3-height: 35.15625rem;
+      --size-1x1-width: 46.875rem;
+      --size-1x1-height: 46.875rem;
+      --image-url: url('https://mdn.alipayobjects.com/huamei_2dyvuk/afts/img/wkxUQJyNqe8AAAAAQEAAAAgADts_AQFr/original');
+    }
+
+    html[data-prefers-theme='light']{
+      --bg1-color: #ffffff;
+      --bg2-color: #fbfbfb;
+      --bg3-color: rgb(255, 255, 255, 0);
+      --bg4-color: #F3F5F7;
+      --theme-gray: #203BAF;
+      --theme-glacier-cyan: #005F7A;
+      --theme-premium-brown: #9B5F27;
+      --theme-mystic-purple: #8F489C;
+      --theme-cloud-blue: #094BAE;
+      --theme-health-green: #206F11;
+      --theme-calm-blue: #00705E;
+      --theme-warm-red: #CA4723;
+      --theme-mountain-cyan: #005B7A;
+      --theme-clear-cyan: #0D7744;
+      --theme-vibrant-orange: #D06F08;
+      --theme-champagne-gold: #867106;
+      --theme-soft-purple: #6B48B4;
+      --theme-osmanthus-yellow: #947104;
+      --theme-active-green: #3B7203;
+      --bg-gray: rgba(142, 142, 147, 0.1);
+      --bg-glacier-cyan: rgba(107, 137, 145, 0.1);
+      --bg-premium-brown: rgba(156, 124, 110, 0.1);
+      --bg-mystic-purple: rgba(139, 126, 153, 0.1);
+      --bg-cloud-blue: rgba(119, 136, 153, 0.1);
+      --bg-health-green: rgba(124, 138, 114, 0.1);
+      --bg-calm-blue: rgba(108, 122, 137, 0.1);
+      --bg-warm-red: rgba(166, 114, 114, 0.1);
+      --bg-mountain-cyan: rgba(95, 126, 124, 0.1);
+      --bg-clear-cyan: rgba(102, 145, 145, 0.1);
+      --bg-vibrant-orange: rgba(176, 129, 100, 0.1);
+      --bg-champagne-gold: rgba(161, 145, 113, 0.1);
+      --bg-soft-purple: rgba(153, 118, 142, 0.1);
+      --bg-osmanthus-yellow: rgba(171, 154, 101, 0.1);
+      --bg-active-green: rgba(103, 130, 103, 0.1);
+      --semantic-success-color: #52C41A;
+      --semantic-warning-color: #FAAD14;
+      --semantic-error-color: #EA6668;
+      --semantic-down-color: #52C41A;
+      --semantic-up-color: #EA6668;
+      --text-level1-color: rgba(0, 0, 0, 0.9);
+      --text-level2-color: rgba(0, 0, 0, 0.8);
+      --text-level3-color: #666666;
+      --text-level4-color: #999999;
+      --text-level5-color: rgba(0, 0, 0, 0.3);
+      --border-level1-color: rgba(0, 0, 0, 0.08);
+      --border-size: 0.0333rem;
+      --space-xs: 0.2667rem;
+      --space-md: 0.5333rem;
+      --space-lg: 0.8rem;
+      --space-xl: 1.0667rem;
+      --space-xxl: 2.6666rem;
+      --text-weight-regular: 400;
+      --text-weight-medium: 500;
+      --text-weight-semibold: 600;
+      --text-size-s: 0.866rem;
+      --text-size-md: 1rem;
+      --text-size-lg: 1.3333rem;
+      --text-size-xl: 1.6rem;
+      --text-size-xll: 1.6rem;
+      --line-height-xs: calc(var(--text-size-s)+0.6667rem);
+      --line-height-md: calc(var(--text-size-md)+0.6667rem);
+      --line-height-lg: calc(var(--text-size-lg)+0.6667rem);
+      --line-height-xl: calc(var(--text-size-xl)+0.6667rem);
+      --line-height-xll: calc(var(--text-size-xll)+0.6667rem);
+      --border-radius: 0.5333rem;
+      --border-radius-semi: 0.2666rem;
+      --size-4x3-width: 46.875rem;
+      --size-4x3-height: 35.15625rem;
+      --size-1x1-width: 46.875rem;
+      --size-1x1-height: 46.875rem;
+      --image-url: url('https://mdn.alipayobjects.com/huamei_2dyvuk/afts/img/IkBpS5bGj74AAAAAQEAAAAgADts_AQFr/original');
+    }
+
+     html, body {
+      height: 100%;
+      max-width: 750px;
+      margin: 0 auto;
+      padding: 0 0 var(--space-xl) 0;
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      letter-spacing: 0.01em;
+      box-sizing: border-box;
+      color: var(--text-level1-color);
+      font-weight: var(--text-weight-regular);
+    }
+    body {
+      overflow: hidden;
+    }
+    p {
+      margin: var(--space-xl) 0 0 0;
+      color:var(--text-level1-color);
+    }
+    main {
+      padding: 0 0.8rem;
+    }
+    .free_component {
+      margin: var(--space-xl) 0 0 0;
+      border-radius: var(--border-radius);
+      background:var(--bg2-color);
+      padding:1rem 1.5rem;
+      overflow-x: auto;
+      p {
+        margin:var(--space-lg) 0 0 0;
+        color:var(--text-level1-color);
+      }
+      h3 {
+        margin: 0;
+      }
+    }
+    h1 {
+      font-family: 'AlipayFont';
+      font-size:var(--text-size-xl);
+      font-weight: var(--text-weight-semibold);
+      color:var(--theme-gray);
+      margin: 0 0 0 0;
+      letter-spacing: 0.02em;
+      line-height: 2.2rem;
+      text-align: left;
+    }
+    .divider {
+      border: none;
+      border-top:1px solid;
+      margin: var(--space-lg) 0 0 0;
+    }
+   .divider-content {
+      border: none;
+      border-top: 1px solid var(--border-level1-color);
+      color: var(--text-level5-color);
+      margin: var(--space-xl) 0 0 0;
+    }
+    .desc {
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      font-weight: var(--text-weight-regular);
+      margin: var(--space-xl) 0 0 0;
+      line-height:  1.67rem;
+      text-align: justify;
+    }
+    strong {
+      color: var(--text-level1-color);
+      font-weight: var(--text-weight-medium);
+      padding: 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+    .desc strong, 
+    .desc .highlight {
+      font-weight: var(--text-weight-medium);
+      color:var(--text-level1-color);
+      padding: 0 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+
+    h2 {
+      font-family: 'AlipayFont';
+      font-size: var(--text-size-lg);
+      line-height: 2rem;
+      font-weight: var(--text-weight-semibold);
+      color:var(--theme-gray);
+      margin: var(--space-xxl) 0 0 0;
+      letter-spacing: 0.01em;
+      position: relative;
+      display: flex;
+      align-items: center;
+    }
+    h3 {
+      font-family: 'PingFang SC', 'Roboto';
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      font-weight:var(--text-weight-medium);
+      color:var(--text-level1-color);
+      margin: var(--space-lg) 0 0 0;
+      letter-spacing: 0.01em;
+      position: relative;
+    }
+    ul {
+      list-style: none;
+      padding: 0;
+      margin: var(--space-xl) 0 0 0;
+    }
+    ul li{
+      position: relative;
+      padding-left: 0.73rem;
+      line-height: 1.67rem;
+      font-size: var(--text-size-md);
+      margin: var(--space-lg) 0 0 0;
+    }
+    ul li::before {
+      content: '';
+      position: absolute;
+      left: 0;
+      top: 0.75em;
+      width: 0.23rem;
+      height: 0.23rem;
+      background:var(--text-level5-color);
+      border-radius: 50%;
+      display: inline-block;
+    }
+    .section-content {
+      font-size: var(--text-size-md);
+      margin:var(--space-xl) 0 0 0;
+      line-height: 1.67rem;
+      text-align: justify;
+    }
+    .quote {
+      text-align: center;
+      font-size: var(--text-size-md);
+      line-height: 1.67rem;
+      color: var(--text-level2-color);
+      font-weight: var(--text-weight-regular);
+      margin: var(--space-xxl) 0 0 0;
+      letter-spacing: 0.01em;
+    }
+    @media (max-width: 480px) {
+      body {
+        padding: 0;
+      }
+      main {
+        padding: 0 var(--space-xs);
+      }
+    }    
+    .component-default {
+        text-align: center;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 100%;
+        position: relative;
+        min-height: 275px;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+        background:var(--bg2-color);
+        backdrop-filter: blur(20px);
+        margin: var(--space-xl) 0 0 0;
+    }
+    .component-default::before {
+        content: '';
+        width: 0.93rem;
+        height: 0.93rem;
+        border: 0.1rem solid var(--border-level1-color);
+        border-top: 0.1rem solid var(--bg2-color);
+        border-radius: 50%;
+        animation: spin 3s linear infinite;
+        flex-shrink: 0;
+    }
+    .component-image {
+        color: var(--bg2-color);
+        font-size: 0.9em;
+        text-align: center;
+        margin: var(--space-xl) 0 0 0;
+        width: 100%;
+        border-radius: var(--border-radius);
+        overflow: hidden;
+    }
+    @supports (aspect-ratio: 4/3) {
+        .component-image img {
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+    @supports not (aspect-ratio: 4/3) {
+        .component-image img {
+            width: 100%;
+            object-fit: cover;
+        }
+    }
+    </style>
+    <script>
+        window.trace_id = "7f0000011754640899231103300064";
+    </script>
+    <script>
+    
+        function compareVersion(version1, version2) {
+            if (version1 == null || version2 == null) {
+                return -1
+            }
+            const v1 = version1?.trim() || '';
+            const v2 = version2?.trim() || '';
+            const arr1 = v1.split('.').map(num => Number(num));
+            const arr2 = v2.split('.').map(num => Number(num));
+            const maxLength = Math.max(arr1.length, arr2.length);
+            for (let i = 0; i < maxLength; i++) {
+                const num1 = arr1[i] || 0;
+                const num2 = arr2[i] || 0;
+                if (num1 > num2) {
+                    return 1;
+                } else if (num1 < num2) {
+                    return -1;
+                }
+            }
+            return 0;
+        }
+
+        function need_image_by_version(userAgent) {
+            console.log('image user agent:', userAgent)
+            if (!userAgent.includes('Mobile')) {
+                return true;
+            }
+            const regex = /(Leopard)\/([\d.]+)/;
+            const matchResult = userAgent.match(regex);
+            version = null
+            compareNum = -1;
+            if (matchResult) {
+                version = matchResult[2];
+                console.log('version:', version);
+                compareNum = compareVersion(version, '1.0.32')
+            } else {
+                console.log('no Leopard info');
+                return true;
+            }
+            return compareNum >=0
+        }
+    </script>
+    
+    <script>
+    function setContentErrorNode(elementID, errorMessage="") {
+        var chartDom = document.getElementById(elementID);
+        if (!chartDom) {
+            return;
+        }
+        chartDom.style.height = "0px";
+        chartDom.style.width = "0px";
+        chartDom.style.display = "none";
+        chartDom.style.minWidth = "0px";
+        chartDom.style.minHeight = "0px";
+        var parent = chartDom.parentElement;
+        while (parent && parent.children.length === 1) {
+            parent.style.height = "0px";
+            parent.style.width = "0px";
+            parent.style.display = "none";
+            parent.style.minWidth = "0px";
+            parent.style.minHeight = "0px";
+            parent.setAttribute("persistent-node", "true");
+            parent = parent.parentElement;
+        }
+        setTimeout(function() {
+            adjustBodyHeight();
+        }, 10);
+    }
+    
+    function adjustBodyHeight() {
+        var body = document.body;
+        var html = document.documentElement;
+        var bodyHeightStart = body.offsetHeight;
+        var bodyContentContainer = document.getElementById('special-body-content-container');
+        if (bodyContentContainer) {
+            var rect = bodyContentContainer.getBoundingClientRect();
+            var contentHeight = rect.bottom + window.pageYOffset;
+            body.style.height = contentHeight + 'px';
+            body.offsetHeight;
+        }
+    }
+
+    function loadScript(url, successCallback, errorCallback) {
+        if (!document.body.scriptLoadStatus) {
+            document.body.scriptLoadStatus = {};
+        }
+        var scriptLoadStatus =  document.body.scriptLoadStatus;
+        if (!scriptLoadStatus[url]) {
+            scriptLoadStatus[url] = { status: 'loading', successCallbacks: [], errorCallbacks: [] };
+            if (successCallback) {
+                scriptLoadStatus[url].successCallbacks.push(successCallback);
+            }
+            if (errorCallback) {
+                scriptLoadStatus[url].errorCallbacks.push(errorCallback);
+            }
+            var script = document.createElement('script');
+            script.type = 'text/javascript';
+            script.src = url;
+            script.onload = function() {
+                scriptLoadStatus[url].status = 'loaded';
+                scriptLoadStatus[url].successCallbacks.forEach(cb => cb());
+                scriptLoadStatus[url].successCallbacks = [];
+                scriptLoadStatus[url].errorCallbacks = [];
+            };
+            script.onerror = function() {
+                scriptLoadStatus[url].status = 'error';
+                scriptLoadStatus[url].errorCallbacks.forEach(cb => cb());
+                scriptLoadStatus[url].successCallbacks = [];
+                scriptLoadStatus[url].errorCallbacks = [];
+            };
+            document.body.appendChild(script);
+        } else if (scriptLoadStatus[url].status === 'loaded') {
+            if (successCallback) successCallback();
+        } else if (scriptLoadStatus[url].status === 'loading') {
+            if (successCallback) {
+                scriptLoadStatus[url].successCallbacks.push(successCallback);
+            }
+            if (errorCallback) {
+                scriptLoadStatus[url].errorCallbacks.push(errorCallback);
+            }
+        } else if (scriptLoadStatus[url].status === 'error') {
+            if (errorCallback) errorCallback();
+        }
+    }
+
+    function removeComponentDefaultStyle(elementID) {
+        var chartDom = document.getElementById(elementID);
+        if (!chartDom) {
+            return;
+        }
+        chartDom.style.border = "none";
+        chartDom.innerHTML = "";
+    }
+    (function() {
+        var originalGetContext = HTMLCanvasElement.prototype.getContext;
+        HTMLCanvasElement.prototype.getContext = function(contextType, contextAttributes) {
+            if (contextType === '2d') {
+                contextAttributes = contextAttributes || {};
+                if (!('willReadFrequently' in contextAttributes)) {
+                    contextAttributes.willReadFrequently = true;
+                }
+            }
+            return originalGetContext.call(this, contextType, contextAttributes);
+        };
+    })();
+    </script>
+    <script src="https://render.alipay.com/p/yuyan/180020010001280215/tts/voice-v3.1.202512091500.js"></script>
+    <script>
+        window.ComponentRegistry = (function() {
+            const registryMap = {};
+            const registryList = [];
+            return {
+                register({id, type, events, state, handlers}) {
+                    if (!id) { return; }
+                    if (registryMap[id]) { return; }
+                    const comp = {id, type, events, state, handlers};
+                    registryMap[id] = comp;
+                    registryList.push(comp);
+                },
+                get(id) {
+                    return registryMap[id];
+                },
+                list() {
+                    return registryList.slice();
+                }
+            };
+        })();
+        
+        function click_play(componentId, playId) {
+            registerMusicComponent(playId);
+            const comp = window.ComponentRegistry.get(playId);
+            if (!comp) {
+                console.error('FR-voice-small-component-not-found');
+            } else {
+                comp.handlers.play(componentId, playId);
+            }
+        };
+    </script>
+<style>html,body{padding-left:1rem;padding-right:1rem;padding-bottom:2rem;overflow:hidden;word-wrap:break-word;overflow-wrap:break-word;}#special-body-content-container{overflow:hidden;max-width:100%;}h1{font-size:1.2rem;line-height:1.8rem;word-wrap:break-word;overflow-wrap:break-word;white-space:normal;}#intro-card{margin:var(--space-xl,1rem) 0 0 0;padding:1rem 1.2rem;background:var(--bg2-color,#fbfbfb);border-radius:var(--border-radius,0.53rem);}.intro-card-text-card .desc{margin:0;}</style></head>
+<body leopard-ama-container>
+<div id="special-body-content-container">
+<div id="intro-card">
+  <div class="intro-card-text-card">
+    <p class="desc" style="text-indent:2em;">这是<strong style="color:var(--theme-active-green);font-weight:bold;">木芙蓉</strong>（Hibiscus mutabilis），又名"拒霜花"。花朵一日三变——晨白、午粉、晚红，是锦葵科的观赏花卉。</p>
+  </div>
+</div>
+</div>
+</body>
+</html>
