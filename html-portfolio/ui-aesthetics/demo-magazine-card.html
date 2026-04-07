@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>金价为何屡创新高 — 卡片杂志风</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+tailwind.config = {
+  theme: {
+    extend: {
+      colors: {
+        accent: { 50: '#FFF8F0', 100: '#FFE8CC', 200: '#FFD699', 300: '#C4742B', 400: '#A85D1E', 500: '#7A3F0E' },
+        sand: { 50: '#FAFAF7', 100: '#F5F5F0', 200: '#EBEBDE', 300: '#D4D4C4' }
+      }
+    }
+  }
+}
+</script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;600;700;900&family=Noto+Sans+SC:wght@300;400;500;700&display=swap');
+  body { font-family: 'Noto Sans SC', sans-serif; background: #FAFAF7; }
+  .font-serif { font-family: 'Noto Serif SC', serif; }
+  .hero-gradient { background: linear-gradient(180deg, #1a1a2e 0%, #16213e 40%, #0f3460 100%); }
+  .float-card { box-shadow: 0 1px 3px rgba(0,0,0,0.04), 0 8px 24px rgba(0,0,0,0.06); }
+  .number-badge { font-variant-numeric: tabular-nums; }
+</style>
+</head>
+<body class="min-h-screen">
+
+<div class="max-w-lg mx-auto">
+
+  <!-- Hero Section -->
+  <div class="hero-gradient px-6 pt-10 pb-16 relative overflow-hidden">
+    <!-- Decorative circles -->
+    <div class="absolute top-6 right-6 w-32 h-32 rounded-full border border-white/5"></div>
+    <div class="absolute top-12 right-12 w-20 h-20 rounded-full border border-white/5"></div>
+
+    <div class="relative z-10">
+      <div class="flex items-center gap-2 mb-6">
+        <span class="text-xs text-white/40 tracking-widest uppercase">灵光 · insight</span>
+        <span class="w-8 h-px bg-white/20"></span>
+      </div>
+
+      <h1 class="font-serif text-3xl font-black text-white leading-tight mb-4 tracking-tight">
+        金价屡创新高
+      </h1>
+      <p class="text-base text-white/60 leading-relaxed">
+        多维力量共振下的资产重估
+      </p>
+
+      <div class="flex items-center gap-4 mt-8">
+        <div class="bg-white/10 backdrop-blur rounded-xl px-4 py-3 flex-1">
+          <p class="text-white/40 text-[10px] mb-0.5">AU9999</p>
+          <p class="text-white text-xl font-bold number-badge">1,502.00</p>
+        </div>
+        <div class="bg-emerald-500/20 backdrop-blur rounded-xl px-4 py-3">
+          <p class="text-emerald-300/60 text-[10px] mb-0.5">涨幅</p>
+          <p class="text-emerald-300 text-xl font-bold number-badge">+80%</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Content Area -->
+  <div class="px-4 -mt-8 relative z-20">
+
+    <!-- Chart Card -->
+    <div class="bg-white rounded-2xl p-5 float-card mb-4">
+      <div class="flex items-center justify-between mb-3">
+        <span class="text-xs text-gray-400">价格走势 · 2024.07 - 2025.02</span>
+        <span class="text-[10px] text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full font-medium">多头排列</span>
+      </div>
+      <div class="h-44">
+        <canvas id="priceChart2"></canvas>
+      </div>
+    </div>
+
+    <!-- Intro Text -->
+    <div class="bg-white rounded-2xl p-5 float-card mb-4">
+      <p class="text-sm text-gray-600 leading-relaxed">
+        <span class="text-2xl font-serif text-accent-300 float-left mr-2 mt-0.5 leading-none">图</span>
+        片显示黄金AU9999于2025年2月5日盘中触及1502.00元/克的历史新高，较832元/克的起点上涨超80%。这意味着全球经济正在经历一场深层次的价值重估——黄金从"避险资产"走向"战略资产"。
+      </p>
+    </div>
+
+    <!-- Section Title -->
+    <div class="flex items-center gap-3 my-6 px-1">
+      <span class="text-accent-300 font-serif font-bold text-lg">01</span>
+      <div>
+        <h2 class="font-serif text-lg font-bold text-gray-800">金价核心驱动三支柱</h2>
+      </div>
+      <div class="flex-1 h-px bg-sand-200"></div>
+    </div>
+
+    <!-- Three Pillars - Horizontal scroll -->
+    <div class="flex gap-3 overflow-x-auto pb-4 snap-x snap-mandatory -mx-4 px-4">
+      <div class="snap-start flex-shrink-0 w-64 bg-white rounded-2xl p-5 float-card">
+        <div class="w-12 h-12 rounded-xl bg-amber-50 flex items-center justify-center text-2xl mb-3">🏦</div>
+        <h3 class="font-bold text-gray-800 text-sm mb-2">央行购金</h3>
+        <p class="text-xs text-gray-500 leading-relaxed">连续8年净购入，2025年入场加速。各国央行将黄金视为去美元化的核心工具，从被动储备转向主动配置。</p>
+        <div class="mt-3 pt-3 border-t border-sand-200">
+          <span class="text-[10px] text-accent-300 font-medium">关键词：去美元化 · 主动配置</span>
+        </div>
+      </div>
+
+      <div class="snap-start flex-shrink-0 w-64 bg-white rounded-2xl p-5 float-card">
+        <div class="w-12 h-12 rounded-xl bg-blue-50 flex items-center justify-center text-2xl mb-3">📉</div>
+        <h3 class="font-bold text-gray-800 text-sm mb-2">利率预期</h3>
+        <p class="text-xs text-gray-500 leading-relaxed">市场预期美联储2026年前将降息至3.50%的中性利率，实际利率下行削弱美元资产吸引力，黄金机会成本大幅降低。</p>
+        <div class="mt-3 pt-3 border-t border-sand-200">
+          <span class="text-[10px] text-accent-300 font-medium">关键词：降息周期 · 机会成本</span>
+        </div>
+      </div>
+
+      <div class="snap-start flex-shrink-0 w-64 bg-white rounded-2xl p-5 float-card">
+        <div class="w-12 h-12 rounded-xl bg-red-50 flex items-center justify-center text-2xl mb-3">🛡️</div>
+        <h3 class="font-bold text-gray-800 text-sm mb-2">风险对冲</h3>
+        <p class="text-xs text-gray-500 leading-relaxed">中东、欧洲地缘冲突风险长期化，叠加全球债务高企，黄金作为终极避险工具的战略价值被重新定价。</p>
+        <div class="mt-3 pt-3 border-t border-sand-200">
+          <span class="text-[10px] text-accent-300 font-medium">关键词：地缘风险 · 战略定价</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 2 -->
+    <div class="flex items-center gap-3 my-6 px-1">
+      <span class="text-accent-300 font-serif font-bold text-lg">02</span>
+      <h2 class="font-serif text-lg font-bold text-gray-800">宏观政策与流动性</h2>
+      <div class="flex-1 h-px bg-sand-200"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 float-card mb-4">
+      <p class="text-sm text-gray-600 leading-relaxed mb-4">
+        降息预期下重塑资产定价。日K线图显示，金价自2025年7月起加速上行，多条均线呈完美多头排列。市场预计美联储2026年底前还将有2至3次降息。
+      </p>
+
+      <!-- Forecast Visual -->
+      <div class="bg-sand-50 rounded-xl p-4">
+        <p class="text-xs text-gray-400 mb-3">机构预测与市场共识</p>
+        <div class="space-y-2.5">
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 w-16">摩根大通</span>
+            <div class="flex-1 bg-sand-200 rounded-full h-5 relative overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-200 to-amber-400 rounded-full" style="width:85%"></div>
+              <span class="absolute right-2 top-0.5 text-[10px] text-accent-500 font-medium">2035</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 w-16">高盛</span>
+            <div class="flex-1 bg-sand-200 rounded-full h-5 relative overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-200 to-amber-400 rounded-full" style="width:80%"></div>
+              <span class="absolute right-2 top-0.5 text-[10px] text-accent-500 font-medium">1980</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 w-16">瑞银</span>
+            <div class="flex-1 bg-sand-200 rounded-full h-5 relative overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-200 to-amber-400 rounded-full" style="width:78%"></div>
+              <span class="absolute right-2 top-0.5 text-[10px] text-accent-500 font-medium">1920</span>
+            </div>
+          </div>
+          <div class="flex items-center gap-3">
+            <span class="text-xs text-gray-500 w-16">花旗</span>
+            <div class="flex-1 bg-sand-200 rounded-full h-5 relative overflow-hidden">
+              <div class="h-full bg-gradient-to-r from-amber-200 to-amber-400 rounded-full" style="width:75%"></div>
+              <span class="absolute right-2 top-0.5 text-[10px] text-accent-500 font-medium">1850</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 3 -->
+    <div class="flex items-center gap-3 my-6 px-1">
+      <span class="text-accent-300 font-serif font-bold text-lg">03</span>
+      <h2 class="font-serif text-lg font-bold text-gray-800">地缘政治与央行行为</h2>
+      <div class="flex-1 h-px bg-sand-200"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 float-card mb-4">
+      <p class="text-sm text-gray-600 leading-relaxed mb-4">
+        长期结构性支撑。金价的另一层逻辑是地缘政治风险。中、美、欧、俄等大国博弈加剧，全球军费开支连续8年增长。市场预期冲突长期化，这为黄金提供了坚实的底部支撑。
+      </p>
+
+      <!-- Highlight Block -->
+      <div class="border-l-4 border-accent-300 bg-accent-50/50 rounded-r-xl p-4">
+        <p class="text-xs font-medium text-accent-400 mb-2">央行购金：全球性战略行为</p>
+        <div class="space-y-2">
+          <div class="flex items-start gap-2">
+            <span class="w-1 h-1 rounded-full bg-accent-300 mt-1.5 flex-shrink-0"></span>
+            <p class="text-xs text-gray-600"><strong class="text-gray-700">需求</strong> — 2025年第三季度全球央行净购金量创新高</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-1 h-1 rounded-full bg-accent-300 mt-1.5 flex-shrink-0"></span>
+            <p class="text-xs text-gray-600"><strong class="text-gray-700">主力</strong> — 中国、印度、土耳其、波兰等新兴市场央行持续增持</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="w-1 h-1 rounded-full bg-accent-300 mt-1.5 flex-shrink-0"></span>
+            <p class="text-xs text-gray-600"><strong class="text-gray-700">战略</strong> — 减少对美元资产依赖，长期战略调整</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Section 4 -->
+    <div class="flex items-center gap-3 my-6 px-1">
+      <span class="text-accent-300 font-serif font-bold text-lg">04</span>
+      <h2 class="font-serif text-lg font-bold text-gray-800">市场情绪与资金流向</h2>
+      <div class="flex-1 h-px bg-sand-200"></div>
+    </div>
+
+    <div class="bg-white rounded-2xl p-5 float-card mb-4">
+      <p class="text-sm text-gray-600 leading-relaxed mb-4">
+        从投机到配置的转变。养老基金和主权财富基金的黄金配比从2022年的2.1%上升至2025年的3.8%。黄金正在从"交易品种"升级为"核心资产"。
+      </p>
+
+      <div class="bg-gradient-to-br from-amber-50 to-orange-50 rounded-xl p-4 mb-4">
+        <div class="flex items-center gap-2 mb-2">
+          <span class="text-sm">📊</span>
+          <p class="text-xs font-medium text-accent-400">黄金ETF：资金的"前哨站"</p>
+        </div>
+        <p class="text-xs text-gray-600 leading-relaxed">
+          2025年第三季度，全球黄金ETF持仓量突破历史新高。SPDR持仓量过去6个月增加12%，机构资金正加速流入。
+        </p>
+      </div>
+
+      <div class="h-36">
+        <canvas id="etfChart2"></canvas>
+      </div>
+    </div>
+
+    <!-- Closing Quote -->
+    <div class="my-8 px-2">
+      <div class="bg-gradient-to-br from-accent-300 to-accent-500 rounded-2xl p-6 text-white relative overflow-hidden">
+        <div class="absolute top-2 left-4 text-6xl text-white/10 font-serif leading-none">"</div>
+        <p class="font-serif text-sm leading-relaxed relative z-10 mt-4">
+          金价的每一次新高，都是对旧秩序的一次叩问。前方不是K线的延续，是灯塔4.0时代的起点。
+        </p>
+        <div class="absolute bottom-2 right-4 text-6xl text-white/10 font-serif leading-none rotate-180">"</div>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="text-center pb-10 pt-2">
+      <div class="w-8 h-px bg-sand-300 mx-auto mb-3"></div>
+      <p class="text-[10px] text-gray-400">灵光 · Insight | 仅供参考，不构成投资建议</p>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Price Chart
+const ctx1 = document.getElementById('priceChart2').getContext('2d');
+const gradient1 = ctx1.createLinearGradient(0, 0, 0, 176);
+gradient1.addColorStop(0, 'rgba(196, 116, 43, 0.15)');
+gradient1.addColorStop(1, 'rgba(196, 116, 43, 0)');
+
+new Chart(ctx1, {
+  type: 'line',
+  data: {
+    labels: ['7月', '8月', '9月', '10月', '11月', '12月', '1月', '2月'],
+    datasets: [{
+       [832, 890, 960, 1050, 1180, 1320, 1420, 1502],
+      borderColor: '#C4742B',
+      borderWidth: 2,
+      backgroundColor: gradient1,
+      fill: true,
+      tension: 0.4,
+      pointRadius: 0,
+      pointHoverRadius: 5,
+      pointHoverBackgroundColor: '#C4742B',
+      pointHoverBorderColor: '#fff',
+      pointHoverBorderWidth: 2
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } },
+      y: { grid: { color: '#f0f0e8' }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } }
+    }
+  }
+});
+
+// ETF Chart
+const ctx2 = document.getElementById('etfChart2').getContext('2d');
+new Chart(ctx2, {
+  type: 'bar',
+  data: {
+    labels: ['Q1\'24', 'Q2', 'Q3', 'Q4', 'Q1\'25', 'Q2', 'Q3'],
+    datasets: [{
+       [28, 35, 42, 38, 52, 61, 78],
+      backgroundColor: [
+        'rgba(196,116,43,0.15)', 'rgba(196,116,43,0.2)', 'rgba(196,116,43,0.25)',
+        'rgba(196,116,43,0.3)', 'rgba(196,116,43,0.45)', 'rgba(196,116,43,0.6)',
+        'rgba(196,116,43,0.85)'
+      ],
+      borderRadius: 6,
+      barThickness: 24
+    }]
+  },
+  options: {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: { legend: { display: false } },
+    scales: {
+      x: { grid: { display: false }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } },
+      y: { grid: { color: '#f0f0e8' }, ticks: { color: '#aaa', font: { size: 10 } }, border: { display: false } }
+    }
+  }
+});
+</script>
+
+</body>
+</html>
