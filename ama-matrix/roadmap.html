@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>技术路径演进建议</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: #F5F2EE;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+  }
+  .roadmap-wrapper {
+    width: 720px;
+    background: #FFFDF9;
+    border-radius: 20px;
+    padding: 48px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .roadmap-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5A4A3A;
+    text-align: center;
+    margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+  .timeline {
+    position: relative;
+    padding-left: 80px;
+  }
+  .timeline::before {
+    content: '';
+    position: absolute;
+    left: 36px;
+    top: 8px;
+    bottom: 60px;
+    width: 3px;
+    background: linear-gradient(to bottom, #8B9E78, #7A94AD, #B8A898, #D4C4B4);
+    border-radius: 2px;
+  }
+  .phase {
+    position: relative;
+    margin-bottom: 32px;
+  }
+  .phase:last-child { margin-bottom: 0; }
+  .phase-dot {
+    position: absolute;
+    left: -52px;
+    top: 8px;
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 3px solid #FFFDF9;
+    box-shadow: 0 0 0 2px currentColor, 0 2px 8px rgba(0,0,0,0.1);
+  }
+  .phase-1 .phase-dot { background: #8B9E78; color: #8B9E78; }
+  .phase-2 .phase-dot { background: #7A94AD; color: #7A94AD; }
+  .phase-3 .phase-dot { background: #B8A898; color: #B8A898; }
+  .phase-x .phase-dot { background: #D4C4B4; color: #D4C4B4; }
+  .phase-1 .phase-dot::after,
+  .phase-2 .phase-dot::after,
+  .phase-3 .phase-dot::after {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    width: 22px;
+    height: 22px;
+    border-radius: 50%;
+    border: 2px solid currentColor;
+    opacity: 0.3;
+  }
+  .phase-label {
+    position: absolute;
+    left: -80px;
+    top: 6px;
+    width: 20px;
+    text-align: right;
+    font-size: 11px;
+    font-weight: 700;
+    color: #A89888;
+    letter-spacing: 0.5px;
+  }
+  .phase-card {
+    border-radius: 14px;
+    padding: 20px 24px;
+    position: relative;
+    overflow: hidden;
+  }
+  .phase-1 .phase-card {
+    background: linear-gradient(135deg, rgba(139,158,120,0.1), rgba(139,158,120,0.05));
+    border: 1px solid rgba(139,158,120,0.25);
+  }
+  .phase-2 .phase-card {
+    background: linear-gradient(135deg, rgba(122,148,173,0.1), rgba(122,148,173,0.05));
+    border: 1px solid rgba(122,148,173,0.25);
+  }
+  .phase-3 .phase-card {
+    background: linear-gradient(135deg, rgba(184,168,152,0.1), rgba(184,168,152,0.05));
+    border: 1px solid rgba(184,168,152,0.25);
+  }
+  .phase-x .phase-card {
+    background: linear-gradient(135deg, rgba(212,196,180,0.08), rgba(212,196,180,0.03));
+    border: 1px dashed rgba(180,160,140,0.35);
+  }
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+  }
+  .phase-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #FFF;
+    letter-spacing: 0.5px;
+  }
+  .phase-1 .phase-badge { background: #8B9E78; }
+  .phase-2 .phase-badge { background: #7A94AD; }
+  .phase-3 .phase-badge { background: #B8A898; }
+  .phase-x .phase-badge { background: #C4B4A4; }
+  .phase-name {
+    font-size: 15px;
+    font-weight: 600;
+    color: #5A4A3A;
+  }
+  .phase-items {
+    list-style: none;
+    padding: 0;
+  }
+  .phase-items li {
+    position: relative;
+    padding-left: 18px;
+    margin-bottom: 6px;
+    font-size: 13px;
+    color: #6A5A4A;
+    line-height: 1.6;
+  }
+  .phase-items li::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 9px;
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+  }
+  .phase-1 .phase-items li::before { background: #8B9E78; }
+  .phase-2 .phase-items li::before { background: #7A94AD; }
+  .phase-3 .phase-items li::before { background: #B8A898; }
+  .phase-x .phase-items li::before { background: #C4B4A4; }
+  .phase-x .phase-name {
+    color: #A89888;
+    text-decoration: line-through;
+    text-decoration-color: rgba(168,152,136,0.4);
+  }
+  .phase-x .phase-items li { color: #A89888; }
+  .phase-arrow {
+    text-align: center;
+    margin: -8px 0 -8px 0;
+    padding-left: 0;
+    color: #C4B8A8;
+    font-size: 16px;
+  }
+  .now-indicator {
+    position: absolute;
+    left: -76px;
+    top: -8px;
+    background: #8B9E78;
+    color: #FFF;
+    font-size: 9px;
+    font-weight: 700;
+    padding: 2px 6px;
+    border-radius: 4px;
+    letter-spacing: 1px;
+  }
+</style>
+</head>
+<body>
+<div class="roadmap-wrapper">
+  <div class="roadmap-title">技术路径演进建议</div>
+  <div class="timeline">
+    <div class="phase phase-1">
+      <div class="phase-dot">
+        <div class="now-indicator">NOW</div>
+      </div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge">Phase 1</span>
+          <span class="phase-name">Skill 预置场景 + Vision API</span>
+        </div>
+        <ul class="phase-items">
+          <li>覆盖图片触发的信息提取类场景</li>
+          <li>为 agentic 场景积累用户行为数据</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-arrow">↓</div>
+    <div class="phase phase-2">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge">Phase 2</span>
+          <span class="phase-name">MCP 接系统 API</span>
+        </div>
+        <ul class="phase-items">
+          <li>日历、通讯录等系统级动作执行</li>
+          <li>场景 A 的核心依赖</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-arrow">↓</div>
+    <div class="phase phase-3">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge">Phase 3</span>
+          <span class="phase-name">Proactive Agent + 跨模态聚合</span>
+        </div>
+        <ul class="phase-items">
+          <li>需要用户数据沉淀和信任建立</li>
+          <li>场景 C、D 的基础设施</li>
+        </ul>
+      </div>
+    </div>
+    <div class="phase-arrow">↓</div>
+    <div class="phase phase-x">
+      <div class="phase-dot"></div>
+      <div class="phase-card">
+        <div class="phase-header">
+          <span class="phase-badge">不建议</span>
+          <span class="phase-name">通用开放式 Agent</span>
+        </div>
+        <ul class="phase-items">
+          <li>「能做所有事」= 用户不知道该用它做什么</li>
+          <li>垂直场景切入，做深再扩展</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
+</body>
+</html>

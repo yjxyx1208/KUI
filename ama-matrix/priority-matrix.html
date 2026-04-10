@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Agentic 机会优先级矩阵</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, 'PingFang SC', 'Noto Sans SC', sans-serif;
+    background: #F5F2EE;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    padding: 40px;
+  }
+  .matrix-wrapper {
+    width: 720px;
+    background: #FFFDF9;
+    border-radius: 20px;
+    padding: 48px 48px 36px;
+    box-shadow: 0 4px 24px rgba(0,0,0,0.06);
+  }
+  .matrix-title {
+    font-size: 18px;
+    font-weight: 600;
+    color: #5A4A3A;
+    text-align: center;
+    margin-bottom: 32px;
+    letter-spacing: 1px;
+  }
+  .matrix-container {
+    position: relative;
+    width: 580px;
+    height: 420px;
+    margin: 0 auto;
+  }
+  .axis-y {
+    position: absolute;
+    left: 60px;
+    top: 20px;
+    bottom: 40px;
+    width: 2px;
+    background: #C4B8A8;
+  }
+  .axis-x {
+    position: absolute;
+    left: 60px;
+    bottom: 40px;
+    right: 20px;
+    height: 2px;
+    background: #C4B8A8;
+  }
+  .axis-y::after {
+    content: '';
+    position: absolute;
+    top: -6px;
+    left: -4px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 8px solid #C4B8A8;
+  }
+  .axis-x::after {
+    content: '';
+    position: absolute;
+    right: -6px;
+    top: -4px;
+    border-top: 5px solid transparent;
+    border-bottom: 5px solid transparent;
+    border-left: 8px solid #C4B8A8;
+  }
+  .axis-label-y {
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%) rotate(-90deg);
+    font-size: 13px;
+    color: #8A7A6A;
+    font-weight: 500;
+    white-space: nowrap;
+    letter-spacing: 2px;
+  }
+  .axis-label-x {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 13px;
+    color: #8A7A6A;
+    font-weight: 500;
+    letter-spacing: 2px;
+  }
+  .axis-tick-y-high {
+    position: absolute;
+    left: 48px;
+    top: 50px;
+    font-size: 11px;
+    color: #A89888;
+  }
+  .axis-tick-y-low {
+    position: absolute;
+    left: 48px;
+    bottom: 60px;
+    font-size: 11px;
+    color: #A89888;
+  }
+  .axis-tick-x-low {
+    position: absolute;
+    left: 80px;
+    bottom: 24px;
+    font-size: 11px;
+    color: #A89888;
+  }
+  .axis-tick-x-high {
+    position: absolute;
+    right: 40px;
+    bottom: 24px;
+    font-size: 11px;
+    color: #A89888;
+  }
+  .grid-h {
+    position: absolute;
+    left: 62px;
+    right: 20px;
+    top: 210px;
+    height: 1px;
+    background: #E8E0D6;
+    opacity: 0.6;
+  }
+  .grid-v {
+    position: absolute;
+    top: 20px;
+    bottom: 40px;
+    left: 320px;
+    width: 1px;
+    background: #E8E0D6;
+    opacity: 0.6;
+  }
+  .quadrant {
+    position: absolute;
+    border-radius: 12px;
+    opacity: 0.3;
+  }
+  .q-tl { left: 64px; top: 22px; width: 254px; height: 186px; background: #C8D5B9; }
+  .q-tr { left: 322px; top: 22px; width: 238px; height: 186px; background: #B8C8D8; }
+  .q-bl { left: 64px; top: 212px; width: 254px; height: 166px; background: #E0D6C8; }
+  .q-br { left: 322px; top: 212px; width: 238px; height: 166px; background: #D8C8B8; }
+  .card {
+    position: absolute;
+    border-radius: 14px;
+    padding: 14px 18px;
+    text-align: center;
+    box-shadow: 0 3px 12px rgba(0,0,0,0.08);
+    transition: transform 0.2s;
+    cursor: default;
+  }
+  .card:hover { transform: scale(1.04); }
+  .card-icon { font-size: 20px; margin-bottom: 4px; }
+  .card-label { font-size: 13px; font-weight: 600; color: #FFF; line-height: 1.4; }
+  .card-sub { font-size: 10px; color: rgba(255,255,255,0.85); margin-top: 2px; }
+  .card-a {
+    left: 100px;
+    top: 52px;
+    background: linear-gradient(135deg, #8B9E78, #7A8E68);
+    min-width: 140px;
+  }
+  .card-b {
+    left: 370px;
+    top: 62px;
+    background: linear-gradient(135deg, #7A94AD, #6A849D);
+    min-width: 140px;
+  }
+  .card-c {
+    left: 110px;
+    top: 230px;
+    background: linear-gradient(135deg, #B8A898, #A89888);
+    min-width: 130px;
+  }
+  .card-d {
+    left: 380px;
+    top: 260px;
+    background: linear-gradient(135deg, #C4A882, #B49872);
+    min-width: 130px;
+  }
+  .sweet-zone {
+    position: absolute;
+    left: 76px;
+    top: 34px;
+    width: 280px;
+    height: 196px;
+    border: 2px dashed #8B9E78;
+    border-radius: 18px;
+    opacity: 0.5;
+  }
+  .sweet-label {
+    position: absolute;
+    left: 84px;
+    top: 170px;
+    font-size: 11px;
+    color: #7A8E68;
+    font-weight: 600;
+    background: #FFFDF9;
+    padding: 2px 8px;
+    border-radius: 6px;
+    letter-spacing: 1px;
+  }
+  .matrix-footer {
+    text-align: center;
+    margin-top: 20px;
+    font-size: 12px;
+    color: #B0A090;
+  }
+</style>
+</head>
+<body>
+<div class="matrix-wrapper">
+  <div class="matrix-title">Agentic 机会优先级矩阵</div>
+  <div class="matrix-container">
+    <div class="quadrant q-tl"></div>
+    <div class="quadrant q-tr"></div>
+    <div class="quadrant q-bl"></div>
+    <div class="quadrant q-br"></div>
+    <div class="grid-h"></div>
+    <div class="grid-v"></div>
+    <div class="axis-y"></div>
+    <div class="axis-x"></div>
+    <div class="axis-label-y">用户感知价值</div>
+    <div class="axis-label-x">实现复杂度</div>
+    <div class="axis-tick-y-high">高</div>
+    <div class="axis-tick-y-low">低</div>
+    <div class="axis-tick-x-low">低</div>
+    <div class="axis-tick-x-high">高</div>
+    <div class="sweet-zone"></div>
+    <div class="sweet-label">🎯 甜蜜区 · 优先押注</div>
+    <div class="card card-a">
+      <div class="card-icon">🥇</div>
+      <div class="card-label">场景 A</div>
+      <div class="card-sub">对话触发系统动作</div>
+    </div>
+    <div class="card card-b">
+      <div class="card-icon">🥈</div>
+      <div class="card-label">场景 B</div>
+      <div class="card-sub">多轮 agentic 推进</div>
+    </div>
+    <div class="card card-c">
+      <div class="card-icon">🥉</div>
+      <div class="card-label">场景 C</div>
+      <div class="card-sub">主动推送</div>
+    </div>
+    <div class="card card-d">
+      <div class="card-icon">🔬</div>
+      <div class="card-label">场景 D</div>
+      <div class="card-sub">跨模态聚合</div>
+    </div>
+  </div>
+  <div class="matrix-footer">甜蜜区：场景 A + B，高价值 + 可控技术路径</div>
+</div>
+</body>
+</html>
