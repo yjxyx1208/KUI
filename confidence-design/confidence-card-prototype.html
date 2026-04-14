@@ -1,0 +1,461 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>置信度卡片原型</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  
+  body {
+    background: #1a1a1a;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px;
+    gap: 48px;
+    min-height: 100vh;
+  }
+
+  .section-title {
+    color: #888;
+    font-size: 12px;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-align: center;
+    margin-bottom: -32px;
+  }
+
+  /* 模拟手机屏幕 */
+  .phone-frame {
+    width: 280px;
+    height: 480px;
+    background: #111;
+    border-radius: 32px;
+    overflow: hidden;
+    position: relative;
+    border: 2px solid #333;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+  }
+
+  /* 相机取景背景 */
+  .camera-bg {
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(160deg, #2a3a2a 0%, #1e2e1e 40%, #182818 100%);
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding-bottom: 20px;
+  }
+
+  /* 模拟植物/物体 */
+  .scene-content {
+    position: absolute;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(ellipse at 30% 60%, rgba(40,70,30,0.8) 0%, transparent 50%),
+      radial-gradient(ellipse at 70% 40%, rgba(30,55,25,0.9) 0%, transparent 45%),
+      radial-gradient(ellipse at 50% 80%, rgba(20,40,15,1) 0%, transparent 60%);
+  }
+
+  /* 识别框 */
+  .scan-box {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -60%);
+    width: 140px;
+    height: 100px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-radius: 8px;
+  }
+
+  /* 识别卡片 */
+  .result-card {
+    position: absolute;
+    bottom: 80px;
+    right: 12px;
+    width: 160px;
+    background: rgba(20, 20, 20, 0.85);
+    backdrop-filter: blur(12px);
+    border-radius: 12px;
+    padding: 10px;
+    display: flex;
+    gap: 8px;
+    align-items: flex-start;
+    transition: all 0.3s ease;
+  }
+
+  /* 高置信 - 正常 */
+  .card-high {
+    border: 1px solid rgba(255,255,255,0.12);
+  }
+
+  /* 中置信 - 微妙变化 */
+  .card-mid {
+    border: 1px solid rgba(255,200,80,0.25);
+  }
+
+  /* 低置信 - 明显不确定感 */
+  .card-low {
+    border: 1px dashed rgba(255,255,255,0.2);
+    opacity: 0.88;
+  }
+
+  .product-thumb {
+    width: 36px;
+    height: 36px;
+    border-radius: 6px;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .thumb-high { background: rgba(90, 130, 100, 0.4); }
+  .thumb-mid  { background: rgba(90, 130, 100, 0.3); }
+  .thumb-low  { background: rgba(90, 130, 100, 0.2); filter: grayscale(30%); }
+
+  .card-content {
+    flex: 1;
+    min-width: 0;
+  }
+
+  /* 置信度标签 */
+  .confidence-label {
+    font-size: 9px;
+    font-weight: 500;
+    border-radius: 3px;
+    padding: 1px 5px;
+    display: inline-block;
+    margin-bottom: 3px;
+    letter-spacing: 0.3px;
+  }
+
+  .label-high {
+    background: rgba(100, 180, 120, 0.25);
+    color: #7ec896;
+  }
+
+  .label-mid {
+    background: rgba(220, 170, 60, 0.2);
+    color: #d4a843;
+  }
+
+  .label-low {
+    background: rgba(180, 130, 100, 0.2);
+    color: #c49070;
+  }
+
+  .card-title {
+    font-size: 11px;
+    font-weight: 600;
+    color: #f0f0f0;
+    line-height: 1.3;
+    margin-bottom: 3px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  .title-prefix {
+    font-weight: 400;
+    opacity: 0.7;
+  }
+
+  .card-desc {
+    font-size: 9px;
+    color: rgba(255,255,255,0.45);
+    line-height: 1.4;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  /* 底部操作栏 */
+  .bottom-bar {
+    position: absolute;
+    bottom: 0;
+    left: 0; right: 0;
+    height: 64px;
+    background: rgba(10,10,10,0.9);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 16px;
+    padding: 0 16px;
+  }
+
+  .btn {
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.8);
+    font-size: 11px;
+    padding: 6px 14px;
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+  }
+
+  .btn-close {
+    width: 28px;
+    height: 28px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.6);
+    font-size: 12px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  /* 顶部状态栏 */
+  .status-bar {
+    position: absolute;
+    top: 0;
+    left: 0; right: 0;
+    height: 36px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+  }
+
+  .status-text {
+    color: rgba(255,255,255,0.6);
+    font-size: 10px;
+  }
+
+  /* 标签说明区 */
+  .label-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .phone-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    text-align: center;
+    letter-spacing: 0.5px;
+  }
+
+  /* 三列对比 */
+  .comparison {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  /* 说明文字卡 */
+  .info-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 16px;
+    padding: 20px 24px;
+    width: 880px;
+    max-width: 100%;
+  }
+
+  .info-title {
+    color: rgba(255,255,255,0.5);
+    font-size: 11px;
+    letter-spacing: 1.5px;
+    margin-bottom: 14px;
+  }
+
+  .info-row {
+    display: flex;
+    gap: 24px;
+    align-items: flex-start;
+  }
+
+  .info-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+  }
+
+  .info-badge {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 4px;
+    display: inline-block;
+    width: fit-content;
+  }
+
+  .badge-high { background: rgba(100, 180, 120, 0.15); color: #7ec896; border: 1px solid rgba(100,180,120,0.2); }
+  .badge-mid  { background: rgba(220, 170, 60, 0.12); color: #d4a843; border: 1px solid rgba(220,170,60,0.2); }
+  .badge-low  { background: rgba(180, 130, 100, 0.12); color: #c49070; border: 1px solid rgba(180,130,100,0.2); }
+
+  .info-rule {
+    font-size: 12px;
+    color: rgba(255,255,255,0.65);
+    line-height: 1.6;
+  }
+
+  .info-example {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    font-style: italic;
+  }
+
+  .divider {
+    width: 1px;
+    height: 60px;
+    background: rgba(255,255,255,0.07);
+    align-self: center;
+  }
+
+  .page-header {
+    text-align: center;
+    margin-bottom: 8px;
+  }
+
+  .page-title {
+    font-size: 20px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    letter-spacing: 1px;
+    margin-bottom: 6px;
+  }
+
+  .page-subtitle {
+    font-size: 12px;
+    color: rgba(255,255,255,0.3);
+  }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">识别置信度 · 卡片设计方案</div>
+  <div class="page-subtitle">灵光开眼 · 三档置信度表达</div>
+</div>
+
+<!-- 三列对比 -->
+<div class="comparison">
+
+  <!-- 高置信 -->
+  <div class="label-section">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene-content"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+        <div class="scan-box"></div>
+        <div class="result-card card-high">
+          <div class="product-thumb thumb-high">🍵</div>
+          <div class="card-content">
+            <div class="confidence-label label-high">已识别</div>
+            <div class="card-title">三得利乌龙茶</div>
+            <div class="card-desc">福建水仙茶 高温萃取工艺，茶多酚含量不...</div>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">置信度 ≥ 85%<br>正常展示，无前缀</div>
+  </div>
+
+  <!-- 中置信 -->
+  <div class="label-section">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene-content"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+        <div class="scan-box"></div>
+        <div class="result-card card-mid">
+          <div class="product-thumb thumb-mid">🍵</div>
+          <div class="card-content">
+            <div class="confidence-label label-mid">可能是</div>
+            <div class="card-title">三得利乌龙茶</div>
+            <div class="card-desc">福建水仙茶 高温萃取工艺，茶多酚含量不...</div>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">置信度 60–85%<br>「可能是」标签 + 黄色</div>
+  </div>
+
+  <!-- 低置信 -->
+  <div class="label-section">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene-content"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+        <div class="scan-box"></div>
+        <div class="result-card card-low">
+          <div class="product-thumb thumb-low">🍵</div>
+          <div class="card-content">
+            <div class="confidence-label label-low">不太确定</div>
+            <div class="card-title">三得利乌龙茶？</div>
+            <div class="card-desc">识别结果仅供参考，建议拍近一点</div>
+          </div>
+        </div>
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">置信度 &lt; 60%<br>虚线边框 + 「不太确定」</div>
+  </div>
+
+</div>
+
+<!-- 设计说明 -->
+<div class="info-card">
+  <div class="info-title">DESIGN RATIONALE · 设计决策说明</div>
+  <div class="info-row">
+    <div class="info-item">
+      <div class="info-badge badge-high">高置信 ≥85%</div>
+      <div class="info-rule">实线边框，绿色「已识别」角标<br>标题直接展示，无任何修饰词</div>
+      <div class="info-example">→ 用户直接消费信息，无需质疑</div>
+    </div>
+    <div class="divider"></div>
+    <div class="info-item">
+      <div class="info-badge badge-mid">中置信 60–85%</div>
+      <div class="info-rule">暖黄色「可能是」角标，边框染色<br>标题不变，通过标签传递不确定</div>
+      <div class="info-example">→ 提醒用户结果不100%，但仍可参考</div>
+    </div>
+    <div class="divider"></div>
+    <div class="info-item">
+      <div class="info-badge badge-low">低置信 &lt;60%</div>
+      <div class="info-rule">虚线边框 + 整卡轻微透明<br>描述替换为「建议重新拍摄」引导</div>
+      <div class="info-example">→ 主动引导用户操作，减少误信</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
