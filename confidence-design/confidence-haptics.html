@@ -1,0 +1,357 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>置信度 · 触觉反馈规格</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #141414;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    gap: 32px;
+  }
+
+  .page-header { text-align: center; }
+  .page-title { font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+  .page-subtitle { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
+  .progress-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 20px; width: 820px;
+  }
+  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: #c49070; box-shadow: 0 0 6px rgba(196,144,112,0.6); }
+  .prog-text { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .prog-num  { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .prog-sep  { color: rgba(255,255,255,0.15); margin: 0 4px; }
+
+  /* ===== 三张大卡片纵向排列 ===== */
+  .haptic-card {
+    width: 820px;
+    border-radius: 16px;
+    padding: 28px 32px;
+    display: flex;
+    gap: 32px;
+    align-items: flex-start;
+  }
+  .hc-high { background: rgba(111,207,138,0.05); border: 1px solid rgba(111,207,138,0.14); }
+  .hc-mid  { background: rgba(232,192,90,0.05);  border: 1px solid rgba(232,192,90,0.14); }
+  .hc-low  { background: rgba(196,144,106,0.05); border: 1px solid rgba(196,144,106,0.14); }
+
+  /* 左侧：等级标签 + 数字 */
+  .hc-left { width: 120px; flex-shrink: 0; }
+  .hc-badge {
+    font-size: 10px; font-weight: 700;
+    padding: 3px 10px; border-radius: 5px;
+    display: inline-block; margin-bottom: 12px; letter-spacing: 0.5px;
+  }
+  .hb-high { background: rgba(111,207,138,0.15); color: #6fcf8a; border: 1px solid rgba(111,207,138,0.25); }
+  .hb-mid  { background: rgba(232,192,90,0.12);  color: #e8c05a; border: 1px solid rgba(232,192,90,0.25); }
+  .hb-low  { background: rgba(196,144,106,0.12); color: #c4906a; border: 1px solid rgba(196,144,106,0.25); }
+
+  .hc-range { font-size: 22px; font-weight: 700; color: rgba(255,255,255,0.8); line-height: 1; margin-bottom: 4px; }
+  .hc-range-sub { font-size: 10px; color: rgba(255,255,255,0.3); }
+
+  /* 中间：波形可视化 */
+  .hc-wave { flex: 1; }
+  .wave-label { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 12px; }
+
+  .waveform {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    height: 60px;
+    margin-bottom: 10px;
+    position: relative;
+  }
+
+  /* 基准线 */
+  .waveform::before {
+    content: '';
+    position: absolute;
+    left: 0; right: 0;
+    top: 50%;
+    height: 1px;
+    background: rgba(255,255,255,0.06);
+  }
+
+  .pulse {
+    border-radius: 2px;
+    flex-shrink: 0;
+  }
+
+  /* 时间轴标注 */
+  .time-axis {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-top: 4px;
+  }
+  .time-tick { font-size: 9px; color: rgba(255,255,255,0.2); }
+  .time-gap  { flex: 1; }
+
+  /* 右侧：参数规格 */
+  .hc-spec { width: 220px; flex-shrink: 0; }
+  .spec-title { font-size: 10px; color: rgba(255,255,255,0.3); letter-spacing: 1px; margin-bottom: 12px; }
+
+  .spec-row {
+    display: flex; justify-content: space-between; align-items: center;
+    padding: 7px 0;
+    border-bottom: 1px solid rgba(255,255,255,0.05);
+  }
+  .spec-row:last-child { border-bottom: none; }
+  .spec-key { font-size: 11px; color: rgba(255,255,255,0.35); }
+  .spec-val { font-size: 11px; font-weight: 600; }
+  .sv-high { color: #6fcf8a; }
+  .sv-mid  { color: #e8c05a; }
+  .sv-low  { color: #c4906a; }
+
+  /* 描述文字 */
+  .hc-desc {
+    margin-top: 12px;
+    padding-top: 12px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    font-size: 11px;
+    color: rgba(255,255,255,0.4);
+    line-height: 1.7;
+    grid-column: 1 / -1;
+  }
+  .hc-body { flex: 1; display: flex; flex-direction: column; gap: 0; }
+
+  /* ===== 底部对比总结 ===== */
+  .summary-card {
+    width: 820px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px;
+    padding: 20px 28px;
+  }
+  .summary-title { font-size: 10px; color: rgba(255,255,255,0.25); letter-spacing: 1.5px; margin-bottom: 16px; }
+
+  .summary-row {
+    display: flex; gap: 0;
+  }
+  .summary-item {
+    flex: 1; padding: 0 20px;
+    border-right: 1px solid rgba(255,255,255,0.05);
+  }
+  .summary-item:first-child { padding-left: 0; }
+  .summary-item:last-child  { border-right: none; }
+
+  .si-head { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+  .si-dot  { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
+  .sd-high { background: #6fcf8a; box-shadow: 0 0 6px rgba(111,207,138,0.5); }
+  .sd-mid  { background: #e8c05a; box-shadow: 0 0 6px rgba(232,192,90,0.5); }
+  .sd-low  { background: #c4906a; box-shadow: 0 0 6px rgba(196,144,106,0.5); }
+  .si-name { font-size: 11px; font-weight: 600; color: rgba(255,255,255,0.6); }
+
+  .si-feel {
+    font-size: 14px; font-weight: 600; color: rgba(255,255,255,0.75);
+    margin-bottom: 4px; line-height: 1.3;
+  }
+  .si-note { font-size: 10.5px; color: rgba(255,255,255,0.28); line-height: 1.5; }
+
+  /* iOS API 说明 */
+  .api-note {
+    width: 820px;
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.05);
+    border-radius: 10px;
+    padding: 14px 20px;
+    display: flex;
+    gap: 12px;
+    align-items: flex-start;
+  }
+  .api-icon { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+  .api-text { font-size: 10.5px; color: rgba(255,255,255,0.3); line-height: 1.7; }
+  .api-text code { background: rgba(255,255,255,0.07); padding: 1px 5px; border-radius: 3px; font-family: 'SF Mono', monospace; font-size: 9.5px; color: rgba(255,255,255,0.5); }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">方案三 · 触觉反馈规格</div>
+  <div class="page-subtitle">HAPTIC FEEDBACK SPEC · 震动模式设计文档</div>
+</div>
+
+<div class="progress-bar">
+  <div class="prog-dot"></div>
+  <div class="prog-text">当前进度</div>
+  <div class="prog-num">3 / 4</div>
+  <div class="prog-sep">·</div>
+  <div class="prog-text">识别框 ✓ → 提示条 ✓ → 触觉规格 → 扫描动效</div>
+</div>
+
+<!-- 高置信 -->
+<div class="haptic-card hc-high">
+  <div class="hc-left">
+    <div class="hc-badge hb-high">高置信</div>
+    <div class="hc-range">≥85%</div>
+    <div class="hc-range-sub">识别成功</div>
+  </div>
+
+  <div class="hc-body">
+    <div class="wave-label">WAVEFORM · 震动波形</div>
+    <div class="waveform">
+      <!-- 一次清脆短震：单峰，高而窄 -->
+      <div style="width:60px"></div>
+      <div class="pulse" style="width:6px; height:48px; background:#6fcf8a; opacity:0.9; box-shadow:0 0 8px rgba(111,207,138,0.5);"></div>
+      <div style="width:200px"></div>
+      <!-- 时间标注 -->
+    </div>
+    <div style="display:flex; align-items:center; padding-left:60px;">
+      <div style="font-size:9px; color:rgba(255,255,255,0.2);">0ms</div>
+      <div style="width:6px;"></div>
+      <div style="font-size:9px; color:rgba(111,207,138,0.6); font-weight:600;">▲ 单次短震</div>
+      <div style="width:200px;"></div>
+      <div style="font-size:9px; color:rgba(255,255,255,0.2);">~300ms</div>
+    </div>
+    <div class="hc-desc">清脆的一下——「咔」。有明确的结束感，代表识别完成、结果可信。用户无需视觉确认，震动本身就是答案。</div>
+  </div>
+
+  <div class="hc-spec">
+    <div class="spec-title">PARAMETERS</div>
+    <div class="spec-row"><span class="spec-key">震动次数</span><span class="spec-val sv-high">1次</span></div>
+    <div class="spec-row"><span class="spec-key">强度</span><span class="spec-val sv-high">Heavy Impact</span></div>
+    <div class="spec-row"><span class="spec-key">时长</span><span class="spec-val sv-high">~30ms</span></div>
+    <div class="spec-row"><span class="spec-key">间隔</span><span class="spec-val sv-high">—</span></div>
+    <div class="spec-row"><span class="spec-key">用户感知</span><span class="spec-val sv-high">锁定 / 完成</span></div>
+  </div>
+</div>
+
+<!-- 中置信 -->
+<div class="haptic-card hc-mid">
+  <div class="hc-left">
+    <div class="hc-badge hb-mid">中置信</div>
+    <div class="hc-range">60–85%</div>
+    <div class="hc-range-sub">可能正确</div>
+  </div>
+
+  <div class="hc-body">
+    <div class="wave-label">WAVEFORM · 震动波形</div>
+    <div class="waveform">
+      <!-- 两次轻震：双峰，中等高度，有间隔 -->
+      <div style="width:40px"></div>
+      <div class="pulse" style="width:5px; height:32px; background:#e8c05a; opacity:0.85; box-shadow:0 0 6px rgba(232,192,90,0.4);"></div>
+      <div style="width:16px"></div>
+      <div class="pulse" style="width:5px; height:28px; background:#e8c05a; opacity:0.65; box-shadow:0 0 5px rgba(232,192,90,0.3);"></div>
+      <div style="width:160px"></div>
+    </div>
+    <div style="display:flex; align-items:center; padding-left:40px;">
+      <div style="font-size:9px; color:rgba(255,255,255,0.2);">0ms</div>
+      <div style="width:5px;"></div>
+      <div style="font-size:9px; color:rgba(232,192,90,0.6); font-weight:600;">▲ 第一震</div>
+      <div style="width:60px;"></div>
+      <div style="font-size:9px; color:rgba(232,192,90,0.4);">▲ 第二震（轻）</div>
+    </div>
+    <div class="hc-desc">两下，节奏是「咚——咚」，第二下比第一下轻一些。有结果，但有疑问。不像一下那样干脆，用户下意识会多看一眼屏幕。</div>
+  </div>
+
+  <div class="hc-spec">
+    <div class="spec-title">PARAMETERS</div>
+    <div class="spec-row"><span class="spec-key">震动次数</span><span class="spec-val sv-mid">2次</span></div>
+    <div class="spec-row"><span class="spec-key">强度</span><span class="spec-val sv-mid">Medium → Light</span></div>
+    <div class="spec-row"><span class="spec-key">时长</span><span class="spec-val sv-mid">~20ms × 2</span></div>
+    <div class="spec-row"><span class="spec-key">间隔</span><span class="spec-val sv-mid">80ms</span></div>
+    <div class="spec-row"><span class="spec-key">用户感知</span><span class="spec-val sv-mid">有结果 / 存疑</span></div>
+  </div>
+</div>
+
+<!-- 低置信 -->
+<div class="haptic-card hc-low">
+  <div class="hc-left">
+    <div class="hc-badge hb-low">低置信</div>
+    <div class="hc-range">&lt;60%</div>
+    <div class="hc-range-sub">不确定</div>
+  </div>
+
+  <div class="hc-body">
+    <div class="wave-label">WAVEFORM · 震动波形</div>
+    <div class="waveform">
+      <!-- 长微震：低幅度，拉伸感 -->
+      <div style="width:30px"></div>
+      <div class="pulse" style="width:3px; height:12px; background:#c4906a; opacity:0.5;"></div>
+      <div style="width:3px"></div>
+      <div class="pulse" style="width:3px; height:16px; background:#c4906a; opacity:0.55;"></div>
+      <div style="width:3px"></div>
+      <div class="pulse" style="width:3px; height:10px; background:#c4906a; opacity:0.45;"></div>
+      <div style="width:3px"></div>
+      <div class="pulse" style="width:3px; height:18px; background:#c4906a; opacity:0.6;"></div>
+      <div style="width:3px"></div>
+      <div class="pulse" style="width:3px; height:12px; background:#c4906a; opacity:0.5;"></div>
+      <div style="width:3px"></div>
+      <div class="pulse" style="width:3px; height:14px; background:#c4906a; opacity:0.48;"></div>
+      <div style="width:100px"></div>
+    </div>
+    <div style="display:flex; align-items:center; padding-left:30px;">
+      <div style="font-size:9px; color:rgba(255,255,255,0.2);">0ms</div>
+      <div style="width:50px;"></div>
+      <div style="font-size:9px; color:rgba(196,144,106,0.5); font-weight:600;">~ 持续微震 ~</div>
+      <div style="width:80px;"></div>
+      <div style="font-size:9px; color:rgba(255,255,255,0.2);">~400ms</div>
+    </div>
+    <div class="hc-desc">低幅度的连续微震，像在"犹豫"。没有清晰的终止感，给用户一种「还没确定好」的信号，自然引导他们调整拍摄姿势。</div>
+  </div>
+
+  <div class="hc-spec">
+    <div class="spec-title">PARAMETERS</div>
+    <div class="spec-row"><span class="spec-key">震动次数</span><span class="spec-val sv-low">连续微震</span></div>
+    <div class="spec-row"><span class="spec-key">强度</span><span class="spec-val sv-low">Light (持续)</span></div>
+    <div class="spec-row"><span class="spec-key">时长</span><span class="spec-val sv-low">~400ms</span></div>
+    <div class="spec-row"><span class="spec-key">间隔</span><span class="spec-val sv-low">不规则</span></div>
+    <div class="spec-row"><span class="spec-key">用户感知</span><span class="spec-val sv-low">犹豫 / 未完成</span></div>
+  </div>
+</div>
+
+<!-- 对比总结 -->
+<div class="summary-card">
+  <div class="summary-title">USER FEEL · 用户感知总结</div>
+  <div class="summary-row">
+    <div class="summary-item">
+      <div class="si-head">
+        <div class="si-dot sd-high"></div>
+        <div class="si-name">高置信</div>
+      </div>
+      <div class="si-feel">「咔」</div>
+      <div class="si-note">干脆、利落、有结束感<br>闭着眼睛都知道识别成功了</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-head">
+        <div class="si-dot sd-mid"></div>
+        <div class="si-name">中置信</div>
+      </div>
+      <div class="si-feel">「咚——咚」</div>
+      <div class="si-note">有结果，但不那么确定<br>两下的节奏自然传达疑问感</div>
+    </div>
+    <div class="summary-item">
+      <div class="si-head">
+        <div class="si-dot sd-low"></div>
+        <div class="si-name">低置信</div>
+      </div>
+      <div class="si-feel">「……嗡嗡嗡」</div>
+      <div class="si-note">模糊、未完成、像在思考中<br>用户直觉感知到"还没好"</div>
+    </div>
+  </div>
+</div>
+
+<!-- iOS 实现说明 -->
+<div class="api-note">
+  <div class="api-icon">🔧</div>
+  <div class="api-text">
+    <strong style="color:rgba(255,255,255,0.45);">iOS 实现参考</strong>　·　
+    高置信：<code>UIImpactFeedbackGenerator(style: .heavy).impactOccurred()</code>　·　
+    中置信：连续调用两次 <code>.medium</code>，间隔 80ms　·　
+    低置信：<code>UINotificationFeedbackGenerator().notificationOccurred(.warning)</code> 或自定义 <code>CoreHaptics</code> pattern　·　
+    Android 可用 <code>VibrationEffect.createWaveform()</code> 对应实现
+  </div>
+</div>
+
+</body>
+</html>
