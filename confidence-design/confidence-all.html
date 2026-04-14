@@ -1,0 +1,292 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>灵光开眼 · 置信度设计方案全览</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #0f0f0f;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* ===== 顶部 header ===== */
+  .header {
+    padding: 28px 40px 0;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .header-top {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+  }
+
+  .title-group {}
+  .main-title {
+    font-size: 20px;
+    font-weight: 700;
+    color: rgba(255,255,255,0.88);
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+  }
+  .main-subtitle {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    letter-spacing: 1px;
+  }
+
+  .badge-row {
+    display: flex;
+    gap: 6px;
+    align-items: center;
+  }
+  .badge {
+    font-size: 9.5px;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+  .badge-green { background: rgba(111,207,138,0.12); color: #6fcf8a; border: 1px solid rgba(111,207,138,0.2); }
+  .badge-yellow { background: rgba(232,192,90,0.1); color: #e8c05a; border: 1px solid rgba(232,192,90,0.2); }
+  .badge-orange { background: rgba(196,144,106,0.1); color: #c4906a; border: 1px solid rgba(196,144,106,0.2); }
+
+  /* ===== Tab 导航 ===== */
+  .tab-nav {
+    display: flex;
+    gap: 4px;
+    padding: 0 2px;
+    position: relative;
+  }
+
+  .tab-nav::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 1px;
+    background: rgba(255,255,255,0.07);
+  }
+
+  .tab-btn {
+    padding: 10px 18px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 7px;
+    position: relative;
+    border-radius: 8px 8px 0 0;
+    transition: background 0.2s;
+  }
+
+  .tab-btn:hover {
+    background: rgba(255,255,255,0.04);
+  }
+
+  .tab-btn.active {
+    background: rgba(255,255,255,0.05);
+  }
+
+  .tab-btn::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    border-radius: 2px 2px 0 0;
+    background: transparent;
+    transition: background 0.2s;
+    z-index: 1;
+  }
+
+  .tab-btn.active::after { background: rgba(255,255,255,0.5); }
+
+  .tab-icon {
+    font-size: 13px;
+  }
+
+  .tab-text {
+    font-size: 12px;
+    font-weight: 500;
+    color: rgba(255,255,255,0.35);
+    transition: color 0.2s;
+    white-space: nowrap;
+  }
+  .tab-btn.active .tab-text { color: rgba(255,255,255,0.82); }
+  .tab-btn:hover .tab-text  { color: rgba(255,255,255,0.6); }
+
+  .tab-num {
+    font-size: 9px;
+    color: rgba(255,255,255,0.2);
+    font-weight: 400;
+  }
+  .tab-btn.active .tab-num { color: rgba(255,255,255,0.35); }
+
+  /* ===== 内容区 ===== */
+  .tab-content {
+    flex: 1;
+    position: relative;
+  }
+
+  .tab-panel {
+    display: none;
+    width: 100%;
+    height: calc(100vh - 130px);
+  }
+
+  .tab-panel.active {
+    display: block;
+  }
+
+  .tab-panel iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+  }
+
+  /* ===== 底部状态条 ===== */
+  .status-footer {
+    height: 36px;
+    background: rgba(255,255,255,0.02);
+    border-top: 1px solid rgba(255,255,255,0.05);
+    display: flex;
+    align-items: center;
+    padding: 0 40px;
+    gap: 20px;
+  }
+  .sf-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 10px;
+    color: rgba(255,255,255,0.2);
+  }
+  .sf-dot {
+    width: 5px; height: 5px; border-radius: 50%;
+  }
+  .sf-sep { color: rgba(255,255,255,0.1); }
+  .sf-active-label {
+    font-size: 10px;
+    color: rgba(255,255,255,0.35);
+    margin-left: auto;
+  }
+  .sf-active-val {
+    font-size: 10px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.5);
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div class="header-top">
+    <div class="title-group">
+      <div class="main-title">灵光开眼 · 识别置信度设计方案</div>
+      <div class="main-subtitle">CONFIDENCE LEVEL DESIGN · 5 SCHEMES · 3 TIERS</div>
+    </div>
+    <div class="badge-row">
+      <div class="badge badge-green">≥85% 高置信</div>
+      <div class="badge badge-yellow">60–85% 中置信</div>
+      <div class="badge badge-orange">&lt;60% 低置信</div>
+    </div>
+  </div>
+
+  <nav class="tab-nav">
+    <button class="tab-btn active" data-tab="0" onclick="switchTab(0)">
+      <span class="tab-icon">🃏</span>
+      <span class="tab-text">卡片标签</span>
+      <span class="tab-num">方案 0</span>
+    </button>
+    <button class="tab-btn" data-tab="1" onclick="switchTab(1)">
+      <span class="tab-icon">⬜</span>
+      <span class="tab-text">识别框状态</span>
+      <span class="tab-num">方案 1</span>
+    </button>
+    <button class="tab-btn" data-tab="2" onclick="switchTab(2)">
+      <span class="tab-icon">💬</span>
+      <span class="tab-text">提示条</span>
+      <span class="tab-num">方案 2</span>
+    </button>
+    <button class="tab-btn" data-tab="3" onclick="switchTab(3)">
+      <span class="tab-icon">📳</span>
+      <span class="tab-text">触觉反馈</span>
+      <span class="tab-num">方案 3</span>
+    </button>
+    <button class="tab-btn" data-tab="4" onclick="switchTab(4)">
+      <span class="tab-icon">✦</span>
+      <span class="tab-text">扫描动效</span>
+      <span class="tab-num">方案 4</span>
+    </button>
+  </nav>
+</div>
+
+<div class="tab-content">
+  <div class="tab-panel active" data-panel="0">
+    <iframe src="confidence-card-prototype.html" title="卡片标签方案"></iframe>
+  </div>
+  <div class="tab-panel" data-panel="1">
+    <iframe src="confidence-scanbox.html" title="识别框状态方案"></iframe>
+  </div>
+  <div class="tab-panel" data-panel="2">
+    <iframe src="confidence-banner.html" title="提示条方案"></iframe>
+  </div>
+  <div class="tab-panel" data-panel="3">
+    <iframe src="confidence-haptics.html" title="触觉反馈方案"></iframe>
+  </div>
+  <div class="tab-panel" data-panel="4">
+    <iframe src="confidence-animation.html" title="扫描动效方案"></iframe>
+  </div>
+</div>
+
+<div class="status-footer">
+  <div class="sf-item">
+    <div class="sf-dot" style="background:#6fcf8a;"></div>
+    <span>高置信 · 正常展示</span>
+  </div>
+  <div class="sf-sep">·</div>
+  <div class="sf-item">
+    <div class="sf-dot" style="background:#e8c05a;"></div>
+    <span>中置信 · 提示参考</span>
+  </div>
+  <div class="sf-sep">·</div>
+  <div class="sf-item">
+    <div class="sf-dot" style="background:#c4906a;"></div>
+    <span>低置信 · 引导操作</span>
+  </div>
+  <div class="sf-active-label">当前方案：</div>
+  <div class="sf-active-val" id="active-label">卡片标签</div>
+</div>
+
+<script>
+  const labels = ['卡片标签', '识别框状态', '提示条', '触觉反馈', '扫描动效'];
+
+  function switchTab(index) {
+    document.querySelectorAll('.tab-btn').forEach((btn, i) => {
+      btn.classList.toggle('active', i === index);
+    });
+    document.querySelectorAll('.tab-panel').forEach((panel, i) => {
+      panel.classList.toggle('active', i === index);
+    });
+    document.getElementById('active-label').textContent = labels[index];
+  }
+
+  // 键盘快捷键：← → 切换 tab
+  document.addEventListener('keydown', e => {
+    const active = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
+    if (e.key === 'ArrowRight' && active < 4) switchTab(active + 1);
+    if (e.key === 'ArrowLeft'  && active > 0) switchTab(active - 1);
+  });
+</script>
+
+</body>
+</html>
