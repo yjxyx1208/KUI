@@ -1,0 +1,459 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>置信度 · 扫描动效</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #141414;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    gap: 40px;
+  }
+
+  .page-header { text-align: center; }
+  .page-title { font-size: 18px; font-weight: 600; color: rgba(255,255,255,0.85); margin-bottom: 6px; }
+  .page-subtitle { font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px; }
+
+  .progress-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 20px; width: 836px;
+  }
+  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: #a084c8; box-shadow: 0 0 6px rgba(160,132,200,0.6); }
+  .prog-text { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .prog-num  { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .prog-sep  { color: rgba(255,255,255,0.15); margin: 0 4px; }
+
+  .comparison { display: flex; gap: 28px; align-items: flex-start; }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+  .phone-frame {
+    width: 260px; height: 460px;
+    background: #0e0e0e; border-radius: 32px; overflow: hidden;
+    position: relative; border: 2px solid #2a2a2a;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  }
+
+  .camera-bg { width: 100%; height: 100%; position: relative; }
+
+  .scene {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 55%, rgba(35,58,28,0.9) 0%, transparent 45%),
+      radial-gradient(ellipse at 70% 35%, rgba(28,48,22,0.95) 0%, transparent 50%),
+      radial-gradient(ellipse at 55% 80%, rgba(18,35,14,1) 0%, transparent 55%),
+      #131a10;
+  }
+
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px; z-index: 10;
+  }
+  .status-text { color: rgba(255,255,255,0.55); font-size: 10px; }
+
+  /* ===================== 识别框 + 动效 ===================== */
+  .scan-box {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -58%);
+    width: 150px; height: 110px;
+    overflow: hidden;
+  }
+
+  .corner {
+    position: absolute; width: 14px; height: 14px; z-index: 2;
+  }
+  .corner-tl { top:0; left:0;    border-top:2px solid; border-left:2px solid;   border-radius:3px 0 0 0; }
+  .corner-tr { top:0; right:0;   border-top:2px solid; border-right:2px solid;  border-radius:0 3px 0 0; }
+  .corner-bl { bottom:0; left:0;  border-bottom:2px solid; border-left:2px solid; border-radius:0 0 0 3px; }
+  .corner-br { bottom:0; right:0; border-bottom:2px solid; border-right:2px solid; border-radius:0 0 3px 0; }
+
+  /* 扫描线 */
+  .scan-line {
+    position: absolute; left: 0; right: 0; height: 2px; z-index: 1;
+  }
+
+  /* ===== 高置信：扫描完成后静止，出现锁定光晕 ===== */
+  .box-high .corner { border-color: #6fcf8a; }
+  .box-high .scan-line {
+    background: linear-gradient(90deg, transparent 5%, #6fcf8a 50%, transparent 95%);
+    top: 50%;
+    opacity: 0;
+    /* 扫描完后不再动 */
+  }
+  /* 锁定光晕 */
+  .box-high::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: radial-gradient(ellipse at center, rgba(111,207,138,0.08) 0%, transparent 70%);
+    border: 1px solid rgba(111,207,138,0.18);
+    border-radius: 4px;
+    animation: glowPulse 3s ease-in-out infinite;
+  }
+  @keyframes glowPulse {
+    0%, 100% { opacity: 0.6; }
+    50%       { opacity: 1; }
+  }
+
+  .locked-dot {
+    position: absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+    width:8px; height:8px; border-radius:50%;
+    background:#6fcf8a; box-shadow:0 0 10px rgba(111,207,138,0.9);
+    z-index: 3;
+    animation: dotBreath 3s ease-in-out infinite;
+  }
+  @keyframes dotBreath {
+    0%,100% { box-shadow: 0 0 6px rgba(111,207,138,0.7); }
+    50%      { box-shadow: 0 0 16px rgba(111,207,138,1); }
+  }
+
+  /* ===== 中置信：扫描线慢速来回，有犹豫感 ===== */
+  .box-mid .corner { border-color: #e8c05a; }
+  .box-mid .scan-line {
+    background: linear-gradient(90deg, transparent 5%, rgba(232,192,90,0.9) 50%, transparent 95%);
+    filter: blur(0.5px);
+    animation: scanSlow 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+  @keyframes scanSlow {
+    0%   { top: 6px;  opacity: 0; }
+    8%   { opacity: 0.9; }
+    45%  { top: calc(100% - 8px); opacity: 0.9; }
+    50%  { top: calc(100% - 8px); opacity: 0; }
+    55%  { top: calc(100% - 8px); opacity: 0; }
+    /* 短暂停顿再反向，传达"在想" */
+    62%  { opacity: 0.7; }
+    92%  { top: 6px; opacity: 0.7; }
+    100% { top: 6px; opacity: 0; }
+  }
+  .box-mid::after {
+    content: '';
+    position: absolute; inset: 0;
+    border: 1px solid rgba(232,192,90,0.1);
+    border-radius: 4px;
+    animation: midGlow 2.4s ease-in-out infinite;
+  }
+  @keyframes midGlow {
+    0%,100% { box-shadow: 0 0 0 rgba(232,192,90,0); }
+    50%      { box-shadow: 0 0 14px rgba(232,192,90,0.15); }
+  }
+
+  /* ===== 低置信：扫描线快速不规则，框抖动 ===== */
+  .box-low .corner { border-color: #c4906a; border-style: dashed; }
+  .box-low .scan-line {
+    background: linear-gradient(90deg, transparent 5%, rgba(196,144,106,0.7) 50%, transparent 95%);
+    filter: blur(1px);
+    animation: scanFast 0.9s linear infinite;
+  }
+  @keyframes scanFast {
+    0%   { top: 4px; opacity: 0; }
+    5%   { opacity: 0.7; }
+    90%  { opacity: 0.6; }
+    100% { top: calc(100% - 4px); opacity: 0; }
+  }
+  /* 框轻微抖动 */
+  .box-low {
+    animation: shake 2.5s ease-in-out infinite;
+  }
+  @keyframes shake {
+    0%, 90%, 100% { transform: translate(-50%, -58%); }
+    92%  { transform: translate(calc(-50% + 1px), -58%); }
+    94%  { transform: translate(calc(-50% - 1px), -58%); }
+    96%  { transform: translate(calc(-50% + 1px), calc(-58% - 0.5px)); }
+    98%  { transform: translate(calc(-50% - 0.5px), -58%); }
+  }
+  .box-low::after {
+    content: '';
+    position: absolute; inset: 0;
+    border: 1px dashed rgba(196,144,106,0.15);
+    border-radius: 4px;
+    animation: flicker 0.9s ease-in-out infinite;
+  }
+  @keyframes flicker {
+    0%,100% { opacity: 0.4; }
+    40%      { opacity: 0.85; }
+    70%      { opacity: 0.3; }
+  }
+
+  /* 扫描粒子（低置信时） */
+  .particle {
+    position: absolute;
+    width: 3px; height: 3px; border-radius: 50%;
+    background: #c4906a; opacity: 0;
+    animation: float 2s ease-in-out infinite;
+  }
+  .p1 { left: 20%; animation-delay: 0s; }
+  .p2 { left: 50%; animation-delay: 0.6s; }
+  .p3 { left: 78%; animation-delay: 1.1s; }
+  @keyframes float {
+    0%   { top: 80%; opacity: 0; }
+    20%  { opacity: 0.5; }
+    80%  { opacity: 0.3; }
+    100% { top: 10%; opacity: 0; }
+  }
+
+  /* 卡片 */
+  .result-card {
+    position: absolute; bottom: 75px; right: 10px; width: 148px;
+    background: rgba(18,18,18,0.88); backdrop-filter: blur(12px);
+    border-radius: 10px; padding: 9px;
+    display: flex; gap: 7px; align-items: flex-start;
+  }
+  .card-high { border: 1px solid rgba(111,207,138,0.2); }
+  .card-mid  { border: 1px solid rgba(232,192,90,0.2); }
+  .card-low  { border: 1px dashed rgba(196,144,106,0.2); opacity: 0.85; }
+
+  .thumb { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .thumb-high { background: rgba(90,140,100,0.3); }
+  .thumb-mid  { background: rgba(140,120,60,0.25); }
+  .thumb-low  { background: rgba(120,90,60,0.2); filter:grayscale(20%); }
+  .card-info { flex:1; min-width:0; }
+  .c-label { font-size:8.5px; font-weight:600; padding:1px 5px; border-radius:3px; display:inline-block; margin-bottom:3px; }
+  .cl-high { background:rgba(111,207,138,0.15); color:#6fcf8a; }
+  .cl-mid  { background:rgba(232,192,90,0.15);  color:#e8c05a; }
+  .cl-low  { background:rgba(196,144,106,0.15); color:#c4906a; }
+  .c-title { font-size:10.5px; font-weight:600; color:#f0f0f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+  .c-desc  { font-size:8.5px; color:rgba(255,255,255,0.38); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  .bottom-bar {
+    position:absolute; bottom:0; left:0; right:0; height:60px;
+    background:rgba(8,8,8,0.92);
+    display:flex; align-items:center; justify-content:center; gap:12px; padding:0 14px;
+  }
+  .btn { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); font-size:10px; padding:5px 12px; border-radius:20px; }
+  .btn-close { width:26px; height:26px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); font-size:11px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+  .phone-label { font-size:11px; color:rgba(255,255,255,0.38); text-align:center; line-height:1.7; }
+
+  /* 说明卡 */
+  .desc-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 20px 28px; width: 836px;
+  }
+  .desc-label { font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; margin-bottom:14px; }
+  .desc-row { display:flex; gap:0; }
+  .desc-item { flex:1; padding:0 20px; border-right:1px solid rgba(255,255,255,0.06); }
+  .desc-item:first-child { padding-left:0; }
+  .desc-item:last-child  { border-right:none; }
+  .desc-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; display:inline-block; margin-bottom:8px; }
+  .db-high { background:rgba(111,207,138,0.12); color:#6fcf8a; border:1px solid rgba(111,207,138,0.2); }
+  .db-mid  { background:rgba(232,192,90,0.1);   color:#e8c05a; border:1px solid rgba(232,192,90,0.2); }
+  .db-low  { background:rgba(196,144,106,0.1);  color:#c4906a; border:1px solid rgba(196,144,106,0.2); }
+  .desc-text { font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.7; }
+  .desc-sub  { font-size:10.5px; color:rgba(255,255,255,0.28); margin-top:5px; font-style:italic; line-height:1.5; }
+
+  /* 汇总卡 */
+  .final-card {
+    background: rgba(255,255,255,0.02);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 24px 32px; width: 836px;
+  }
+  .final-title { font-size:10px; color:rgba(255,255,255,0.25); letter-spacing:1.5px; margin-bottom:18px; }
+  .final-grid { display:grid; grid-template-columns:1fr 1fr; gap: 16px; }
+  .combo-item {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 10px; padding: 14px 16px;
+  }
+  .combo-tag {
+    font-size: 9.5px; font-weight:600; letter-spacing:0.5px;
+    color: rgba(255,255,255,0.35); margin-bottom: 8px;
+  }
+  .combo-title { font-size:13px; font-weight:600; color:rgba(255,255,255,0.75); margin-bottom:5px; }
+  .combo-desc  { font-size:10.5px; color:rgba(255,255,255,0.3); line-height:1.6; }
+  .combo-star  { color: #e8c05a; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">方案四 · 扫描动效</div>
+  <div class="page-subtitle">SCAN ANIMATION · 速度与行为传达识别状态</div>
+</div>
+
+<div class="progress-bar">
+  <div class="prog-dot"></div>
+  <div class="prog-text">当前进度</div>
+  <div class="prog-num">4 / 4</div>
+  <div class="prog-sep">·</div>
+  <div class="prog-text">识别框 ✓ → 提示条 ✓ → 触觉规格 ✓ → 扫描动效</div>
+</div>
+
+<div class="comparison">
+
+  <!-- 高置信 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <div class="scan-box box-high">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="scan-line"></div>
+          <div class="locked-dot"></div>
+        </div>
+
+        <div class="result-card card-high">
+          <div class="thumb thumb-high">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-high">已识别</div>
+            <div class="c-title">三得利乌龙茶</div>
+            <div class="c-desc">福建水仙茶 高温萃取工艺，茶多酚...</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">≥ 85%<br>扫描线消失，静止锁定<br>中心绿点呼吸发光</div>
+  </div>
+
+  <!-- 中置信 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <div class="scan-box box-mid">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="scan-line"></div>
+        </div>
+
+        <div class="result-card card-mid">
+          <div class="thumb thumb-mid">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-mid">可能是</div>
+            <div class="c-title">三得利乌龙茶</div>
+            <div class="c-desc">福建水仙茶 高温萃取工艺，茶多酚...</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">60–85%<br>扫描线慢速来回<br>到底后短暂停顿再反向</div>
+  </div>
+
+  <!-- 低置信 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <div class="scan-box box-low">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="scan-line"></div>
+          <div class="particle p1"></div>
+          <div class="particle p2"></div>
+          <div class="particle p3"></div>
+        </div>
+
+        <div class="result-card card-low">
+          <div class="thumb thumb-low">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-low">不太确定</div>
+            <div class="c-title">三得利乌龙茶？</div>
+            <div class="c-desc">识别结果仅供参考，建议拍近一点</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">&lt; 60%<br>扫描线快速单向循环<br>框体微抖 + 粒子上浮</div>
+  </div>
+
+</div>
+
+<div class="desc-card">
+  <div class="desc-label">ANIMATION LOGIC · 动效逻辑</div>
+  <div class="desc-row">
+    <div class="desc-item">
+      <div class="desc-badge db-high">高置信</div>
+      <div class="desc-text">扫描结束即静止<br>线消失，框发光，点呼吸<br>用「停下来」表达「找到了」</div>
+      <div class="desc-sub">→ 动效终止本身就是完成信号</div>
+    </div>
+    <div class="desc-item">
+      <div class="desc-badge db-mid">中置信</div>
+      <div class="desc-text">慢速来回扫，到底停顿<br>easing 用 ease-in-out，不急促<br>像人在「犹豫中反复确认」</div>
+      <div class="desc-sub">→ 节奏传达「在想」，不是在跑</div>
+    </div>
+    <div class="desc-item">
+      <div class="desc-badge db-low">低置信</div>
+      <div class="desc-text">快速线性单向循环<br>框体每隔几秒微抖一下<br>粒子上浮，增加不稳定感</div>
+      <div class="desc-sub">→ 快+抖+粒子 = 系统在挣扎找答案</div>
+    </div>
+  </div>
+</div>
+
+<!-- 四种方案汇总 -->
+<div class="final-card">
+  <div class="final-title">RECAP · 四个方案汇总</div>
+  <div class="final-grid">
+    <div class="combo-item">
+      <div class="combo-tag">方案一</div>
+      <div class="combo-title">识别框状态</div>
+      <div class="combo-desc">颜色（绿/黄/橙棕）+ 边框样式（实线/虚线）传达置信，视觉最直接，用户视线在取景框时就能感知</div>
+    </div>
+    <div class="combo-item">
+      <div class="combo-tag">方案二</div>
+      <div class="combo-title">提示条</div>
+      <div class="combo-desc">顶部文字引导，高置信不出现，低置信给出行动建议「靠近一点」。说人话，新用户友好</div>
+    </div>
+    <div class="combo-item">
+      <div class="combo-tag">方案三</div>
+      <div class="combo-title">触觉反馈</div>
+      <div class="combo-desc">咔 / 咚咚 / 嗡嗡嗡 三档震动模式，无声胜有声，用户闭眼也能感知识别质量</div>
+    </div>
+    <div class="combo-item" style="border-color:rgba(232,192,90,0.15); background:rgba(232,192,90,0.04);">
+      <div class="combo-tag"><span class="combo-star">★</span> 方案四</div>
+      <div class="combo-title">扫描动效</div>
+      <div class="combo-desc">静止锁定 / 慢速来回 / 快速抖动，速度和节奏本身就是信号，和识别框结合效果最佳</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
