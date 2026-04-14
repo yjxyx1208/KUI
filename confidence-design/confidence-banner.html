@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>置信度 · 提示条</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: #141414;
+    font-family: -apple-system, 'PingFang SC', sans-serif;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 40px 20px 60px;
+    gap: 40px;
+  }
+
+  .page-header { text-align: center; }
+  .page-title {
+    font-size: 18px; font-weight: 600;
+    color: rgba(255,255,255,0.85); margin-bottom: 6px;
+  }
+  .page-subtitle {
+    font-size: 11px; color: rgba(255,255,255,0.3); letter-spacing: 1px;
+  }
+
+  .progress-bar {
+    display: flex; align-items: center; gap: 8px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px; padding: 10px 20px; width: 836px;
+  }
+  .prog-dot { width: 8px; height: 8px; border-radius: 50%; background: #6fcf8a; box-shadow: 0 0 6px rgba(111,207,138,0.6); }
+  .prog-dot-2 { background: #e8c05a; box-shadow: 0 0 6px rgba(232,192,90,0.6); }
+  .prog-text { font-size: 11px; color: rgba(255,255,255,0.4); }
+  .prog-num  { font-size: 11px; color: rgba(255,255,255,0.6); font-weight: 600; }
+  .prog-sep  { color: rgba(255,255,255,0.15); margin: 0 4px; }
+
+  .comparison { display: flex; gap: 28px; align-items: flex-start; }
+
+  .phone-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+
+  .phone-frame {
+    width: 260px; height: 460px;
+    background: #0e0e0e;
+    border-radius: 32px; overflow: hidden;
+    position: relative;
+    border: 2px solid #2a2a2a;
+    box-shadow: 0 16px 48px rgba(0,0,0,0.6);
+  }
+
+  .camera-bg {
+    width: 100%; height: 100%;
+    position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  .scene {
+    position: absolute; inset: 0;
+    background:
+      radial-gradient(ellipse at 25% 55%, rgba(35,58,28,0.9) 0%, transparent 45%),
+      radial-gradient(ellipse at 70% 35%, rgba(28,48,22,0.95) 0%, transparent 50%),
+      radial-gradient(ellipse at 55% 80%, rgba(18,35,14,1) 0%, transparent 55%),
+      #131a10;
+  }
+
+  /* 状态栏 */
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0;
+    height: 36px;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 18px; z-index: 10;
+  }
+  .status-text { color: rgba(255,255,255,0.55); font-size: 10px; }
+
+  /* ===================== 提示条 ===================== */
+
+  /* 高置信：不出现任何提示条 */
+  .banner-none { display: none; }
+
+  /* 中置信：顶部温和提示条 */
+  .banner-mid {
+    position: absolute;
+    top: 42px; left: 16px; right: 16px;
+    background: rgba(232,192,90,0.12);
+    border: 1px solid rgba(232,192,90,0.22);
+    border-radius: 8px;
+    padding: 7px 10px;
+    display: flex; align-items: center; gap: 7px;
+    z-index: 20;
+    animation: slideDown 0.4s ease;
+  }
+  .banner-icon-mid {
+    font-size: 11px;
+    flex-shrink: 0;
+  }
+  .banner-text-mid {
+    font-size: 10px;
+    color: rgba(232,192,90,0.9);
+    line-height: 1.4;
+    flex: 1;
+  }
+
+  /* 低置信：更醒目的提示条，有引导动作 */
+  .banner-low {
+    position: absolute;
+    top: 42px; left: 16px; right: 16px;
+    background: rgba(196,144,106,0.12);
+    border: 1px solid rgba(196,144,106,0.28);
+    border-radius: 8px;
+    padding: 8px 10px;
+    display: flex; align-items: flex-start; gap: 8px;
+    z-index: 20;
+    animation: slideDown 0.4s ease;
+  }
+  .banner-icon-low {
+    font-size: 13px; flex-shrink: 0; margin-top: 1px;
+  }
+  .banner-body { flex: 1; }
+  .banner-title-low {
+    font-size: 10.5px; font-weight: 600;
+    color: rgba(196,144,106,0.95);
+    margin-bottom: 2px;
+  }
+  .banner-sub-low {
+    font-size: 9.5px;
+    color: rgba(196,144,106,0.6);
+    line-height: 1.4;
+  }
+
+  @keyframes slideDown {
+    from { opacity: 0; transform: translateY(-8px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+
+  /* 识别框（统一简洁版，配合提示条） */
+  .scan-box {
+    position: absolute; top: 50%; left: 50%;
+    transform: translate(-50%, -58%);
+    width: 150px; height: 110px;
+  }
+  .corner {
+    position: absolute; width: 14px; height: 14px;
+  }
+  .corner-tl { top:0; left:0;   border-top:2px solid; border-left:2px solid;   border-radius: 3px 0 0 0; }
+  .corner-tr { top:0; right:0;  border-top:2px solid; border-right:2px solid;  border-radius: 0 3px 0 0; }
+  .corner-bl { bottom:0; left:0; border-bottom:2px solid; border-left:2px solid; border-radius: 0 0 0 3px; }
+  .corner-br { bottom:0; right:0; border-bottom:2px solid; border-right:2px solid; border-radius: 0 0 3px 0; }
+
+  .box-high .corner { border-color: #6fcf8a; }
+  .box-high::before {
+    content: ''; position: absolute; inset: 0;
+    border: 1px solid rgba(111,207,138,0.15); border-radius: 4px;
+  }
+  .locked-dot {
+    position: absolute; top:50%; left:50%; transform: translate(-50%,-50%);
+    width:8px; height:8px; border-radius:50%;
+    background:#6fcf8a; box-shadow:0 0 8px rgba(111,207,138,0.8);
+  }
+
+  .box-mid .corner { border-color: #e8c05a; }
+  .scan-line {
+    position: absolute; left:4px; right:4px; height:1px; top:50%;
+  }
+  .sl-mid { background: linear-gradient(90deg, transparent, #e8c05a, transparent); animation: scanMove 2s ease-in-out infinite; }
+  .sl-low { background: linear-gradient(90deg, transparent, #c4906a, transparent); animation: scanMove 1.2s ease-in-out infinite; opacity:0.6; }
+  @keyframes scanMove {
+    0%  { top:8px; opacity:0; }
+    10% { opacity:0.8; }
+    90% { opacity:0.8; }
+    100%{ top:calc(100% - 8px); opacity:0; }
+  }
+
+  .box-low .corner { border-color: #c4906a; border-style: dashed; }
+
+  /* 卡片 */
+  .result-card {
+    position: absolute; bottom: 75px; right: 10px; width: 148px;
+    background: rgba(18,18,18,0.88); backdrop-filter: blur(12px);
+    border-radius: 10px; padding: 9px;
+    display: flex; gap: 7px; align-items: flex-start;
+  }
+  .card-high { border: 1px solid rgba(111,207,138,0.2); }
+  .card-mid  { border: 1px solid rgba(232,192,90,0.2); }
+  .card-low  { border: 1px dashed rgba(196,144,106,0.2); opacity: 0.85; }
+
+  .thumb { width:32px; height:32px; border-radius:6px; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+  .thumb-high { background: rgba(90,140,100,0.3); }
+  .thumb-mid  { background: rgba(140,120,60,0.25); }
+  .thumb-low  { background: rgba(120,90,60,0.2); filter:grayscale(20%); }
+
+  .card-info { flex:1; min-width:0; }
+  .c-label { font-size:8.5px; font-weight:600; padding:1px 5px; border-radius:3px; display:inline-block; margin-bottom:3px; }
+  .cl-high { background:rgba(111,207,138,0.15); color:#6fcf8a; }
+  .cl-mid  { background:rgba(232,192,90,0.15);  color:#e8c05a; }
+  .cl-low  { background:rgba(196,144,106,0.15); color:#c4906a; }
+  .c-title { font-size:10.5px; font-weight:600; color:#f0f0f0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-bottom:3px; }
+  .c-desc  { font-size:8.5px; color:rgba(255,255,255,0.38); line-height:1.4; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+
+  /* 底部 */
+  .bottom-bar {
+    position:absolute; bottom:0; left:0; right:0; height:60px;
+    background:rgba(8,8,8,0.92);
+    display:flex; align-items:center; justify-content:center; gap:12px; padding:0 14px;
+  }
+  .btn { background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.75); font-size:10px; padding:5px 12px; border-radius:20px; }
+  .btn-close { width:26px; height:26px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.1); color:rgba(255,255,255,0.5); font-size:11px; border-radius:50%; display:flex; align-items:center; justify-content:center; }
+
+  .phone-label { font-size:11px; color:rgba(255,255,255,0.38); text-align:center; line-height:1.7; }
+
+  /* 无提示条标注 */
+  .no-banner-note {
+    position: absolute;
+    top: 46px; left: 16px; right: 16px;
+    border: 1px dashed rgba(255,255,255,0.08);
+    border-radius: 8px;
+    padding: 7px 10px;
+    text-align: center;
+  }
+  .no-banner-text { font-size: 9px; color: rgba(255,255,255,0.18); letter-spacing: 0.5px; }
+
+  /* 说明卡 */
+  .desc-card {
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 14px; padding: 20px 28px; width: 836px;
+  }
+  .desc-label { font-size:10px; color:rgba(255,255,255,0.3); letter-spacing:1.5px; margin-bottom:14px; }
+  .desc-row { display:flex; gap:0; }
+  .desc-item { flex:1; padding:0 20px; border-right:1px solid rgba(255,255,255,0.06); }
+  .desc-item:first-child { padding-left:0; }
+  .desc-item:last-child  { border-right:none; }
+  .desc-badge { font-size:10px; font-weight:600; padding:2px 8px; border-radius:4px; display:inline-block; margin-bottom:8px; }
+  .db-high { background:rgba(111,207,138,0.12); color:#6fcf8a; border:1px solid rgba(111,207,138,0.2); }
+  .db-mid  { background:rgba(232,192,90,0.1);   color:#e8c05a; border:1px solid rgba(232,192,90,0.2); }
+  .db-low  { background:rgba(196,144,106,0.1);  color:#c4906a; border:1px solid rgba(196,144,106,0.2); }
+  .desc-text { font-size:11.5px; color:rgba(255,255,255,0.6); line-height:1.7; }
+  .desc-sub  { font-size:10.5px; color:rgba(255,255,255,0.28); margin-top:5px; font-style:italic; line-height:1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="page-title">方案二 · 提示条</div>
+  <div class="page-subtitle">HINT BANNER · 取景框内顶部文字引导</div>
+</div>
+
+<div class="progress-bar">
+  <div class="prog-dot prog-dot-2"></div>
+  <div class="prog-text">当前进度</div>
+  <div class="prog-num">2 / 4</div>
+  <div class="prog-sep">·</div>
+  <div class="prog-text">识别框 ✓ → 提示条 → 触觉方案文档 → 扫描动效</div>
+</div>
+
+<div class="comparison">
+
+  <!-- 高置信：无提示条 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <!-- 无提示条，仅标注虚线框 -->
+        <div class="no-banner-note">
+          <div class="no-banner-text">此处无提示条</div>
+        </div>
+
+        <div class="scan-box box-high">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="locked-dot"></div>
+        </div>
+
+        <div class="result-card card-high">
+          <div class="thumb thumb-high">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-high">已识别</div>
+            <div class="c-title">三得利乌龙茶</div>
+            <div class="c-desc">福建水仙茶 高温萃取工艺，茶多酚...</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">≥ 85%<br>不出现提示条<br>干净，不打扰</div>
+  </div>
+
+  <!-- 中置信：温和提示 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <div class="banner-mid">
+          <div class="banner-icon-mid">💡</div>
+          <div class="banner-text-mid">结果仅供参考，可能不够准确</div>
+        </div>
+
+        <div class="scan-box box-mid">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="scan-line sl-mid"></div>
+        </div>
+
+        <div class="result-card card-mid">
+          <div class="thumb thumb-mid">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-mid">可能是</div>
+            <div class="c-title">三得利乌龙茶</div>
+            <div class="c-desc">福建水仙茶 高温萃取工艺，茶多酚...</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">60–85%<br>黄色提示条，语气温和<br>「结果仅供参考」</div>
+  </div>
+
+  <!-- 低置信：强引导 -->
+  <div class="phone-wrap">
+    <div class="phone-frame">
+      <div class="camera-bg">
+        <div class="scene"></div>
+        <div class="status-bar">
+          <span class="status-text">灵光</span>
+          <span class="status-text">↻</span>
+        </div>
+
+        <div class="banner-low">
+          <div class="banner-icon-low">📷</div>
+          <div class="banner-body">
+            <div class="banner-title-low">识别不太确定</div>
+            <div class="banner-sub-low">靠近一点或换个角度，效果会更好</div>
+          </div>
+        </div>
+
+        <div class="scan-box box-low">
+          <div class="corner corner-tl"></div>
+          <div class="corner corner-tr"></div>
+          <div class="corner corner-bl"></div>
+          <div class="corner corner-br"></div>
+          <div class="scan-line sl-low"></div>
+        </div>
+
+        <div class="result-card card-low">
+          <div class="thumb thumb-low">🍵</div>
+          <div class="card-info">
+            <div class="c-label cl-low">不太确定</div>
+            <div class="c-title">三得利乌龙茶？</div>
+            <div class="c-desc">识别结果仅供参考，建议重新拍摄</div>
+          </div>
+        </div>
+
+        <div class="bottom-bar">
+          <div class="btn">✦ 知识</div>
+          <div class="btn">Aa 翻译</div>
+          <div class="btn-close">×</div>
+        </div>
+      </div>
+    </div>
+    <div class="phone-label">&lt; 60%<br>橙棕提示条，带行动引导<br>「靠近一点或换个角度」</div>
+  </div>
+
+</div>
+
+<div class="desc-card">
+  <div class="desc-label">DESIGN RATIONALE · 设计决策说明</div>
+  <div class="desc-row">
+    <div class="desc-item">
+      <div class="desc-badge db-high">高置信</div>
+      <div class="desc-text">完全不出现提示条<br>界面保持干净<br>好的结果=无噪声</div>
+      <div class="desc-sub">→ 克制才是尊重，不干扰用户读信息</div>
+    </div>
+    <div class="desc-item">
+      <div class="desc-badge db-mid">中置信</div>
+      <div class="desc-text">单行提示条，语气轻<br>只告知「可能不准」<br>不给行动建议，不逼迫</div>
+      <div class="desc-sub">→ 提醒而不打扰，用户自行决定是否继续</div>
+    </div>
+    <div class="desc-item">
+      <div class="desc-badge db-low">低置信</div>
+      <div class="desc-text">两行提示，给具体行动<br>「靠近一点或换个角度」<br>让用户知道该怎么做</div>
+      <div class="desc-sub">→ 与其让用户困惑，不如直接告诉他下一步</div>
+    </div>
+  </div>
+</div>
+
+</body>
+</html>
