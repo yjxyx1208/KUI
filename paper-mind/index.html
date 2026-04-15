@@ -1,0 +1,1160 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PaperMind - 论文记忆助手</title>
+<style>
+  :root {
+    --bg: #F5F2EE;
+    --card: #FFFFFF;
+    --card-shadow: 0 2px 12px rgba(0,0,0,0.06);
+    --text: #3D3A36;
+    --text-light: #8A857D;
+    --accent: #B8926A;
+    --accent-light: #D4BFA6;
+    --accent-bg: #F0E8DF;
+    --green: #8BA88E;
+    --green-light: #E2EDE3;
+    --red: #C48B7C;
+    --red-light: #F2E0DA;
+    --blue: #7D9BB5;
+    --blue-light: #DEE9F0;
+    --purple: #9B8DAD;
+    --purple-light: #E8E0F0;
+    --border: #E8E3DC;
+    --radius: 14px;
+    --radius-sm: 8px;
+    --font: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: var(--font);
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    line-height: 1.6;
+  }
+
+  /* ===== Header ===== */
+  .header {
+    background: var(--card);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 32px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    position: sticky;
+    top: 0;
+    z-index: 100;
+  }
+  .header h1 {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+    letter-spacing: -0.5px;
+  }
+  .header h1 span { font-weight: 400; color: var(--text-light); margin-left: 8px; font-size: 14px; }
+
+  .nav-tabs {
+    display: flex;
+    gap: 4px;
+    background: var(--bg);
+    padding: 3px;
+    border-radius: 10px;
+  }
+  .nav-tab {
+    padding: 8px 18px;
+    border-radius: 8px;
+    border: none;
+    background: transparent;
+    color: var(--text-light);
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .nav-tab:hover { color: var(--text); }
+  .nav-tab.active { background: var(--card); color: var(--accent); box-shadow: 0 1px 4px rgba(0,0,0,0.06); }
+  .nav-tab .badge {
+    display: inline-block;
+    background: var(--red);
+    color: white;
+    font-size: 11px;
+    padding: 1px 6px;
+    border-radius: 10px;
+    margin-left: 6px;
+    font-weight: 600;
+  }
+
+  /* ===== Main Container ===== */
+  .container {
+    max-width: 960px;
+    margin: 0 auto;
+    padding: 24px;
+  }
+
+  .page { display: none; }
+  .page.active { display: block; }
+
+  /* ===== Dashboard ===== */
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px;
+    margin-bottom: 28px;
+  }
+  .stat-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 18px 20px;
+    box-shadow: var(--card-shadow);
+  }
+  .stat-card .label { font-size: 12px; color: var(--text-light); margin-bottom: 6px; }
+  .stat-card .value { font-size: 28px; font-weight: 700; color: var(--accent); }
+  .stat-card .sub { font-size: 12px; color: var(--text-light); margin-top: 2px; }
+
+  .section-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 14px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  /* ===== Today's Review ===== */
+  .review-list { display: flex; flex-direction: column; gap: 10px; }
+  .review-item {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 16px 20px;
+    box-shadow: var(--card-shadow);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    cursor: pointer;
+    transition: transform 0.15s;
+  }
+  .review-item:hover { transform: translateY(-1px); }
+  .review-item .left { flex: 1; }
+  .review-item .title { font-weight: 600; font-size: 15px; margin-bottom: 4px; }
+  .review-item .meta { font-size: 12px; color: var(--text-light); }
+
+  .round-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+  }
+  .round-1 { background: var(--red-light); color: var(--red); }
+  .round-2 { background: var(--accent-bg); color: var(--accent); }
+  .round-3 { background: var(--blue-light); color: var(--blue); }
+  .round-4 { background: var(--purple-light); color: var(--purple); }
+  .round-5 { background: var(--green-light); color: var(--green); }
+  .round-6 { background: var(--green-light); color: var(--green); }
+
+  .btn {
+    padding: 8px 18px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .btn-primary { background: var(--accent); color: white; }
+  .btn-primary:hover { background: #A6804E; }
+  .btn-secondary { background: var(--bg); color: var(--text); border: 1px solid var(--border); }
+  .btn-secondary:hover { background: var(--border); }
+  .btn-sm { padding: 5px 12px; font-size: 13px; }
+  .btn-danger { background: var(--red-light); color: var(--red); }
+  .btn-danger:hover { background: var(--red); color: white; }
+  .btn-green { background: var(--green); color: white; }
+  .btn-green:hover { background: #749276; }
+
+  /* ===== Paper Form ===== */
+  .form-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--card-shadow);
+  }
+  .form-group { margin-bottom: 18px; }
+  .form-group label {
+    display: block;
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text-light);
+    margin-bottom: 6px;
+    letter-spacing: 0.3px;
+  }
+  .form-group input, .form-group textarea {
+    width: 100%;
+    padding: 10px 14px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 14px;
+    font-family: var(--font);
+    color: var(--text);
+    background: var(--bg);
+    transition: border-color 0.2s;
+    resize: vertical;
+  }
+  .form-group input:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: white;
+  }
+  .form-group textarea { min-height: 80px; }
+  .form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+  /* ===== Paper List ===== */
+  .paper-card {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--card-shadow);
+    margin-bottom: 12px;
+    position: relative;
+  }
+  .paper-card .paper-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    padding-right: 80px;
+  }
+  .paper-card .paper-summary { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+  .paper-card .paper-tags { display: flex; gap: 6px; flex-wrap: wrap; }
+  .paper-tag {
+    font-size: 11px;
+    padding: 2px 10px;
+    border-radius: 10px;
+    background: var(--accent-bg);
+    color: var(--accent);
+  }
+  .paper-actions {
+    position: absolute;
+    top: 18px;
+    right: 20px;
+    display: flex;
+    gap: 6px;
+  }
+  .paper-progress {
+    margin-top: 10px;
+    display: flex;
+    gap: 4px;
+  }
+  .progress-dot {
+    width: 24px;
+    height: 6px;
+    border-radius: 3px;
+    background: var(--border);
+  }
+  .progress-dot.done { background: var(--green); }
+  .progress-dot.today { background: var(--accent); animation: pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.5; } }
+
+  /* ===== Review Mode ===== */
+  .review-mode {
+    max-width: 640px;
+    margin: 0 auto;
+  }
+  .review-counter {
+    text-align: center;
+    font-size: 13px;
+    color: var(--text-light);
+    margin-bottom: 16px;
+  }
+  .flashcard {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    overflow: hidden;
+    min-height: 320px;
+    cursor: pointer;
+    position: relative;
+  }
+  .flashcard-front, .flashcard-back {
+    padding: 32px;
+  }
+  .flashcard-front {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 320px;
+    text-align: center;
+  }
+  .flashcard-front .fc-title {
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 14px;
+  }
+  .flashcard-front .fc-hint {
+    font-size: 14px;
+    color: var(--text-light);
+  }
+  .flashcard-front .fc-tap {
+    position: absolute;
+    bottom: 20px;
+    font-size: 12px;
+    color: var(--accent-light);
+  }
+  .flashcard-back { display: none; }
+  .flashcard.flipped .flashcard-front { display: none; }
+  .flashcard.flipped .flashcard-back { display: block; }
+  .flashcard-back .field { margin-bottom: 14px; }
+  .flashcard-back .field-label {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--accent);
+    margin-bottom: 4px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .flashcard-back .field-value { font-size: 14px; line-height: 1.7; }
+
+  .review-actions {
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+    margin-top: 20px;
+  }
+  .rate-btn {
+    padding: 10px 24px;
+    border-radius: var(--radius-sm);
+    border: none;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .rate-forgot { background: var(--red-light); color: var(--red); }
+  .rate-forgot:hover { background: var(--red); color: white; }
+  .rate-fuzzy { background: var(--accent-bg); color: var(--accent); }
+  .rate-fuzzy:hover { background: var(--accent); color: white; }
+  .rate-got { background: var(--green-light); color: var(--green); }
+  .rate-got:hover { background: var(--green); color: white; }
+
+  /* ===== Quiz Mode ===== */
+  .quiz-question {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    padding: 32px;
+    text-align: center;
+    min-height: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+  }
+  .quiz-question .q-paper { font-size: 13px; color: var(--text-light); margin-bottom: 10px; }
+  .quiz-question .q-text { font-size: 20px; font-weight: 600; line-height: 1.5; }
+  .quiz-answer {
+    background: var(--card);
+    border-radius: var(--radius);
+    box-shadow: var(--card-shadow);
+    padding: 24px;
+    margin-top: 14px;
+    display: none;
+  }
+  .quiz-answer.show { display: block; }
+  .quiz-answer .a-label { font-size: 12px; font-weight: 600; color: var(--green); margin-bottom: 6px; }
+  .quiz-answer .a-text { font-size: 15px; line-height: 1.7; }
+
+  /* ===== Modal ===== */
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.3);
+    backdrop-filter: blur(4px);
+    z-index: 200;
+    justify-content: center;
+    align-items: center;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 28px;
+    width: 90%;
+    max-width: 600px;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+  }
+  .modal-title {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+  }
+
+  /* ===== Empty State ===== */
+  .empty-state {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-light);
+  }
+  .empty-state .icon { font-size: 48px; margin-bottom: 16px; }
+  .empty-state .msg { font-size: 15px; margin-bottom: 20px; }
+
+  /* ===== Utils ===== */
+  .mt-20 { margin-top: 20px; }
+  .mb-20 { margin-bottom: 20px; }
+  .text-center { text-align: center; }
+  .text-light { color: var(--text-light); }
+  .flex-between { display: flex; align-items: center; justify-content: space-between; }
+
+  /* ===== Calendar Heatmap ===== */
+  .calendar-row {
+    display: flex;
+    gap: 3px;
+    flex-wrap: wrap;
+    margin-top: 10px;
+  }
+  .cal-day {
+    width: 18px;
+    height: 18px;
+    border-radius: 3px;
+    background: var(--border);
+  }
+  .cal-day.level-1 { background: var(--green-light); }
+  .cal-day.level-2 { background: #B5D4B8; }
+  .cal-day.level-3 { background: var(--green); }
+  .cal-day.today-marker { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+  /* ===== Data Management ===== */
+  .data-section {
+    background: var(--card);
+    border-radius: var(--radius);
+    padding: 20px 24px;
+    box-shadow: var(--card-shadow);
+    margin-top: 20px;
+  }
+  .data-section h3 { font-size: 14px; color: var(--text-light); margin-bottom: 12px; }
+  .data-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+  @media (max-width: 640px) {
+    .stats-row { grid-template-columns: repeat(2, 1fr); }
+    .form-row { grid-template-columns: 1fr; }
+    .container { padding: 16px; }
+    .header { padding: 12px 16px; flex-wrap: wrap; gap: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <h1>PaperMind <span>论文记忆助手</span></h1>
+  <div class="nav-tabs">
+    <button class="nav-tab active" data-page="dashboard">今日</button>
+    <button class="nav-tab" data-page="papers">论文库</button>
+    <button class="nav-tab" data-page="review">复习<span class="badge" id="reviewBadge" style="display:none">0</span></button>
+    <button class="nav-tab" data-page="settings">设置</button>
+  </div>
+</div>
+
+<div class="container">
+
+  <!-- ===== Dashboard ===== -->
+  <div id="dashboard" class="page active">
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="label">论文总数</div>
+        <div class="value" id="statTotal">0</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">今日待复习</div>
+        <div class="value" id="statToday">0</div>
+        <div class="sub" id="statTodaySub"></div>
+      </div>
+      <div class="stat-card">
+        <div class="label">已完成轮次</div>
+        <div class="value" id="statCompleted">0</div>
+        <div class="sub">共 <span id="statTotalRounds">0</span> 轮</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">掌握率</div>
+        <div class="value" id="statMastery">-</div>
+        <div class="sub">最近复习得分</div>
+      </div>
+    </div>
+
+    <div class="section-title">📅 今日复习计划</div>
+    <div id="todayReviewList" class="review-list"></div>
+    <div id="todayEmpty" class="empty-state" style="display:none">
+      <div class="icon">🎉</div>
+      <div class="msg">今天没有待复习的论文，去添加新论文或者休息一下吧</div>
+    </div>
+
+    <div class="section-title mt-20">📊 近30天复习热力图</div>
+    <div id="heatmap" class="calendar-row"></div>
+  </div>
+
+  <!-- ===== Paper List ===== -->
+  <div id="papers" class="page">
+    <div class="flex-between mb-20">
+      <div class="section-title" style="margin:0">📚 论文库</div>
+      <button class="btn btn-primary" onclick="openAddPaper()">+ 添加论文</button>
+    </div>
+    <div id="paperList"></div>
+    <div id="paperEmpty" class="empty-state" style="display:none">
+      <div class="icon">📄</div>
+      <div class="msg">还没有论文，点击右上角添加第一篇吧</div>
+    </div>
+  </div>
+
+  <!-- ===== Review ===== -->
+  <div id="review" class="page">
+    <div id="reviewStart" class="text-center" style="padding:40px 0">
+      <div class="section-title" style="justify-content:center">🧠 复习模式</div>
+      <p class="text-light mb-20" id="reviewDesc">选择复习方式开始今日训练</p>
+      <div style="display:flex;gap:12px;justify-content:center">
+        <button class="btn btn-primary" onclick="startReview('flashcard')">🃏 翻卡模式</button>
+        <button class="btn btn-secondary" onclick="startReview('quiz')">❓ 随机问题</button>
+      </div>
+    </div>
+
+    <div id="reviewSession" style="display:none" class="review-mode">
+      <div class="review-counter" id="reviewCounter"></div>
+
+      <!-- Flashcard -->
+      <div id="flashcardMode" style="display:none">
+        <div class="flashcard" id="flashcard" onclick="flipCard()">
+          <div class="flashcard-front">
+            <div class="fc-title" id="fcTitle"></div>
+            <div class="fc-hint" id="fcHint"></div>
+            <div class="fc-tap">点击翻转 →</div>
+          </div>
+          <div class="flashcard-back" id="fcBack"></div>
+        </div>
+        <div class="review-actions" id="flashcardActions" style="display:none">
+          <button class="rate-btn rate-forgot" onclick="ratePaper('forgot')">😵 忘了</button>
+          <button class="rate-btn rate-fuzzy" onclick="ratePaper('fuzzy')">🤔 模糊</button>
+          <button class="rate-btn rate-got" onclick="ratePaper('got')">✅ 记住了</button>
+        </div>
+      </div>
+
+      <!-- Quiz -->
+      <div id="quizMode" style="display:none">
+        <div class="quiz-question">
+          <div class="q-paper" id="qPaper"></div>
+          <div class="q-text" id="qText"></div>
+        </div>
+        <div class="quiz-answer" id="qAnswer">
+          <div class="a-label">参考答案</div>
+          <div class="a-text" id="qAnswerText"></div>
+        </div>
+        <div class="review-actions mt-20">
+          <button class="btn btn-secondary" id="showAnswerBtn" onclick="showQuizAnswer()">揭晓答案</button>
+          <button class="rate-btn rate-forgot" id="qForgot" style="display:none" onclick="ratePaper('forgot')">😵 忘了</button>
+          <button class="rate-btn rate-fuzzy" id="qFuzzy" style="display:none" onclick="ratePaper('fuzzy')">🤔 模糊</button>
+          <button class="rate-btn rate-got" id="qGot" style="display:none" onclick="ratePaper('got')">✅ 记住了</button>
+        </div>
+      </div>
+
+      <div id="reviewDone" style="display:none" class="text-center">
+        <div style="font-size:48px;margin-bottom:16px">🎊</div>
+        <div style="font-size:20px;font-weight:600;margin-bottom:8px">今日复习完成！</div>
+        <div class="text-light mb-20" id="reviewSummary"></div>
+        <button class="btn btn-primary" onclick="endReview()">返回首页</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ===== Settings ===== -->
+  <div id="settings" class="page">
+    <div class="section-title">⚙️ 设置</div>
+    <div class="data-section">
+      <h3>数据管理</h3>
+      <div class="data-actions">
+        <button class="btn btn-secondary" onclick="exportData()">📤 导出 JSON</button>
+        <button class="btn btn-secondary" onclick="document.getElementById('importFile').click()">📥 导入 JSON</button>
+        <input type="file" id="importFile" accept=".json" style="display:none" onchange="importData(event)">
+        <button class="btn btn-danger" onclick="clearAllData()">🗑️ 清空所有数据</button>
+      </div>
+    </div>
+    <div class="data-section">
+      <h3>艾宾浩斯复习间隔</h3>
+      <p style="font-size:14px;color:var(--text-light)">经典6轮：第 1 天 → 第 2 天 → 第 4 天 → 第 7 天 → 第 15 天 → 第 30 天</p>
+    </div>
+    <div class="data-section">
+      <h3>关于 PaperMind</h3>
+      <p style="font-size:14px;color:var(--text-light)">基于艾宾浩斯遗忘曲线的论文记忆助手。<br>数据存储在浏览器 localStorage 中，请定期导出备份。</p>
+    </div>
+  </div>
+
+</div>
+
+<!-- ===== Add/Edit Paper Modal ===== -->
+<div class="modal-overlay" id="paperModal">
+  <div class="modal">
+    <div class="modal-title" id="modalTitle">添加论文</div>
+    <input type="hidden" id="editingId">
+    <div class="form-group">
+      <label>论文标题 *</label>
+      <input type="text" id="pTitle" placeholder="e.g. Attention Is All You Need">
+    </div>
+    <div class="form-group">
+      <label>一句话总结 *</label>
+      <input type="text" id="pSummary" placeholder="这篇论文在干嘛？用一句话说清楚">
+    </div>
+    <div class="form-group">
+      <label>核心贡献</label>
+      <textarea id="pContribution" placeholder="提出了什么？解决了什么问题？"></textarea>
+    </div>
+    <div class="form-group">
+      <label>方法 / 技术路线</label>
+      <textarea id="pMethod" placeholder="关键方法论和技术细节"></textarea>
+    </div>
+    <div class="form-group">
+      <label>实验结论</label>
+      <textarea id="pResult" placeholder="主要结果 + 关键数字"></textarea>
+    </div>
+    <div class="form-group">
+      <label>局限与未来</label>
+      <textarea id="pLimitation" placeholder="局限性、可改进的方向"></textarea>
+    </div>
+    <div class="form-group">
+      <label>关联论文</label>
+      <input type="text" id="pRelated" placeholder="引用/被引/互补/矛盾的论文，逗号分隔">
+    </div>
+    <div class="form-row">
+      <div class="form-group">
+        <label>标签</label>
+        <input type="text" id="pTags" placeholder="NLP, Transformer, 注意力 等，逗号分隔">
+      </div>
+      <div class="form-group">
+        <label>阅读日期</label>
+        <input type="date" id="pDate">
+      </div>
+    </div>
+    <div style="display:flex;gap:10px;justify-content:flex-end;margin-top:10px">
+      <button class="btn btn-secondary" onclick="closeModal()">取消</button>
+      <button class="btn btn-primary" onclick="savePaper()">保存</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== Detail Modal ===== -->
+<div class="modal-overlay" id="detailModal">
+  <div class="modal" id="detailContent"></div>
+</div>
+
+<script>
+// ===== Constants =====
+const INTERVALS = [1, 2, 4, 7, 15, 30];
+const ROUND_NAMES = ['第1轮 (1天)', '第2轮 (2天)', '第3轮 (4天)', '第4轮 (7天)', '第5轮 (15天)', '第6轮 (30天)'];
+
+const QUIZ_QUESTIONS = [
+  { field: 'contribution', q: '这篇论文的核心贡献是什么？' },
+  { field: 'method', q: '这篇论文的方法/技术路线是什么？' },
+  { field: 'result', q: '这篇论文的主要实验结论是什么？' },
+  { field: 'limitation', q: '这篇论文有哪些局限性？' },
+  { field: 'summary', q: '用一句话总结这篇论文？' },
+];
+
+// ===== Data =====
+function loadData() {
+  const raw = localStorage.getItem('papermind_data');
+  return raw ? JSON.parse(raw) : { papers: [], reviews: [] };
+}
+
+function saveData(data) {
+  localStorage.setItem('papermind_data', JSON.stringify(data));
+}
+
+function getToday() {
+  return new Date().toISOString().slice(0, 10);
+}
+
+function daysBetween(a, b) {
+  return Math.round((new Date(b) - new Date(a)) / 86400000);
+}
+
+function addDays(dateStr, days) {
+  const d = new Date(dateStr);
+  d.setDate(d.getDate() + days);
+  return d.toISOString().slice(0, 10);
+}
+
+// ===== Navigation =====
+document.querySelectorAll('.nav-tab').forEach(tab => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    tab.classList.add('active');
+    document.getElementById(tab.dataset.page).classList.add('active');
+    if (tab.dataset.page === 'review') resetReviewUI();
+  });
+});
+
+// ===== Get papers due today =====
+function getDuePapers() {
+  const data = loadData();
+  const today = getToday();
+  const due = [];
+
+  data.papers.forEach(paper => {
+    const readDate = paper.readDate;
+    for (let i = 0; i < INTERVALS.length; i++) {
+      const dueDate = addDays(readDate, INTERVALS[i]);
+      const reviewKey = `${paper.id}_round_${i}`;
+      const alreadyDone = data.reviews.some(r => r.key === reviewKey);
+      if (dueDate <= today && !alreadyDone) {
+        due.push({ paper, round: i, dueDate });
+        break;
+      }
+    }
+  });
+
+  return due;
+}
+
+// ===== Dashboard =====
+function renderDashboard() {
+  const data = loadData();
+  const due = getDuePapers();
+
+  document.getElementById('statTotal').textContent = data.papers.length;
+  document.getElementById('statToday').textContent = due.length;
+
+  const totalRounds = data.papers.length * INTERVALS.length;
+  const completedRounds = data.reviews.length;
+  document.getElementById('statCompleted').textContent = completedRounds;
+  document.getElementById('statTotalRounds').textContent = totalRounds;
+
+  const recentReviews = data.reviews.slice(-20);
+  if (recentReviews.length > 0) {
+    const scores = recentReviews.map(r => r.rating === 'got' ? 1 : r.rating === 'fuzzy' ? 0.5 : 0);
+    const avg = Math.round(scores.reduce((a, b) => a + b, 0) / scores.length * 100);
+    document.getElementById('statMastery').textContent = avg + '%';
+  } else {
+    document.getElementById('statMastery').textContent = '-';
+  }
+
+  const badge = document.getElementById('reviewBadge');
+  if (due.length > 0) {
+    badge.style.display = 'inline';
+    badge.textContent = due.length;
+  } else {
+    badge.style.display = 'none';
+  }
+
+  const list = document.getElementById('todayReviewList');
+  const empty = document.getElementById('todayEmpty');
+  if (due.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+  } else {
+    empty.style.display = 'none';
+    list.innerHTML = due.map(d => `
+      <div class="review-item" onclick="showDetail('${d.paper.id}')">
+        <div class="left">
+          <div class="title">${esc(d.paper.title)}</div>
+          <div class="meta">${esc(d.paper.summary)} · 阅读于 ${d.paper.readDate}</div>
+        </div>
+        <span class="round-badge round-${d.round + 1}">${ROUND_NAMES[d.round]}</span>
+      </div>
+    `).join('');
+  }
+
+  renderHeatmap(data);
+}
+
+function renderHeatmap(data) {
+  const heatmap = document.getElementById('heatmap');
+  const today = getToday();
+  const counts = {};
+  data.reviews.forEach(r => {
+    counts[r.date] = (counts[r.date] || 0) + 1;
+  });
+
+  let html = '';
+  for (let i = 29; i >= 0; i--) {
+    const d = addDays(today, -i);
+    const c = counts[d] || 0;
+    const level = c === 0 ? '' : c <= 2 ? 'level-1' : c <= 4 ? 'level-2' : 'level-3';
+    const isToday = d === today ? 'today-marker' : '';
+    html += `<div class="cal-day ${level} ${isToday}" title="${d}: ${c} 次复习"></div>`;
+  }
+  heatmap.innerHTML = html;
+}
+
+// ===== Paper List =====
+function renderPaperList() {
+  const data = loadData();
+  const list = document.getElementById('paperList');
+  const empty = document.getElementById('paperEmpty');
+
+  if (data.papers.length === 0) {
+    list.innerHTML = '';
+    empty.style.display = 'block';
+    return;
+  }
+  empty.style.display = 'none';
+
+  list.innerHTML = data.papers.map(p => {
+    const progress = getProgress(p.id, data);
+    return `
+    <div class="paper-card">
+      <div class="paper-actions">
+        <button class="btn btn-sm btn-secondary" onclick="editPaper('${p.id}')">编辑</button>
+        <button class="btn btn-sm btn-danger" onclick="deletePaper('${p.id}')">删除</button>
+      </div>
+      <div class="paper-title" onclick="showDetail('${p.id}')" style="cursor:pointer">${esc(p.title)}</div>
+      <div class="paper-summary">${esc(p.summary)}</div>
+      <div class="paper-tags">
+        ${(p.tags || []).map(t => `<span class="paper-tag">${esc(t)}</span>`).join('')}
+        <span class="paper-tag" style="background:var(--blue-light);color:var(--blue)">${p.readDate}</span>
+      </div>
+      <div class="paper-progress" title="复习进度：${progress.done}/${INTERVALS.length}">
+        ${INTERVALS.map((_, i) => {
+          const key = `${p.id}_round_${i}`;
+          const done = data.reviews.some(r => r.key === key);
+          const dueDate = addDays(p.readDate, INTERVALS[i]);
+          const isToday = dueDate <= getToday() && !done;
+          return `<div class="progress-dot ${done ? 'done' : ''} ${isToday ? 'today' : ''}" title="${ROUND_NAMES[i]}${done ? ' ✓' : isToday ? ' ← 该复习了' : ''}"></div>`;
+        }).join('')}
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function getProgress(paperId, data) {
+  let done = 0;
+  INTERVALS.forEach((_, i) => {
+    if (data.reviews.some(r => r.key === `${paperId}_round_${i}`)) done++;
+  });
+  return { done, total: INTERVALS.length };
+}
+
+// ===== Add/Edit Paper =====
+function openAddPaper() {
+  document.getElementById('editingId').value = '';
+  document.getElementById('modalTitle').textContent = '添加论文';
+  ['pTitle', 'pSummary', 'pContribution', 'pMethod', 'pResult', 'pLimitation', 'pRelated', 'pTags'].forEach(id => {
+    document.getElementById(id).value = '';
+  });
+  document.getElementById('pDate').value = getToday();
+  document.getElementById('paperModal').classList.add('show');
+}
+
+function editPaper(id) {
+  const data = loadData();
+  const p = data.papers.find(x => x.id === id);
+  if (!p) return;
+  document.getElementById('editingId').value = id;
+  document.getElementById('modalTitle').textContent = '编辑论文';
+  document.getElementById('pTitle').value = p.title;
+  document.getElementById('pSummary').value = p.summary;
+  document.getElementById('pContribution').value = p.contribution || '';
+  document.getElementById('pMethod').value = p.method || '';
+  document.getElementById('pResult').value = p.result || '';
+  document.getElementById('pLimitation').value = p.limitation || '';
+  document.getElementById('pRelated').value = (p.related || []).join(', ');
+  document.getElementById('pTags').value = (p.tags || []).join(', ');
+  document.getElementById('pDate').value = p.readDate;
+  document.getElementById('paperModal').classList.add('show');
+}
+
+function savePaper() {
+  const title = document.getElementById('pTitle').value.trim();
+  const summary = document.getElementById('pSummary').value.trim();
+  if (!title || !summary) { alert('标题和一句话总结必填哦'); return; }
+
+  const data = loadData();
+  const paperObj = {
+    id: document.getElementById('editingId').value || 'p_' + Date.now(),
+    title,
+    summary,
+    contribution: document.getElementById('pContribution').value.trim(),
+    method: document.getElementById('pMethod').value.trim(),
+    result: document.getElementById('pResult').value.trim(),
+    limitation: document.getElementById('pLimitation').value.trim(),
+    related: document.getElementById('pRelated').value.split(',').map(s => s.trim()).filter(Boolean),
+    tags: document.getElementById('pTags').value.split(',').map(s => s.trim()).filter(Boolean),
+    readDate: document.getElementById('pDate').value || getToday(),
+  };
+
+  const idx = data.papers.findIndex(p => p.id === paperObj.id);
+  if (idx >= 0) {
+    data.papers[idx] = { ...data.papers[idx], ...paperObj };
+  } else {
+    data.papers.push(paperObj);
+  }
+
+  saveData(data);
+  closeModal();
+  renderAll();
+}
+
+function deletePaper(id) {
+  if (!confirm('确定删除这篇论文和所有复习记录吗？')) return;
+  const data = loadData();
+  const newData = {
+    papers: data.papers.filter(p => p.id !== id),
+    reviews: data.reviews.filter(r => !r.key.startsWith(id)),
+  };
+  saveData(newData);
+  renderAll();
+}
+
+function closeModal() {
+  document.getElementById('paperModal').classList.remove('show');
+  document.getElementById('detailModal').classList.remove('show');
+}
+
+document.querySelectorAll('.modal-overlay').forEach(el => {
+  el.addEventListener('click', e => { if (e.target === el) closeModal(); });
+});
+
+// ===== Paper Detail =====
+function showDetail(id) {
+  const data = loadData();
+  const p = data.papers.find(x => x.id === id);
+  if (!p) return;
+  const progress = getProgress(id, data);
+
+  document.getElementById('detailContent').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:start">
+      <div class="modal-title" style="margin:0;flex:1">${esc(p.title)}</div>
+      <button class="btn btn-sm btn-secondary" onclick="closeModal()" style="margin-left:12px">✕</button>
+    </div>
+    <p style="color:var(--text-light);font-size:14px;margin:8px 0 16px">${esc(p.summary)}</p>
+    ${fieldBlock('核心贡献', p.contribution)}
+    ${fieldBlock('方法 / 技术路线', p.method)}
+    ${fieldBlock('实验结论', p.result)}
+    ${fieldBlock('局限与未来', p.limitation)}
+    ${p.related && p.related.length ? `<div style="margin-top:12px"><strong style="font-size:13px;color:var(--accent)">关联论文：</strong> ${p.related.map(r => esc(r)).join(' · ')}</div>` : ''}
+    <div style="margin-top:16px;font-size:13px;color:var(--text-light)">
+      阅读日期：${p.readDate} · 复习进度：${progress.done}/${progress.total} 轮
+    </div>
+  `;
+  document.getElementById('detailModal').classList.add('show');
+}
+
+function fieldBlock(label, value) {
+  if (!value) return '';
+  return `<div style="margin-bottom:14px">
+    <div style="font-size:12px;font-weight:600;color:var(--accent);margin-bottom:4px">${label}</div>
+    <div style="font-size:14px;line-height:1.7;white-space:pre-wrap">${esc(value)}</div>
+  </div>`;
+}
+
+// ===== Review Mode =====
+let reviewQueue = [];
+let reviewIndex = 0;
+let reviewMode = 'flashcard';
+let sessionStats = { got: 0, fuzzy: 0, forgot: 0 };
+
+function resetReviewUI() {
+  document.getElementById('reviewStart').style.display = 'block';
+  document.getElementById('reviewSession').style.display = 'none';
+  const due = getDuePapers();
+  document.getElementById('reviewDesc').textContent =
+    due.length > 0 ? `今日有 ${due.length} 篇论文待复习` : '暂无待复习论文，可以提前复习已有论文';
+}
+
+function startReview(mode) {
+  reviewQueue = getDuePapers();
+  if (reviewQueue.length === 0) {
+    alert('今天没有待复习的论文 🎉');
+    return;
+  }
+  reviewMode = mode;
+  reviewIndex = 0;
+  sessionStats = { got: 0, fuzzy: 0, forgot: 0 };
+
+  for (let i = reviewQueue.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [reviewQueue[i], reviewQueue[j]] = [reviewQueue[j], reviewQueue[i]];
+  }
+
+  document.getElementById('reviewStart').style.display = 'none';
+  document.getElementById('reviewSession').style.display = 'block';
+  document.getElementById('reviewDone').style.display = 'none';
+  showReviewCard();
+}
+
+function showReviewCard() {
+  if (reviewIndex >= reviewQueue.length) {
+    showReviewDone();
+    return;
+  }
+
+  const item = reviewQueue[reviewIndex];
+  document.getElementById('reviewCounter').textContent = `${reviewIndex + 1} / ${reviewQueue.length} · ${ROUND_NAMES[item.round]}`;
+
+  if (reviewMode === 'flashcard') {
+    document.getElementById('flashcardMode').style.display = 'block';
+    document.getElementById('quizMode').style.display = 'none';
+    renderFlashcard(item.paper);
+  } else {
+    document.getElementById('flashcardMode').style.display = 'none';
+    document.getElementById('quizMode').style.display = 'block';
+    renderQuiz(item.paper);
+  }
+}
+
+function renderFlashcard(paper) {
+  const fc = document.getElementById('flashcard');
+  fc.classList.remove('flipped');
+  document.getElementById('flashcardActions').style.display = 'none';
+  document.getElementById('fcTitle').textContent = paper.title;
+  document.getElementById('fcHint').textContent = paper.summary;
+
+  let backHtml = '';
+  const fields = [
+    { label: '核心贡献', value: paper.contribution },
+    { label: '方法', value: paper.method },
+    { label: '实验结论', value: paper.result },
+    { label: '局限与未来', value: paper.limitation },
+  ];
+  fields.forEach(f => {
+    if (f.value) {
+      backHtml += `<div class="field"><div class="field-label">${f.label}</div><div class="field-value">${esc(f.value)}</div></div>`;
+    }
+  });
+  if (paper.related && paper.related.length) {
+    backHtml += `<div class="field"><div class="field-label">关联论文</div><div class="field-value">${paper.related.join(' · ')}</div></div>`;
+  }
+  document.getElementById('fcBack').innerHTML = backHtml;
+}
+
+function flipCard() {
+  const fc = document.getElementById('flashcard');
+  if (!fc.classList.contains('flipped')) {
+    fc.classList.add('flipped');
+    document.getElementById('flashcardActions').style.display = 'flex';
+  }
+}
+
+function renderQuiz(paper) {
+  const available = QUIZ_QUESTIONS.filter(q => {
+    const val = q.field === 'summary' ? paper.summary : paper[q.field];
+    return val && val.trim();
+  });
+  const pick = available[Math.floor(Math.random() * available.length)] || QUIZ_QUESTIONS[0];
+
+  document.getElementById('qPaper').textContent = paper.title;
+  document.getElementById('qText').textContent = pick.q;
+  document.getElementById('qAnswer').classList.remove('show');
+  document.getElementById('qAnswerText').textContent = pick.field === 'summary' ? paper.summary : (paper[pick.field] || '(未填写)');
+  document.getElementById('showAnswerBtn').style.display = 'inline-block';
+  document.getElementById('qForgot').style.display = 'none';
+  document.getElementById('qFuzzy').style.display = 'none';
+  document.getElementById('qGot').style.display = 'none';
+}
+
+function showQuizAnswer() {
+  document.getElementById('qAnswer').classList.add('show');
+  document.getElementById('showAnswerBtn').style.display = 'none';
+  document.getElementById('qForgot').style.display = 'inline-block';
+  document.getElementById('qFuzzy').style.display = 'inline-block';
+  document.getElementById('qGot').style.display = 'inline-block';
+}
+
+function ratePaper(rating) {
+  const item = reviewQueue[reviewIndex];
+  const data = loadData();
+  data.reviews.push({
+    key: `${item.paper.id}_round_${item.round}`,
+    paperId: item.paper.id,
+    round: item.round,
+    rating,
+    date: getToday(),
+    timestamp: Date.now(),
+  });
+  saveData(data);
+  sessionStats[rating]++;
+  reviewIndex++;
+  showReviewCard();
+}
+
+function showReviewDone() {
+  document.getElementById('flashcardMode').style.display = 'none';
+  document.getElementById('quizMode').style.display = 'none';
+  document.getElementById('reviewDone').style.display = 'block';
+  const total = sessionStats.got + sessionStats.fuzzy + sessionStats.forgot;
+  document.getElementById('reviewSummary').textContent =
+    `本次复习 ${total} 篇：✅ 记住 ${sessionStats.got}  🤔 模糊 ${sessionStats.fuzzy}  😵 忘了 ${sessionStats.forgot}`;
+}
+
+function endReview() {
+  document.querySelectorAll('.nav-tab')[0].click();
+}
+
+// ===== Data Import/Export =====
+function exportData() {
+  const data = loadData();
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = `papermind_backup_${getToday()}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+}
+
+function importData(event) {
+  const file = event.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = e => {
+    try {
+      const imported = JSON.parse(e.target.result);
+      if (imported.papers && imported.reviews) {
+        if (confirm(`确定导入？将覆盖当前 ${loadData().papers.length} 篇论文数据`)) {
+          saveData(imported);
+          renderAll();
+          alert('导入成功 ✅');
+        }
+      } else {
+        alert('JSON 格式不对，需要有 papers 和 reviews 字段');
+      }
+    } catch (err) {
+      alert('解析失败：' + err.message);
+    }
+  };
+  reader.readAsText(file);
+  event.target.value = '';
+}
+
+function clearAllData() {
+  if (!confirm('⚠️ 确定清空所有数据？此操作不可恢复！建议先导出备份')) return;
+  if (!confirm('再确认一次：真的要清空？')) return;
+  saveData({ papers: [], reviews: [] });
+  renderAll();
+}
+
+// ===== Utils =====
+function esc(str) {
+  if (!str) return '';
+  const div = document.createElement('div');
+  div.textContent = str;
+  return div.innerHTML;
+}
+
+function renderAll() {
+  renderDashboard();
+  renderPaperList();
+}
+
+// ===== Keyboard shortcuts =====
+document.addEventListener('keydown', e => {
+  if (e.key === 'Escape') closeModal();
+});
+
+// ===== Init =====
+renderAll();
+</script>
+
+</body>
+</html>
